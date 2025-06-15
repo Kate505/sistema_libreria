@@ -8,7 +8,6 @@
     // Update the 'dockerFile' property if you aren't using the standard 'Dockerfile' filename.
     "dockerfile": "../Dockerfile"
   },
-
   // Features to add to the dev container. More info: https://containers.dev/features.
   // "features": {},
 
@@ -19,7 +18,7 @@
   // "postCreateCommand": "cat /etc/os-release",
 
   // Configure tool-specific properties.
-//   "customizations": {},
+  //   "customizations": {},
 
   // Uncomment to connect as an existing user other than the container default. More info: https://aka.ms/dev-containers-non-root.
   // "remoteUser": "devcontainer",
@@ -30,7 +29,10 @@
         "com.intellij:app:HttpConfigurable.use_proxy_pac": true
       },
       "plugins": [
-//        "org.intellij.plugins.hcl"
+//        "org.intellij.plugins.hcl",
+        //        "com.chrisrm.idea.MaterialThemeUI",
+        "com.mallowigi.idea",
+        "com.mallowigi"
       ]
     }
   }
