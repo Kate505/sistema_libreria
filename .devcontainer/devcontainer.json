@@ -24,13 +24,12 @@
   // "remoteUser": "devcontainer",
   "customizations": {
     "jetbrains": {
+      "product": "RubyMine",
       "settings": {
         "com.intellij:app:EditorSettings.is_ensure_newline_at_eof": true,
         "com.intellij:app:HttpConfigurable.use_proxy_pac": true
       },
       "plugins": [
-//        "org.intellij.plugins.hcl",
-        //        "com.chrisrm.idea.MaterialThemeUI",
         "com.mallowigi.idea",
         "com.mallowigi"
       ]
