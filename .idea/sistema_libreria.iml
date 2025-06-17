@@ -31,59 +31,14 @@
       <excludeFolder url="file://$MODULE_DIR$/app/vendor/bundle" />
       <excludeFolder url="file://$MODULE_DIR$/app/vendor/cache" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="system: /usr/local/bin/ruby" jdkType="RUBY_SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" scope="PROVIDED" name="actioncable (v8.0.2, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="actionmailbox (v8.0.2, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="actionmailer (v8.0.2, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="actionpack (v8.0.2, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="actiontext (v8.0.2, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="actionview (v8.0.2, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="activejob (v8.0.2, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="activemodel (v8.0.2, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="activerecord (v8.0.2, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="activestorage (v8.0.2, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="activesupport (v8.0.2, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="base64 (v0.2.0, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="bigdecimal (v3.1.8, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="builder (v3.3.0, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="bundler (v2.6.7, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="concurrent-ruby (v1.3.5, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="connection_pool (v2.5.3, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="crass (v1.0.6, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="drb (v2.2.1, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="erubi (v1.13.1, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="globalid (v1.2.1, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="i18n (v1.14.7, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="irb (v1.14.3, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="logger (v1.6.4, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="loofah (v2.24.1, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="mail (v2.8.1, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="marcel (v1.0.4, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="mini_mime (v1.1.5, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="minitest (v5.25.4, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="net-imap (v0.5.8, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="net-pop (v0.1.2, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="net-smtp (v0.5.1, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="nio4r (v2.7.4, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="nokogiri (v1.18.8, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="racc (v1.8.1, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rack (v3.1.16, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rack-session (v2.1.1, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rack-test (v2.2.0, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rackup (v2.2.1, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rails (v8.0.2, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rails-dom-testing (v2.3.0, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rails-html-sanitizer (v1.6.2, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="railties (v8.0.2, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rake (v13.2.1, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="thor (v1.3.2, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="tzinfo (v2.0.6, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="uri (v1.0.3, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="useragent (v0.16.11, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="websocket-driver (v0.8.0, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="websocket-extensions (v0.1.5, Remote: ruby-3.4.4-p34) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="zeitwerk (v2.7.3, Remote: ruby-3.4.4-p34) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="bundler (v2.6.7, system: /usr/local/bin/ruby) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rake (v13.2.1, system: /usr/local/bin/ruby) [gem]" level="application" />
+  </component>
+  <component name="RModuleSettingsStorage">
+    <LOAD_PATH number="0" />
+    <I18N_FOLDERS number="1" string0="$MODULE_DIR$/app/config/locales" />
   </component>
   <component name="RailsPaths" isManagedAutomatically="true">
     <entry key="app">
