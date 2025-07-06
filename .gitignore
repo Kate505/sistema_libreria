@@ -8,31 +8,32 @@
 app/.bundle
 
 # Ignore all environment files.
-app/app/.env
+.env
 
 # Ignore all logfiles and tempfiles.
-app/log/*
-app/tmp/*
+log/*
+tmp/*
 !/log/.keep
 !/tmp/.keep
 
 # Ignore pidfiles, but keep the directory.
-app/tmp/pids/*
+tmp/pids/*
 !/tmp/pids/
 !/tmp/pids/.keep
 
 # Ignore storage (uploaded files in development and any SQLite databases).
-app/storage/*
+storage/*
 !/storage/.keep
 /tmp/storage/*
 !/tmp/storage/
 !/tmp/storage/.keep
 
-app/public/assets
+public/assets
 
 # Ignore master key for decrypting credentials and more.
-app/config/master.key
+config/master.key
 
-app/app/assets/builds/*
+app/assets/builds/*
 !/app/assets/builds/.keep
-app/.env
+
+.idea

@@ -2,7 +2,7 @@
 FROM ruby:3.4.4
 
 # Define la carpeta de trabajo
-WORKDIR /app
+WORKDIR /rails
 
 # Instala dependencias necesarias del sistema
 RUN apt-get update -qq && \
