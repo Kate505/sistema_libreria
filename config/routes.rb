@@ -1,4 +1,9 @@
 Rails.application.routes.draw do
+  get "home/index"
+  root to: "home#index"
+  resource :session
+  resource :registrations, only: %i[new create]
+  resources :passwords, param: :token
   # get "home/index"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
@@ -11,5 +16,5 @@ Rails.application.routes.draw do
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
   # Defines the root path route ("/")
-  root "home#index"
+  # root "home#index"
 end
