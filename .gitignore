@@ -37,3 +37,5 @@ app/assets/builds/*
 !/app/assets/builds/.keep
 
 .idea
+node_modules/*
+package-lock.json

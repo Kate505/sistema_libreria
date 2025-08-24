@@ -1,0 +1,27 @@
+{
+  "name": "sistema_libreria",
+  "version": "1.0.0",
+  "description": "This README would normally document whatever steps are necessary to get the application up and running.",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "dependencies": {
+    "daisyui": "^5.0.50"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kate505/sistema_libreria.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Kate505/sistema_libreria/issues"
+  },
+  "homepage": "https://github.com/Kate505/sistema_libreria#readme"
+}
