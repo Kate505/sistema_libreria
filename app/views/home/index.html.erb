@@ -1,2 +1,14 @@
-<div data-controller="hello"></div>
-
+<div class="grid m-10 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+  <% @modulos.each do |modulo| %>
+    <div class="card bg-base-100 w-full card-xs shadow-sm transition duration-300 hover:shadow-lg hover:bg-neutral/10">
+      <figure class="px-10 pt-10">
+        <%= image_tag modulo.icono, class: 'rounded-xl', alt: "Logo" %>
+      </figure>
+      <div class="card-body items-center text-center">
+        <div class="card-actions w-full">
+          <button class="btn btn-neutral w-full"><%= modulo.nombre %></button>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>

@@ -1,5 +1,6 @@
 /*@import "tailwindcss" source(none);*/
 @import "tailwindcss";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -10,5 +11,5 @@
 @source "../../../app/views/**/*";
 
 @plugin "daisyui" {
-    themes: light, dark;
+  themes: lemonade --default, luxury;
 }
