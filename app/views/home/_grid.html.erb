@@ -1,0 +1,19 @@
+<% menus.select { |menu| menu.menu_id.nil? }.each do |menu| %>
+  <div class="card bg-base-100 shadow-md hover:shadow-xl transition p-4">
+    <h3 class="font-semibold mb-2 flex items-center gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+      </svg>
+      <%= menu.nombre %>
+    </h3>
+    <% if menu.children.any? %>
+      <ul class="menu menu-sm bg-base-200 rounded-lg p-2">
+        <% menu.children.each do |child| %>
+          <li><%= link_to child.nombre, child.link_to || "#" %></li>
+        <% end %>
+      </ul>
+    <% else %>
+      <%= link_to "Abrir", menu.link_to || "#", class: "btn btn-sm btn-primary mt-2" %>
+    <% end %>
+  </div>
+<% end %>

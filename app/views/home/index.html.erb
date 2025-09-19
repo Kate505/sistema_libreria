@@ -1,14 +1,28 @@
-<div class="grid m-10 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
-  <% @modulos.each do |modulo| %>
-    <div class="card bg-base-100 w-full card-xs shadow-sm transition duration-300 hover:shadow-lg hover:bg-neutral/10">
-      <figure class="px-10 pt-10">
-        <%= image_tag modulo.icono, class: 'rounded-xl', alt: "Logo" %>
-      </figure>
-      <div class="card-body items-center text-center">
-        <div class="card-actions w-full">
-          <button class="btn btn-neutral w-full"><%= modulo.nombre %></button>
+<div data-controller="home">
+  <section id="launcher" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 p-6">
+    <% @modulos.each do |modulo| %>
+      <div
+        data-action="click->home#open"
+        data-home-module-id="<%= modulo.id %>"
+        class="group flex flex-col items-center justify-center gap-3 cursor-pointer rounded-2xl border border-base-300 bg-base-100 p-6 shadow-md transition hover:shadow-xl hover:-translate-y-1"
+      >
+        <div class="avatar">
+          <div class="w-16 rounded-xl">
+            <%= image_tag modulo.icono, alt: "Logo #{modulo.nombre}" %>
+          </div>
         </div>
+        <span class="text-sm font-medium"><%= modulo.nombre %></span>
       </div>
-    </div>
-  <% end %>
+
+      <div id="menus-module-<%= modulo.id %>" class="hidden">
+        <%= launcher_menu_list(modulo.id) %>
+      </div>
+    <% end %>
+  </section>
+
+  <section id="menus" class="hidden p-6">
+    <button data-action="click->home#back" class="btn btn-sm btn-outline mb-4">← Volver</button>
+    <h2 id="menus-title" class="text-xl font-bold mb-6"></h2>
+    <div id="menus-content"></div>
+  </section>
 </div>

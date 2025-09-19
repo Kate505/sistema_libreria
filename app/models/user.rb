@@ -28,4 +28,17 @@ class User < ApplicationRecord
           .where(users: { id: id })
           .distinct
   end
+
+  def accessible_menus_by_user
+    Menu.joins(roles_menus: { rol: :users })
+        .where(users: { id: id }, menus: { nombre: not('inicio') })
+        .distinct
+  end
+
+  def accessible_menus_by_user_and_module(modulo_id)
+    Menu.joins(roles_menus: { rol: :users })
+        .where(users: { id: id }, menus: { modulo_id: modulo_id })
+        .where.not(menus: { nombre: "Inicio" })
+        .distinct
+  end
 end

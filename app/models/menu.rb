@@ -3,7 +3,7 @@ class Menu < ApplicationRecord
 
   belongs_to :modulo
   belongs_to :parent, class_name: "Menu", optional: true, foreign_key: "menu_id"
-  has_many :submenus, class_name: "Menu", foreign_key: "menu_id", dependent: :destroy
+  has_many :children, class_name: "Menu", foreign_key: "menu_id", dependent: :destroy
 
   has_many :roles_menus
   has_many :roles, through: :roles_menus, source: :rol

@@ -1,12 +1,20 @@
+<!-- tailwind safelist: swap swap-rotate swap-on swap-off h-6 w-6 pe-2 fill-current -->
 <div class="hero bg-base-200 min-h-screen">
   <div class="hero-content flex-col lg:flex-row-reverse">
     <div class="text-center lg:text-left">
       <h1 class="text-5xl font-bold p-4"><%= link_to "Librería Pequeños Detalles", root_path %></h1>
+      <figure class="flex justify-center">
+        <%= image_tag 'libreria.png', class: 'max-w-sm hidden sm:block', alt: "Logo" %>
+      </figure>
     </div>
     <div class="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
       <div class="card-body">
         <fieldset class="fieldset">
-          <%= form_with model: @user, url: registrations_url, class: 'space-y-6 bg-blue/30 backdrop-blur-md' do |f| %>
+          <div class="flex items-center justify-between">
+            <h2 class="text-lg">Register</h2>
+            <%= theme_toggle(padding: 'pe-2', size: '6') %>
+          </div>
+          <%= form_with model: @user, url: registrations_url, class: 'contents' do |f| %>
             <%= f.label :email_address, 'Usuario', class: "label" %>
             <%= f.email_field :email_address, value: params[:email_address], autofocus: true, placeholder: 'Usuario',
                               class: "input", required: true, autocomplete: 'username' %>
