@@ -3,8 +3,26 @@ module ApplicationHelper
   def show?
     !(controller_name == "home" && action_name == "index")
   end
+
   def arbol_navegacion
-    content_tag :ul, class: "menu menu-md bg-base-200 rounded-box max-w-xs w-full" do
+    items = []
+
+    items << content_tag(:li) do
+      link_to(root_path, data: {
+        "helpers--components--arbol-navegacion-target": "module",
+        action: "helpers--components--arbol-navegacion#open"
+      }) do
+        content_tag(:svg, "",
+                    xmlns: "http://www.w3.org/2000/svg",
+                    fill: "none",
+                    viewBox: "0 0 24 24",
+                    stroke_width: "1.5",
+                    stroke: "currentColor",
+                    class: "h-4 w-4") + "Home"
+      end
+    end
+
+    items.concat(
       Current.user.accessible_modulos.map do |modulo|
         content_tag(:li) do
           content_tag(:details, open: false) do
@@ -19,9 +37,17 @@ module ApplicationHelper
             concat(menu_list(modulo.id))
           end
         end
-      end.join.html_safe
+      end
+    )
+
+    content_tag(:ul,
+                class: "menu menu-md bg-base-200 rounded-box max-w-xs w-full",
+                data: { controller: "helpers--components--arbol-navegacion" }
+    ) do
+      safe_join(items)
     end
   end
+
 
   def menu_list(modulo_id)
     menus = Current.user.accessible_menus_by_user_and_module(modulo_id) || []
@@ -35,7 +61,9 @@ module ApplicationHelper
   def render_menu_item(menu)
     return render_menu_padre(menu) if menu.children.any?
     content_tag(:li) do
-      link = link_to(menu.link_to || "#") do
+      link = link_to(menu.link_to || "#", data: { turbo_frame: "main_content",
+                                                  "helpers--components--arbol-navegacion-target": "module",
+                                                  action: "helpers--components--arbol-navegacion#open" }) do
         content_tag(:svg, "", xmlns: "http://www.w3.org/2000/svg",
                     fill: "none",
                     viewBox: "0 0 24 24",
@@ -76,7 +104,7 @@ module ApplicationHelper
   def breadcrumbs
     parts = controller_path.split("/")
 
-    content_tag(:div, class: "breadcrumbs text-md mx-auto max-w-6xl gap-9 px-10 pt-4 md:gap-20 md:pt-8") do
+    content_tag(:div, class: "breadcrumbs text-md mx-auto max-w-6xl gap-9 px-10 pt-2 md:gap-20 md:pt-4 bg-base-100/70 backdrop-blur-lg") do
       content_tag(:ul) do
         concat(content_tag(:li, "Home"))
         parts.each_with_index do |part, i|

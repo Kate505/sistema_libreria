@@ -3,4 +3,8 @@ class Seguridad::ModulosController < ApplicationController
     @modulos = Current.user.accessible_modulos
   end
 
+  def lista
+    @modulos = Modulo.all
+  end
+
 end

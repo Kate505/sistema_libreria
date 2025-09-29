@@ -4,7 +4,7 @@ module HomeHelper
 
     content_tag(:div, class: "flex items-start flex-wrap w-full") do
       menus.select { |menu| menu.menu_id.nil? }.map do |menu|
-        content_tag(:div, class: "p-4 basis-full md:basis-1/2 lg:basis-1/2") do
+        content_tag(:div, class: "p-2 basis-full md:basis-1/2 lg:basis-1/2") do
           render_launcher_menu_item(menu)
         end
       end.join.html_safe
