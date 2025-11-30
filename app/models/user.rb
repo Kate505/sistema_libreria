@@ -24,21 +24,27 @@ class User < ApplicationRecord
   end
 
   def accessible_modulos
-    Modulo.joins(menus: { roles_menus: { rol: :users } })
-          .where(users: { id: id })
-          .distinct
+    modulo_ids = Modulo
+                   .joins(menus: { roles_menus: { rol: :users } })
+                   .where(users: { id: id }, pasivo: false)
+                   .distinct
+                   .pluck(:id)
+
+    Modulo
+      .where(id: modulo_ids)
+      .includes(menus: [:children, :roles])
   end
+
 
   def accessible_menus_by_user
     Menu.joins(roles_menus: { rol: :users })
-        .where(users: { id: id }, menus: { nombre: not('inicio') })
+        .where(users: { id: id }, pasivo: false)
+        .where.not(menus: { nombre: "Inicio" })
         .distinct
+        .includes(:children, :roles, :modulo)
   end
 
   def accessible_menus_by_user_and_module(modulo_id)
-    Menu.joins(roles_menus: { rol: :users })
-        .where(users: { id: id }, menus: { modulo_id: modulo_id })
-        .where.not(menus: { nombre: "Inicio" })
-        .distinct
+    accessible_menus_by_user.select { |menu| menu.modulo_id == modulo_id }
   end
 end

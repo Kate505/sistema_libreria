@@ -1,0 +1,103 @@
+<div class="p-8 w-full overflow-y-scroll">
+  <h1 class="text-3xl font-bold">Panel de Control</h1>
+  <div class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <div class="rounded-lg p-6 shadow">
+      <p class="text-base font-medium text-gray-500 dark:text-gray-400">Ventas Diarias</p>
+      <p class="mt-2 text-3xl font-bold">$2,500</p>
+      <p class="mt-1 text-base font-medium text-green-500">+10%</p>
+    </div>
+    <div class="rounded-lg p-6 shadow">
+      <p class="text-base font-medium text-gray-500 dark:text-gray-400">Productos Vendidos</p>
+      <p class="mt-2 text-3xl font-bold">150</p>
+      <p class="mt-1 text-base font-medium text-green-500">+5%</p>
+    </div>
+    <div class="rounded-lg p-6 shadow">
+      <p class="text-base font-medium text-gray-500 dark:text-gray-400">Valor Total del Inventario</p>
+      <p class="mt-2 text-3xl font-bold">$15,000</p>
+      <p class="mt-1 text-base font-medium text-red-500">-2%</p>
+    </div>
+  </div>
+  <div class="mt-8">
+    <h2 class="text-xl font-bold">Productos Más Vendidos</h2>
+    <div class="mt-4 overflow-hidden rounded-lg shadow">
+      <table class="min-w-full">
+        <thead class="">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400" scope="col">Producto</th>
+          <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400" scope="col">Cantidad
+            Vendida
+          </th>
+          <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400" scope="col">Ingresos</th>
+        </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+        <tr>
+          <td class="whitespace-nowrap px-6 py-4 text-sm font-medium">El Principito
+          </td>
+          <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">30</td>
+          <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">$300</td>
+        </tr>
+        <tr>
+          <td class="whitespace-nowrap px-6 py-4 text-sm font-medium">Cien Años de
+            Soledad
+          </td>
+          <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">25</td>
+          <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">$250</td>
+        </tr>
+        <tr>
+          <td class="whitespace-nowrap px-6 py-4 text-sm font-medium">1984</td>
+          <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">20</td>
+          <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">$200</td>
+        </tr>
+        <tr>
+          <td class="whitespace-nowrap px-6 py-4 text-sm font-medium">Orgullo y
+            Prejuicio
+          </td>
+          <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">18</td>
+          <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">$180</td>
+        </tr>
+        <tr>
+          <td class="whitespace-nowrap px-6 py-4 text-sm font-medium">Crimen y
+            Castigo
+          </td>
+          <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">15</td>
+          <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">$150</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="mt-8">
+    <h2 class="text-xl font-bold">Estado del Inventario</h2>
+    <div class="mt-4 rounded-lg p-6 shadow">
+      <div class="flex items-start justify-between">
+        <div>
+          <p class="text-base font-medium text-gray-500 dark:text-gray-400">Nivel de Stock</p>
+          <p class="mt-2 text-3xl font-bold">1000
+            <span class="text-base font-normal text-gray-500 dark:text-gray-400">Total</span></p>
+          <p class="mt-1 text-base font-medium text-green-500">+5%</p>
+        </div>
+      </div>
+      <div class="mt-6 h-48">
+        <div class="grid h-full grid-flow-col items-end justify-items-center gap-4">
+          <div class="flex h-full w-full flex-col items-center justify-end">
+            <div class="w-8 rounded-t bg-primary/50 dark:bg-primary/70" style="height: 100%;"></div>
+            <p class="mt-2 text-xs font-medium text-gray-500 dark:text-gray-400">Libros</p>
+          </div>
+          <div class="flex h-full w-full flex-col items-center justify-end">
+            <div class="w-8 rounded-t bg-primary/50 dark:bg-primary/70" style="height: 70%;"></div>
+            <p class="mt-2 text-xs font-medium text-gray-500 dark:text-gray-400">Papelería</p>
+          </div>
+          <div class="flex h-full w-full flex-col items-center justify-end">
+            <div class="w-8 rounded-t bg-primary/50 dark:bg-primary/70" style="height: 40%;"></div>
+            <p class="mt-2 text-xs font-medium text-gray-500 dark:text-gray-400">Revistas</p>
+          </div>
+          <div class="flex h-full w-full flex-col items-center justify-end">
+            <div class="w-8 rounded-t bg-primary/50 dark:bg-primary/70" style="height: 10%;"></div>
+            <p class="mt-2 text-xs font-medium text-gray-500 dark:text-gray-400">Otros</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

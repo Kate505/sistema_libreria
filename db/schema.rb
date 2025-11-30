@@ -12,7 +12,6 @@
 
 ActiveRecord::Schema[8.0].define(version: 2025_08_31_063703) do
   # These are extensions that must be enabled in order to support this database
-  enable_extension "citext"
   enable_extension "pg_catalog.plpgsql"
 
   create_table "menus", force: :cascade do |t|

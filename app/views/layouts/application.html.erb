@@ -23,26 +23,19 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="h-screen w-screen overflow-hidden">
-    <header class="sticky top-0 z-50">
-      <% if authenticated? %>
+  <body class="font-display bg-base-300 h-dvh flex flex-col">
+    <header class="sticky top-0 z-50 shrink-0">
+      <% if authenticated? && show_snack_bar? %>
         <%= render partial: 'application/header' %>
+        <%#= breadcrumbs %>
       <% end %>
     </header>
+    <main class="flex h-dvh gap-4">
+      <%= arbol_navegacion if authenticated? && show_sidebar? %>
 
-    <div class="grid grid-cols-[300px_1fr] h-[calc(100vh-4rem)]">
-      <aside class="overflow-y-auto">
-        <div class="join join-vertical bg-base-100 bg-base-200 min-h-full w-80 p-4">
-          <%= arbol_navegacion %>
-        </div>
-      </aside>
-
-      <main class="overflow-hidden">
-        <%= turbo_frame_tag "main_content" do %>
-          <%= breadcrumbs %>
-          <%= yield %>
-        <% end %>
-      </main>
-    </div>
+      <div class="flex grow w-full h-full min-h-0">
+        <%= yield %>
+      </div>
+    </main>
   </body>
 </html>

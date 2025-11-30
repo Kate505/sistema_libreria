@@ -1,0 +1,26 @@
+services:
+  db:
+    image: postgres:18
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+
+  web:
+    build: .
+    command: bash -c "rm -f tmp/pids/server.pid && rails db:prepare && rails server -b 0.0.0.0"
+    volumes:
+      - .:/app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    env_file:
+      - .env
+    environment:
+      DATABASE_HOST: db
+
+volumes:
+  postgres_data:

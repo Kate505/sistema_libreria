@@ -1,0 +1,43 @@
+details[open] > ul,
+details[open] > div {
+    animation: expand 0.3s ease-out forwards;
+}
+
+details:not([open]) > ul,
+details:not([open]) > div {
+    animation: collapse 0.3s ease-in forwards;
+}
+
+@keyframes expand {
+    0% {
+        opacity: 0;
+        transform: scaleY(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: scaleY(1);
+    }
+}
+
+@keyframes collapse {
+    0% {
+        opacity: 1;
+        transform: scaleY(1);
+    }
+    100% {
+        opacity: 0;
+        transform: scaleY(0.9);
+    }
+}
+
+.menu li summary {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.menu li summary:hover {
+    background-color: hsl(var(--b2));
+}
+
+body {
+    overflow-x: hidden;
+}
