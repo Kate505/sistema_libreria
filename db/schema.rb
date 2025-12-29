@@ -10,14 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_31_063703) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_29_185550) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
   create_table "menus", force: :cascade do |t|
     t.string "codigo", limit: 10, null: false
     t.string "nombre", limit: 50, null: false
-    t.string "icono", null: false
     t.bigint "modulo_id", null: false
     t.bigint "menu_id"
     t.string "link_to", null: false
