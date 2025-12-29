@@ -2,7 +2,7 @@
 # yarn lockfile v1
 
 
-daisyui@^5.0.50:
-  version "5.0.50"
-  resolved "https://registry.npmjs.org/daisyui/-/daisyui-5.0.50.tgz"
-  integrity sha512-c1PweK5RI1C76q58FKvbS4jzgyNJSP6CGTQ+KkZYzADdJoERnOxFoeLfDHmQgxLpjEzlYhFMXCeodQNLCC9bow==
+daisyui@^5.5.8:
+  version "5.5.8"
+  resolved "https://registry.yarnpkg.com/daisyui/-/daisyui-5.5.8.tgz#3cc62da7fd1bef7b3ca89cefa698aceed7c2018a"
+  integrity sha512-6psL9jIEOFOw68V10j/BKCWcRgx8dh81mmNxShr+g7HDM6UHNoPharlp9zq/PQkHNuGU1ZQsajR3HgpvavbRKQ==

@@ -2,7 +2,7 @@
 <html lang="es">
   <head>
     <title><%= content_for(:title) || "App" %></title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
@@ -16,6 +16,8 @@
     <link rel="icon" href="/icon.png" type="image/png">
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
+    <meta name="turbo-refresh-method" content="morph">
+    <meta name="turbo-refresh-scroll" content="preserve">
 
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
@@ -23,19 +25,89 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="font-display bg-base-300 h-dvh flex flex-col">
-    <header class="sticky top-0 z-50 shrink-0">
-      <% if authenticated? && show_snack_bar? %>
-        <%= render partial: 'application/header' %>
-        <%#= breadcrumbs %>
-      <% end %>
-    </header>
-    <main class="flex h-dvh gap-4">
-      <%= arbol_navegacion if authenticated? && show_sidebar? %>
+  <body class="font-display bg-base-300 h-full flex flex-col" data-controller="sidebar">
+  <% if authenticated? %>
+    <div class="drawer lg:drawer-open flex-1">
+      <input id="my-drawer-4" type="checkbox" class="drawer-toggle" data-sidebar-target="toggle"/>
+      <div class="drawer-content flex flex-col h-full pb-8">
+        <!--           Navbar-->
+        <div class="relative">
+          <nav class="sticky top-0 z-50 navbar w-full bg-base-200 flex-none">
+            <label for="my-drawer-4" aria-label="open sidebar" class="btn btn-square btn-ghost">
+              <!--                   Sidebar toggle icon-->
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24">
+                <g fill="currentColor">
+                  <path d="M13 21h6a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-6z"/>
+                  <path fill-rule="evenodd" d="M11 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6zm-5.707 7.707a1 1 0 0 1 1.414-1.414l2 2a1 1 0 0 1 0 1.414l-2 2a1 1 0 0 1-1.414-1.414L6.586 12z" clip-rule="evenodd"/>
+                </g>
+              </svg>
+            </label>
+            <div class="px-4 flex-1">Librería Pequeños Detalles</div>
 
-      <div class="flex grow w-full h-full min-h-0">
-        <%= yield %>
+            <div class="flex-none">
+              <%= theme_toggle(padding: 'px-8', size: '10') %>
+              <div class="dropdown dropdown-end pe-4">
+                <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                  <div class="w-10 rounded-full">
+                    <img src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" alt="avatar"/>
+                  </div>
+                </div>
+                <ul
+                  tabindex="0"
+                  class="menu dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow right-0">
+                  <li>
+                    <%= link_to "" do %>
+                      <%= inline_svg "user.svg", class_name: "w-5 h-5" %>
+                      <%= Current.user.email_address %>
+                    <% end %>
+                  </li>
+                  <li>
+                    <%= link_to root_path do %>
+                      <%= inline_svg "home.svg", class_name: "w-5 h-5" %>
+                      Inicio
+                    <% end %>
+                  </li>
+                  <li>
+                    <%= link_to root_path do %>
+                      <%= inline_svg "settings.svg", class_name: "w-5 h-5" %>
+                      Configuraciones
+                    <% end %>
+                  </li>
+                  <li>
+                    <%= link_to session_path, data: { turbo_method: :delete, turbo_confirm: "¿Estás seguro?" } do %>
+                      <%= inline_svg "logout.svg", class_name: "w-5 h-5" %>
+                      Cerrar Sesión
+                    <% end %>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </nav>
+          <!--             Page content here-->
+          <main class="flex-1">
+            <%#= breadcrumbs %>
+            <div class="p-8">
+              <%= turbo_frame_tag "main_content" do %>
+                <%= yield %>
+              <% end %>
+            </div>
+          </main>
+        </div>
       </div>
-    </main>
+
+      <div class="drawer-side is-drawer-close:overflow-visible">
+        <label for="my-drawer-4" aria-label="close sidebar" class="drawer-overlay"></label>
+        <div class="flex min-h-full flex-col items-start bg-base-200 is-drawer-close:w-14 is-drawer-open:w-64">
+          <!--             Sidebar content here-->
+          <ul class="menu w-full grow">
+            <%= menu_for_drawer %>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  <% else %>
+    <%= yield %>
+  <% end %>
   </body>
 </html>

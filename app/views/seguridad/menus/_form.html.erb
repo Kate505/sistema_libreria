@@ -1,25 +1,20 @@
-<turbo-frame id="modulo_form">
-  <%= form_with(model: modulo, url: modulo.new_record? ? seguridad_modulos_path : seguridad_modulo_path(modulo), method: modulo.new_record? ? :post : :patch, class: 'contents') do |f| %>
+<turbo-frame id="menu_form">
+  <%= form_with(model: menu, url: menu.new_record? ? seguridad_menus_path : seguridad_menu_path(menu), method: menu.new_record? ? :post : :patch, class: 'contents') do |f| %>
 
     <div class="card-body">
       <h2 class="card-title text-lg">
-        <%= modulo.new_record? ? "Agregar nuevo módulo" : "Actualizar módulo" %>
+        <%= menu.new_record? ? "Agregar nuevo menú" : "Actualizar menú" %>
       </h2>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
         <div class="w-full">
-          <%= f.label :nombre, 'Nombre del módulo', class: 'label pt-0' %>
+          <%= f.label :nombre, 'Nombre del menú', class: 'label pt-0' %>
           <%= f.text_field :nombre, class: 'input input-bordered w-full validator', placeholder: 'Nombre', required: true %>
         </div>
 
         <div class="w-full">
           <%= f.label :link_to, 'URL', class: 'label pt-0' %>
           <%= f.text_field :link_to, class: 'input input-bordered w-full validator', placeholder: 'URL', required: true %>
-        </div>
-
-        <div class="w-full">
-          <%= f.label :icono, 'Ícono', class: 'label pt-0' %>
-          <%= f.text_field :icono, class: 'input input-bordered w-full', placeholder: 'Ícono' %>
         </div>
 
         <div class="w-full flex items-end pb-3">

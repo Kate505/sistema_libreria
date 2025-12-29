@@ -1,7 +1,0 @@
-<%= turbo_stream.replace "modulos_table" do %>
-  <%= render "table", modulos: @modulos %>
-<% end %>
-
-<%= turbo_stream.replace "modulo_form" do %>
-  <%= render "form", modulo: Modulo.new %>
-<% end %>

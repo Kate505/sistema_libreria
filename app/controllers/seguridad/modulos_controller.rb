@@ -1,4 +1,6 @@
 class Seguridad::ModulosController < ApplicationController
+  before_action :set_modulo, only: %i[edit update destroy]
+
   def index
     @modulo = Modulo.new
     @modulos = Modulo.all.order(:nombre)
@@ -11,51 +13,65 @@ class Seguridad::ModulosController < ApplicationController
 
   def create
     @modulo = Modulo.new(modulo_params)
-
     if @modulo.save
+      @modulos = Modulo.all.order(:nombre)
       respond_to do |format|
         format.turbo_stream do
-          @modulos = Modulo.all.order(:nombre)
-          render "create"
+          render turbo_stream: [
+            turbo_stream.update("modulos_table", partial: "seguridad/modulos/table", locals: { modulos: @modulos }),
+
+            turbo_stream.replace("modulo_form", partial: "seguridad/modulos/form", locals: { modulo: Modulo.new })
+          ]
         end
-        format.html { redirect_to seguridad_modulos_path }
+        format.html { redirect_to seguridad_modulos_path, notice: "Creado" }
       end
     else
-      render partial: "form", status: :unprocessable_entity
+      respond_to do |format|
+        format.turbo_stream { render turbo_stream: turbo_stream.replace("modulo_form", partial: "seguridad/modulos/form", locals: { modulo: @modulo }) }
+        format.html { render :index, status: :unprocessable_entity }
+      end
     end
   end
 
   def update
-    @modulo = Modulo.find(params[:id])
-
     if @modulo.update(modulo_params)
+      @modulos = Modulo.all.order(:nombre)
       respond_to do |format|
         format.turbo_stream do
-          @modulos = Modulo.all.order(:nombre)
-          @modulo = Modulo.new
-          render "update"
+          render turbo_stream: [
+            turbo_stream.update("modulos_table", partial: "seguridad/modulos/table", locals: { modulos: @modulos }),
+            turbo_stream.replace("modulo_form", partial: "seguridad/modulos/form", locals: { modulo: Modulo.new })
+          ]
         end
-        format.html { redirect_to seguridad_modulos_path }
+        format.html { redirect_to seguridad_modulos_path, notice: "Actualizado" }
       end
     else
-      render partial: "form", status: :unprocessable_entity
+      respond_to do |format|
+        format.turbo_stream { render turbo_stream: turbo_stream.replace("modulo_form", partial: "seguridad/modulos/form", locals: { modulo: @modulo }) }
+        format.html { render :index, status: :unprocessable_entity }
+      end
     end
   end
 
   def destroy
-    @modulo = Modulo.find(params[:id])
     @modulo.destroy
-
+    @modulos = Modulo.all.order(:nombre)
     respond_to do |format|
       format.turbo_stream do
-        @modulos = Modulo.all.order(:nombre)
-        render "destroy"
+        render turbo_stream: [
+          turbo_stream.update("modulos_table", partial: "seguridad/modulos/table", locals: { modulos: @modulos }),
+          turbo_stream.replace("modulo_form", partial: "seguridad/modulos/form", locals: { modulo: Modulo.new })
+        ]
       end
-      format.html { redirect_to seguridad_modulos_path }
+      format.html { redirect_to seguridad_modulos_path, notice: "Eliminado" }
     end
   end
 
   private
+
+  def set_modulo
+    @modulo = Modulo.find(params[:id])
+  end
 
   def modulo_params
     params.require(:modulo).permit(:nombre, :icono, :link_to, :pasivo)

@@ -35,7 +35,6 @@ class User < ApplicationRecord
       .includes(menus: [:children, :roles])
   end
 
-
   def accessible_menus_by_user
     Menu.joins(roles_menus: { rol: :users })
         .where(users: { id: id }, pasivo: false)
