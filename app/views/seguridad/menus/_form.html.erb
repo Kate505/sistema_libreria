@@ -13,6 +13,40 @@
         </div>
 
         <div class="w-full">
+          <%= f.label :codigo, 'Código', class: 'label pt-0' %>
+          <%= f.text_field :codigo, class: 'input input-bordered w-full validator', placeholder: 'Código', required: true %>
+        </div>
+
+        <div class="w-full"
+             data-controller="select-dependency"
+             data-select-dependency-url-value="<%= por_modulo_seguridad_menus_path %>"
+             data-select-dependency-param-value="modulo_id">
+
+          <%= f.label :modulo_id, 'Módulo', class: 'label pt-0' %>
+          <%= f.collection_select :modulo_id,
+                                  Modulo.all.order(:nombre),
+                                  :id,
+                                  :nombre,
+                                  { prompt: "Seleccione un módulo" },
+                                  {
+                                      class: 'select validator',
+                                      required: true,
+                                      data: { action: "change->select-dependency#change" } # Al cambiar, ejecuta JS
+                                  }
+          %>
+        </div>
+
+        <div class="w-full">
+          <% coleccion_inicial = []
+             if menu.modulo_id.present?
+               coleccion_inicial = Menu.where(modulo_id: menu.modulo_id).where.not(nombre: "Inicio")
+             end
+          %>
+
+          <%= render "seguridad/menus/select_menu_padre", menus: coleccion_inicial, selected: menu.menu_id %>
+        </div>
+
+        <div class="w-full">
           <%= f.label :link_to, 'URL', class: 'label pt-0' %>
           <%= f.text_field :link_to, class: 'input input-bordered w-full validator', placeholder: 'URL', required: true %>
         </div>

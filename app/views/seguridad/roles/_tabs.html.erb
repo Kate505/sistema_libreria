@@ -1,0 +1,32 @@
+<% unless rol.new_record? %>
+  <div class="tabs tabs-lift h-full grid-rows-[auto_1fr]">
+
+    <label class="tab">
+      <input type="radio" name="my_tabs_3" checked="checked"/>
+      <%= inline_svg "rol.svg", class_name: "w-2 h-2 p-4" %>
+      Roles Menús
+    </label>
+
+    <div class="tab-content bg-base-100 border-base-300 h-full overflow-hidden rounded-box rounded-tl-none">
+      <div id="roles_menu_table" class="h-full w-full">
+        <%= render "rol_menu", roles_menu: roles_menus, lista_agregar_menus: lista_agregar_menus %>
+      </div>
+    </div>
+
+    <label class="tab">
+      <input type="radio" name="my_tabs_3"/>
+      <%= inline_svg "rol_usuario.svg", class_name: "w-2 h-2 p-2" %>
+      Roles Usuarios
+    </label>
+    <div class="tab-content bg-base-100 border-base-300 h-full overflow-hidden rounded-box rounded-tl-none">
+      <div id="roles_usuario_table" class="h-full w-full">
+        <%= render "rol_usuario", rol_usuarios: rol_usuarios %>
+      </div>
+    </div>
+
+  </div>
+<% else %>
+  <div class="flex h-full items-center justify-center text-base-content/30 italic">
+    Selecciona un rol para editar y ver sus detalles
+  </div>
+<% end %>

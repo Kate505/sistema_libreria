@@ -1,0 +1,43 @@
+<%= render "agregar_menu_rol_modal", lista_agregar_menus: (defined?(lista_agregar_menus) ? lista_agregar_menus : []) %>
+
+<div class="grid grid-rows-[auto_1fr] h-full w-full">
+
+  <div class="p-2 flex justify-end bg-base-100 z-20 shrink-0">
+    <button class="btn btn-success btn-sm text-white" onclick="my_modal_5.showModal()">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 mr-1">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+      </svg>
+      Agregar Menú
+    </button>
+  </div>
+
+  <div class="overflow-y-auto min-h-0 bg-base-100 pb-8">
+    <table class="table table-pin-rows px-4 pb-8">
+      <thead>
+      <tr class="bg-base-100 z-10 sticky top-0 shadow-sm">
+        <th>Nombre Menú</th>
+        <th>Módulo</th>
+        <th class="text-right">Acciones</th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <% roles_menu.each do |rm| %>
+        <tr class="hover:bg-base-200">
+          <td class="font-bold"><%= rm.menu&.nombre %></td>
+          <td><%= rm.menu&.modulo&.nombre %></td>
+
+          <td class="flex gap-2 justify-end">
+            <%= link_to remove_menu_seguridad_role_path(@rol, rol_menu_id: rm.id),
+                        data: { turbo_method: :delete, turbo_confirm: "¿Quitar menú del rol?" },
+                        class: "btn btn-sm btn-ghost btn-square text-error" do %>
+              <% inline_svg "remove.svg" %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+
+</div>

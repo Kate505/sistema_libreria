@@ -1,0 +1,37 @@
+<turbo-frame id="rol_form" class="w-full">
+  <%= form_with(model: rol,
+                url: rol.new_record? ? seguridad_roles_path : seguridad_role_path(rol),
+                method: rol.new_record? ? :post : :patch,
+                class: 'w-full flex flex-col gap-2') do |f| %>
+    <h2 class="font-bold text-lg px-1">
+      <%= rol.new_record? ? "Agregar nuevo rol" : "Editar rol #{rol.nombre}" %>
+    </h2>
+
+    <div class="flex flex-row items-end gap-3 w-full">
+
+      <div class="flex-1">
+        <%= f.label :nombre, 'Nombre', class: 'label py-0 px-1 text-xs text-base-content/70' %>
+        <%= f.text_field :nombre,
+                         class: 'input input-bordered input-sm w-full validator',
+                         placeholder: 'Escribe el nombre...',
+                         required: true %>
+      </div>
+
+      <div class="form-control pb-1">
+        <label class="cursor-pointer label flex items-center gap-2 p-0">
+          <span class="label-text text-sm">Pasivo</span>
+          <%= f.check_box :pasivo, class: 'checkbox checkbox-sm' %>
+        </label>
+      </div>
+
+      <div class="pb-[1px] flex gap-2">
+        <%= f.submit "Guardar", class: "btn btn-primary btn-sm" %>
+
+        <% unless rol.new_record? %>
+          <%= link_to "Cancelar", seguridad_roles_path, class: "btn btn-error btn-sm" %>
+        <% end %>
+      </div>
+
+    </div>
+  <% end %>
+</turbo-frame>

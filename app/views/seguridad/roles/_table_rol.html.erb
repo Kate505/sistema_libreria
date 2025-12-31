@@ -2,32 +2,23 @@
   <thead>
   <tr class="bg-base-100 z-10">
     <th>ID</th>
-    <th>Código</th>
     <th>Nombre</th>
-    <th>Módulo</th>
-    <th>Submenú</th>
-    <th>URL</th>
     <th>Pasivo</th>
     <th class="text-right">Acciones</th>
   </tr>
   </thead>
 
   <tbody>
-  <% menus.each do |menu| %>
+  <% roles.each do |rol| %>
     <tr class="hover:bg-base-200">
-      <td><%= menu.id %></td>
-      <td><%= menu.codigo %></td>
-      <td class="font-bold"><%= menu.nombre %></td>
-      <td><%= Modulo.find_by(id: menu.modulo_id)&.nombre %></td>
-      <td><%= Menu.find_by(id: menu.menu_id)&.nombre %></td>
-      <td class="font-mono text-xs"><%= menu.link_to %></td>
+      <td><%= rol.id %></td>
+      <td class="font-bold"><%= rol.nombre %></td>
       <td>
-        <input type="checkbox" class="checkbox checkbox-xs" disabled <%= "checked" if menu.pasivo %> />
+        <input type="checkbox" class="checkbox checkbox-xs" disabled <%= "checked" if rol.pasivo %> />
       </td>
 
       <td class="flex gap-2 justify-end">
-        <%= link_to edit_seguridad_menu_path(menu),
-                    data: { turbo_frame: "menu_form" },
+        <%= link_to edit_seguridad_role_path(rol),
                     class: "btn btn-sm btn-ghost btn-square" do %>
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
             <path fill="currentColor" d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
@@ -35,7 +26,7 @@
           </svg>
         <% end %>
 
-        <%= link_to seguridad_menu_path(menu),
+        <%= link_to seguridad_role_path(rol),
                     data: { turbo_method: :delete, turbo_confirm: "¿Eliminar?" },
                     class: "btn btn-sm btn-ghost btn-square text-error" do %>
           <% inline_svg "remove.svg" %>

@@ -1,0 +1,25 @@
+<div class="grid grid-rows-[auto_1fr] h-full w-full">
+
+  <div class="overflow-y-auto min-h-0 bg-base-100">
+    <table class="table table-pin-rows px-4">
+      <thead>
+      <tr class="bg-base-100 z-10 sticky top-0 shadow-sm">
+        <th>Nombre</th>
+        <th>Usuario</th>
+        <th>Pasivo</th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <% rol_usuarios.each do |ru| %>
+        <tr class="hover:bg-base-200">
+          <td><%= ru.user&.nombre_completo %></td>
+          <td class="font-bold"><%= ru.user&.email_address %></td>
+          <td class="font-bold"><%= ru.user&.pasivo %></td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+
+</div>

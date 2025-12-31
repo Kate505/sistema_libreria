@@ -17,8 +17,8 @@ Modulo.delete_all
 Rol.delete_all
 User.delete_all
 
-admin_user = User.create!(email_address: "admin@gmail.com", password: "123456", password_confirmation: "123456")
-normal_user = User.create!(email_address: "user@gmail.com", password: "123456", password_confirmation: "123456")
+admin_user = User.create!(primer_nombre: "Admin", primer_apellido: "Admin", email_address: "admin@gmail.com", password: "123456", password_confirmation: "123456")
+normal_user = User.create!(primer_nombre: "Usuario", primer_apellido: "Prueba", email_address: "user@gmail.com", password: "123456", password_confirmation: "123456")
 
 facturacion = Modulo.create!(nombre: "Facturación", icono: "facturacion.svg", link_to: "/facturacion")
 inventario = Modulo.create!(nombre: "Inventario", icono: "inventario.svg", link_to: "/inventario")
@@ -37,8 +37,6 @@ seguridad_menu2 = Menu.create!(codigo: "MGS002", nombre: "Menús", modulo: segur
 seguridad_menu3 = Menu.create!(codigo: "MGS003", nombre: "Usuarios", modulo: seguridad, link_to: "/seguridad/usuarios")
 seguridad_menu4 = Menu.create!(codigo: "MGS004", nombre: "Gestión de Roles", modulo: seguridad, link_to: "/seguridad/roles")
 seguridad_menu5 = Menu.create!(codigo: "MGS005", nombre: "Roles", modulo: seguridad, parent: seguridad_menu4, link_to: "/seguridad/roles")
-seguridad_menu6 = Menu.create!(codigo: "MGS006", nombre: "Roles - Menús", modulo: seguridad, parent: seguridad_menu4, link_to: "/seguridad/roles_menus")
-seguridad_menu7 = Menu.create!(codigo: "MGS007", nombre: "Roles por Usuario", modulo: seguridad, parent: seguridad_menu4, link_to: "/seguridad/roles_usuarios")
 
 admin_role = Rol.create!(nombre: "Administrador")
 seller_role = Rol.create!(nombre: "Vendedor")

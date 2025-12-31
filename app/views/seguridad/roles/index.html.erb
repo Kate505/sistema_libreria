@@ -1,0 +1,32 @@
+<%= turbo_frame_tag "main_content" do %>
+  <%= turbo_stream_from "roles" %>
+  <%= turbo_refreshes_with method: :morph, scroll: :preserve %>
+
+  <div class="grid grid-rows-[auto_1fr] gap-6 h-[calc(100vh-10rem)] w-full">
+    <div class="flex items-center shrink-0">
+      <h1 class="text-3xl font-bold">Gestión de Roles</h1>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 min-h-0">
+      <div class="card bg-base-100 shadow-xl col-span-2 flex flex-col h-full overflow-hidden">
+
+        <div class="p-4 border-b border-base-200 bg-base-100 z-10 shrink-0">
+          <%= render "form", rol: @rol %>
+        </div>
+
+        <div id="tabs_container" class="flex-1 overflow-hidden relative">
+          <%= render "tabs", rol: @rol, roles_menus: @roles_menus || [], lista_agregar_menus: @lista_agregar_menus || [], rol_usuarios: @rol_usuarios || [] %>
+        </div>
+
+      </div>
+
+      <div class="card bg-base-100 shadow-xl overflow-hidden flex flex-col h-full lg:max-h-full">
+        <div class="flex-1 overflow-y-auto" id="roles_table_container">
+          <div id="roles_table" class="h-full">
+            <%= render "table_rol", roles: @roles %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

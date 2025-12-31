@@ -1,0 +1,11 @@
+<turbo-frame id="menu_padre_select">
+  <%= label_tag :menu_id, 'Menú Padre (Opcional)', class: 'label pt-0' %>
+
+  <%= collection_select :menu, :menu_id,
+                        menus,
+                        :id,
+                        :nombre,
+                        { include_blank: "Ninguno", selected: selected },
+                        { class: 'select' }
+  %>
+</turbo-frame>

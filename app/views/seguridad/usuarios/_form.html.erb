@@ -1,0 +1,70 @@
+<div id="gestionar_roles_modal_content">
+  <%= render "gestionar_roles_usuario_modal",
+             usuario: usuario,
+             roles_usuario: (defined?(roles_usuario) ? roles_usuario : []),
+             lista_agregar_roles: (defined?(lista_agregar_roles) ? lista_agregar_roles : []) %>
+</div>
+
+<turbo-frame id="usuario_form">
+  <%= form_with(model: usuario, url: usuario.new_record? ? seguridad_usuarios_path : seguridad_usuario_path(usuario), method: usuario.new_record? ? :post : :patch, class: 'contents') do |f| %>
+
+    <div class="card-body">
+      <h2 class="card-title text-lg">
+        <%= usuario.new_record? ? "Agregar nuevo usuario" : "Actualizar usuario: #{usuario.primer_nombre}" %>
+      </h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
+        <div class="w-full">
+          <%= f.label :primer_nombre, 'Primer Nombre', class: 'label pt-0' %>
+          <%= f.text_field :primer_nombre, class: 'input input-bordered w-full validator', placeholder: 'Primer Nombre', required: true %>
+        </div>
+
+        <div class="w-full">
+          <%= f.label :segundo_nombre, 'Segundo Nombre', class: 'label pt-0' %>
+          <%= f.text_field :segundo_nombre, class: 'input input-bordered w-full', placeholder: 'Segundo Nombre' %>
+        </div>
+
+        <div class="w-full">
+          <%= f.label :primer_apellido, 'Primer Apellido', class: 'label pt-0' %>
+          <%= f.text_field :primer_apellido, class: 'input input-bordered w-full validator', placeholder: 'Primer Apellido', required: true %>
+        </div>
+
+        <div class="w-full">
+          <%= f.label :segundo_apellido, 'Segundo Apellido', class: 'label pt-0' %>
+          <%= f.text_field :segundo_apellido, class: 'input input-bordered w-full', placeholder: 'Segundo Apellido' %>
+        </div>
+
+        <div class="w-full">
+          <%= f.label :email_address, 'Email', class: 'label pt-0' %>
+          <%= f.text_field :email_address, class: 'input input-bordered w-full validator', placeholder: 'Email', required: true %>
+        </div>
+
+        <div class="w-full flex items-end pb-3">
+          <%= f.label :pasivo, class: 'cursor-pointer label flex items-center gap-3' do %>
+            <%= f.check_box :pasivo, class: 'checkbox' %>
+            <span class="label-text">Pasivo</span>
+          <% end %>
+        </div>
+
+        <div class="card-actions justify-between items-center sm:col-span-2 col-span-full mt-4 pt-4 border-t border-base-200">
+
+          <div>
+            <% unless usuario.new_record? %>
+              <button type="button" class="btn btn-primary btn-sm" onclick="my_modal_1.showModal()">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 mr-1">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                </svg>
+                Gestionar Roles
+              </button>
+            <% end %>
+          </div>
+
+          <div>
+            <%= f.submit "Guardar Cambios", class: "btn btn-primary" %>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  <% end %>
+</turbo-frame>
