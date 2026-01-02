@@ -5,7 +5,7 @@ module ApplicationHelper
   end
 
   def menu_list_from_module(modulo)
-    menus = modulo.menus.select { |menu| menu.menu_id.nil? }
+    menus = Current.user.accessible_menus_by_user_and_module(modulo.id)
 
     content_tag(:ul, class: "p-0 m-0") do
       menus.map { |menu| render_menu_item(menu) }.join.html_safe

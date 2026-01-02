@@ -32,11 +32,11 @@ catalogos_menu = Menu.create!(codigo: "MI003", nombre: "Inicio", modulo: catalog
 estadisticas_menu = Menu.create!(codigo: "MI004", nombre: "Inicio", modulo: estadisticas, link_to: "/estadisticas/inicio")
 seguridad_menu = Menu.create!(codigo: "MI005", nombre: "Inicio", modulo: seguridad, link_to: "/seguridad/inicio")
 
-seguridad_menu1 = Menu.create!(codigo: "MGS001", nombre: "Módulos", modulo: seguridad, link_to: "/seguridad/modulos")
-seguridad_menu2 = Menu.create!(codigo: "MGS002", nombre: "Menús", modulo: seguridad, link_to: "/seguridad/menus")
-seguridad_menu3 = Menu.create!(codigo: "MGS003", nombre: "Usuarios", modulo: seguridad, link_to: "/seguridad/usuarios")
-seguridad_menu4 = Menu.create!(codigo: "MGS004", nombre: "Gestión de Roles", modulo: seguridad, link_to: "/seguridad/roles")
-seguridad_menu5 = Menu.create!(codigo: "MGS005", nombre: "Roles", modulo: seguridad, parent: seguridad_menu4, link_to: "/seguridad/roles")
+seguridad_menu1 = Menu.create!(codigo: "MODULOS", nombre: "Módulos", modulo: seguridad, link_to: "/seguridad/modulos")
+seguridad_menu2 = Menu.create!(codigo: "MENUS", nombre: "Menús", modulo: seguridad, link_to: "/seguridad/menus")
+seguridad_menu3 = Menu.create!(codigo: "USUARIOS", nombre: "Usuarios", modulo: seguridad, link_to: "/seguridad/usuarios")
+seguridad_menu4 = Menu.create!(codigo: "SM001", nombre: "Gestión de Roles", modulo: seguridad, link_to: "/seguridad/roles")
+seguridad_menu5 = Menu.create!(codigo: "ROLES", nombre: "Roles", modulo: seguridad, parent: seguridad_menu4, link_to: "/seguridad/roles")
 
 admin_role = Rol.create!(nombre: "Administrador")
 seller_role = Rol.create!(nombre: "Vendedor")

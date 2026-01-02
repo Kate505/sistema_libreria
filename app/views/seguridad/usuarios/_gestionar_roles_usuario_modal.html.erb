@@ -1,5 +1,5 @@
 <dialog id="my_modal_1" class="modal modal-bottom modal-middle">
-  <div class="modal-box w-11/12 max-w-4xl overflow-hidden flex flex-col max-h-[90vh] h-[80vh] p-0">
+  <div class="modal-box w-11/12 max-w-xl overflow-hidden flex flex-col max-h-[50vh] h-[50vh] p-0">
 
     <div class="p-4 border-b border-base-200 flex justify-between items-center shrink-0 bg-base-100">
       <h3 class="font-bold text-lg">Roles de <%= defined?(usuario) ? usuario&.primer_nombre : '' %></h3>
@@ -11,73 +11,40 @@
     <div class="flex-1 overflow-hidden relative">
       <div class="tabs tabs-lifted h-full grid-rows-[auto_1fr]">
 
-        <input type="radio" name="roles_tabs" class="tab" aria-label="Asignados" checked="checked"/>
-        <div class="tab-content bg-base-100 border-base-300 h-full overflow-hidden p-0 rounded-b-box">
+        <input type="radio" name="roles_tabs" class="tab row-start-1" aria-label="Asignados" checked="checked"/>
 
-          <div class="h-full w-full overflow-y-auto p-4">
+        <div class="tab-content bg-base-100 border-base-300 rounded-b-box row-start-2 h-full overflow-hidden p-0">
+
+          <div class="h-full overflow-y-auto p-4 custom-scrollbar">
             <table class="table table-pin-rows">
               <thead>
-              <tr class="bg-base-100 z-10 sticky top-0">
-                <th>Rol Asignado</th>
-                <th>Estado</th>
-                <th class="text-right">Quitar</th>
-              </tr>
+                <tr class="bg-base-100 z-10 sticky top-0">
+                  <th>Rol Asignado</th>
+                  <th>Estado</th>
+                  <th class="text-right">Quitar</th>
+                </tr>
               </thead>
-              <tbody>
-              <% if roles_usuario.any? %>
-                <% roles_usuario.each do |rol| %>
-                  <tr class="hover">
-                    <td class="font-bold"><%= rol.nombre %></td>
-                    <td>
-                          <span class="badge <%= rol.pasivo ? 'badge-ghost' : 'badge-success badge-outline' %>">
-                            <%= rol.pasivo ? 'Pasivo' : 'Activo' %>
-                          </span>
-                    </td>
-                    <td class="text-right">
-                      <%= link_to remove_rol_seguridad_usuarios_path(usuario, rol_id: rol.id),
-                                  data: { turbo_method: :delete, turbo_confirm: "¿Quitar rol?" },
-                                  class: "btn btn-sm btn-square btn-ghost text-error" do %>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                      <% end %>
-                    </td>
-                  </tr>
-                <% end %>
-              <% else %>
-                <tr><td colspan="3" class="text-center text-base-content/50 py-4">El usuario no tiene roles asignados.</td></tr>
-              <% end %>
+              <tbody id="tbody_roles_asignados">
+                <%= render "lista_roles_asignados", roles_usuario: roles_usuario, usuario: @usuario %>
               </tbody>
             </table>
           </div>
         </div>
 
-        <input type="radio" name="roles_tabs" class="tab" aria-label="Disponibles"/>
-        <div class="tab-content bg-base-100 border-base-300 h-full overflow-hidden p-0 rounded-b-box">
+        <input type="radio" name="roles_tabs" class="tab row-start-1" aria-label="Disponibles"/>
 
-          <div class="h-full w-full overflow-y-auto p-4">
+        <div class="tab-content bg-base-100 border-base-300 rounded-b-box row-start-2 h-full overflow-hidden p-0">
+
+          <div class="h-full overflow-y-auto p-4 custom-scrollbar">
             <table class="table table-pin-rows">
               <thead>
-              <tr class="bg-base-100 z-10 sticky top-0">
-                <th>Rol Disponible</th>
-                <th class="text-right">Agregar</th>
-              </tr>
+                <tr class="bg-base-100 z-10 sticky top-0">
+                  <th>Rol Disponible</th>
+                  <th class="text-right">Agregar</th>
+                </tr>
               </thead>
-              <tbody>
-              <% if lista_agregar_roles.any? %>
-                <% lista_agregar_roles.each do |rol| %>
-                  <tr class="hover">
-                    <td><%= rol.nombre %></td>
-                    <td class="text-right">
-                      <%= link_to add_rol_seguridad_usuario_path(usuario, rol_id: rol.id),
-                                  data: { turbo_method: :post },
-                                  class: "btn btn-sm btn-square btn-ghost text-success" do %>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                      <% end %>
-                    </td>
-                  </tr>
-                <% end %>
-              <% else %>
-                <tr><td colspan="2" class="text-center text-base-content/50 py-4">No hay más roles disponibles para agregar.</td></tr>
-              <% end %>
+              <tbody id="tbody_roles_disponibles">
+                <%= render "lista_roles_disponibles", lista_agregar_roles: lista_agregar_roles, usuario: @usuario %>
               </tbody>
             </table>
           </div>

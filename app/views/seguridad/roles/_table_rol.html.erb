@@ -3,7 +3,7 @@
   <tr class="bg-base-100 z-10">
     <th>ID</th>
     <th>Nombre</th>
-    <th>Pasivo</th>
+    <th>Estado</th>
     <th class="text-right">Acciones</th>
   </tr>
   </thead>
@@ -14,7 +14,7 @@
       <td><%= rol.id %></td>
       <td class="font-bold"><%= rol.nombre %></td>
       <td>
-        <input type="checkbox" class="checkbox checkbox-xs" disabled <%= "checked" if rol.pasivo %> />
+        <%= status_badge(pasivo: rol.pasivo) %>
       </td>
 
       <td class="flex gap-2 justify-end">

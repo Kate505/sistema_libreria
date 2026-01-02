@@ -54,7 +54,7 @@ class User < ApplicationRecord
   end
 
   def accessible_menus_by_user_and_module(modulo_id)
-    accessible_menus_by_user.select { |menu| menu.modulo_id == modulo_id }
+    accessible_menus_by_user.select { |menu| menu.modulo_id == modulo_id && menu.menu_id.nil? }
   end
 
   scope :activos, -> { where(pasivo: false) }

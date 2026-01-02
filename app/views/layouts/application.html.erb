@@ -87,6 +87,8 @@
           <main class="flex-1">
             <%#= breadcrumbs %>
             <div class="p-8">
+              <%= render "shared/flash" %>
+
               <%= turbo_frame_tag "main_content" do %>
                 <%= yield %>
               <% end %>

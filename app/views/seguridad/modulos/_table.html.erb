@@ -5,7 +5,7 @@
     <th>Nombre</th>
     <th>Ícono</th>
     <th>URL</th>
-    <th>Pasivo</th>
+    <th>Estado</th>
     <th class="text-right">Acciones</th>
   </tr>
   </thead>
@@ -20,7 +20,7 @@
       </td>
       <td class="font-mono text-xs"><%= modulo.link_to %></td>
       <td>
-        <input type="checkbox" class="checkbox checkbox-xs" disabled <%= "checked" if modulo.pasivo %> />
+        <%= status_badge(pasivo: modulo.pasivo) %>
       </td>
 
       <td class="flex gap-2 justify-end">

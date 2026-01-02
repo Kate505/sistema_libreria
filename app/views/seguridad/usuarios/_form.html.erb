@@ -1,11 +1,10 @@
-<div id="gestionar_roles_modal_content">
-  <%= render "gestionar_roles_usuario_modal",
-             usuario: usuario,
-             roles_usuario: (defined?(roles_usuario) ? roles_usuario : []),
-             lista_agregar_roles: (defined?(lista_agregar_roles) ? lista_agregar_roles : []) %>
-</div>
-
 <turbo-frame id="usuario_form">
+  <div id="gestionar_roles_modal_content">
+    <%= render "gestionar_roles_usuario_modal",
+               usuario: usuario,
+               roles_usuario: (defined?(roles_usuario) ? roles_usuario : []),
+               lista_agregar_roles: (defined?(lista_agregar_roles) ? lista_agregar_roles : []) %>
+  </div>
   <%= form_with(model: usuario, url: usuario.new_record? ? seguridad_usuarios_path : seguridad_usuario_path(usuario), method: usuario.new_record? ? :post : :patch, class: 'contents') do |f| %>
 
     <div class="card-body">
@@ -50,9 +49,9 @@
 
           <div>
             <% unless usuario.new_record? %>
-              <button type="button" class="btn btn-primary btn-sm" onclick="my_modal_1.showModal()">
+              <button type="button" class="btn btn-accent" onclick="my_modal_1.showModal()">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 mr-1">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
                 </svg>
                 Gestionar Roles
               </button>

@@ -4,12 +4,12 @@ class Seguridad::UsuariosController < ApplicationController
   def index
     @usuario = User.new
     @usuarios = User.all.order(:primer_apellido)
-    # Inicializamos vacíos para que no falle la vista
     @roles_usuario = []
     @lista_agregar_roles = []
   end
 
   def edit
+    @usuario = User.find_by(id: params[:id])
     @usuarios = User.all.order(:primer_apellido)
 
     refresh_lists_for_view
@@ -137,19 +137,11 @@ class Seguridad::UsuariosController < ApplicationController
   end
 
   def refresh_lists_for_view
-    # Usamos includes para evitar N+1 queries al cargar roles
     @roles_usuario = @usuario&.roles || []
 
     if @usuario&.persisted?
-      # Obtenemos los roles que NO están en la lista de IDs del usuario
       ids_excluir = @roles_usuario.pluck(:id)
-      # Si el array está vacío, where.not(id: []) puede traer todo o nada dependiendo de la DB,
-      # es mejor manejarlo explícitamente.
-      if ids_excluir.empty?
-        @lista_agregar_roles = Rol.all
-      else
-        @lista_agregar_roles = Rol.where.not(id: ids_excluir)
-      end
+      @lista_agregar_roles = Rol.where.not(id: ids_excluir)
     else
       @lista_agregar_roles = []
     end
@@ -159,16 +151,13 @@ class Seguridad::UsuariosController < ApplicationController
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [
-          # 1. Reemplazamos el contenido de la modal con las tablas actualizadas
-          turbo_stream.replace("gestionar_roles_modal_content",
-                               partial: "seguridad/usuarios/gestionar_roles_usuario_modal",
-                               locals: { usuario: @usuario, roles_usuario: @roles_usuario, lista_agregar_roles: @lista_agregar_roles }
-          ),
-          # 2. IMPORTANTE: Al reemplazar el HTML, el <dialog> se cierra.
-          # Debemos forzar que se abra de nuevo mediante JS.
-          turbo_stream.append("gestionar_roles_modal_content",
-                              "<script>document.getElementById('my_modal_1').showModal()</script>".html_safe
-          )
+          turbo_stream.update("tbody_roles_asignados",
+                              partial: "seguridad/usuarios/lista_roles_asignados",
+                              locals: { roles_usuario: @roles_usuario, usuario: @usuario }),
+
+          turbo_stream.update("tbody_roles_disponibles",
+                              partial: "seguridad/usuarios/lista_roles_disponibles",
+                              locals: { lista_agregar_roles: @lista_agregar_roles, usuario: @usuario })
         ]
       end
     end

@@ -19,10 +19,8 @@ class Seguridad::RolesController < ApplicationController
       format.html { render :index }
       format.turbo_stream do
         render turbo_stream: [
-          # El form sí usa replace porque el partial contiene el frame con el ID
           turbo_stream.replace("rol_form", partial: "seguridad/roles/form", locals: { rol: @rol }),
 
-          # IMPORTANTE: Cambiar 'replace' por 'update' aquí para no perder el contenedor con estilos
           turbo_stream.update("tabs_container", partial: "seguridad/roles/tabs", locals: { rol: @rol, roles_menus: @roles_menus, lista_agregar_menus: @lista_agregar_menus, rol_usuarios: @rol_usuarios })
         ]
       end
