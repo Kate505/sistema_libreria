@@ -8,6 +8,6 @@ class Menu < ApplicationRecord
   has_many :roles_menus
   has_many :roles, through: :roles_menus, source: :rol
 
-  validates :codigo, presence: true, length: { maximum: 10 }, uniqueness: true
+  validates :codigo, presence: true, length: { maximum: 30 }, uniqueness: true
   validates :nombre, presence: true, length: { maximum: 50 }
 end

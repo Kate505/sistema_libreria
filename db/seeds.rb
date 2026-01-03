@@ -1,14 +1,3 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Example:
-#
-#   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
-#     MovieGenre.find_or_create_by!(name: genre_name)
-#   end
-
-# Limpieza de datos previos
 Session.delete_all
 RolesUser.delete_all
 RolesMenu.delete_all
@@ -17,37 +6,64 @@ Modulo.delete_all
 Rol.delete_all
 User.delete_all
 
-admin_user = User.create!(primer_nombre: "Admin", primer_apellido: "Admin", email_address: "admin@gmail.com", password: "123456", password_confirmation: "123456")
-normal_user = User.create!(primer_nombre: "Usuario", primer_apellido: "Prueba", email_address: "user@gmail.com", password: "123456", password_confirmation: "123456")
 
-facturacion = Modulo.create!(nombre: "Facturación", icono: "facturacion.svg", link_to: "/facturacion")
-inventario = Modulo.create!(nombre: "Inventario", icono: "inventario.svg", link_to: "/inventario")
-catalogos = Modulo.create!(nombre: "Catálogos", icono: "catalogos.svg", link_to: "/catalogos")
-estadisticas = Modulo.create!(nombre: "Estadísticas", icono: "estadisticas.svg", link_to: "/estadisticas")
-seguridad = Modulo.create!(nombre: "Gestión de Seguridad", icono: "seguridad.svg", link_to: "/seguridad")
+# -------------  Módulos  ------------- #
 
-facturacion_menu = Menu.create!(codigo: "MI001", nombre: "Inicio", modulo: facturacion, link_to: "/facturacion/inicio")
-inventario_menu = Menu.create!(codigo: "MI002", nombre: "Inicio", modulo: inventario, link_to: "/inventario/inicio")
-catalogos_menu = Menu.create!(codigo: "MI003", nombre: "Inicio", modulo: catalogos, link_to: "/catalogos/inicio")
-estadisticas_menu = Menu.create!(codigo: "MI004", nombre: "Inicio", modulo: estadisticas, link_to: "/estadisticas/inicio")
-seguridad_menu = Menu.create!(codigo: "MI005", nombre: "Inicio", modulo: seguridad, link_to: "/seguridad/inicio")
+modulo_facturacion = Modulo.create!(nombre: "Facturación", icono: "facturacion.svg", link_to: "/facturacion")
+modulo_inventario = Modulo.create!(nombre: "Inventario", icono: "inventario.svg", link_to: "/inventario")
+modulo_catalogos = Modulo.create!(nombre: "Catálogos", icono: "catalogos.svg", link_to: "/catalogos")
+modulo_estadisticas = Modulo.create!(nombre: "Estadísticas", icono: "estadisticas.svg", link_to: "/estadisticas")
+modulo_finanzas = Modulo.create!(nombre: "Finanzas", icono: "finanzas.svg", link_to: "/finanzas")
+modulo_seguridad = Modulo.create!(nombre: "Gestión de Seguridad", icono: "seguridad.svg", link_to: "/seguridad")
 
-seguridad_menu1 = Menu.create!(codigo: "MODULOS", nombre: "Módulos", modulo: seguridad, link_to: "/seguridad/modulos")
-seguridad_menu2 = Menu.create!(codigo: "MENUS", nombre: "Menús", modulo: seguridad, link_to: "/seguridad/menus")
-seguridad_menu3 = Menu.create!(codigo: "USUARIOS", nombre: "Usuarios", modulo: seguridad, link_to: "/seguridad/usuarios")
-seguridad_menu4 = Menu.create!(codigo: "SM001", nombre: "Gestión de Roles", modulo: seguridad, link_to: "/seguridad/roles")
-seguridad_menu5 = Menu.create!(codigo: "ROLES", nombre: "Roles", modulo: seguridad, parent: seguridad_menu4, link_to: "/seguridad/roles")
+# -------------  Menús  ------------- #
 
+# # Módulo Facturación
+menu_ventas = Menu.create!(codigo: "VENTAS", nombre: "Ventas", modulo: modulo_facturacion, link_to: "/facturacion/ventas")
+
+# # Módulo Inventario
+menu_inventario = Menu.create!(codigo: "PRODUCTOS", nombre: "Inventario de Productos", modulo: modulo_inventario, link_to: "/inventario/productos")
+
+# # Módulo Catálogos
+Menu.create!(codigo: "CATEGORIAS", nombre: "Categorías de Productos", modulo: modulo_catalogos, link_to: "/catalogos/categorias_productos")
+Menu.create!(codigo: "PROVEEDORES", nombre: "Proveedores", modulo: modulo_catalogos, link_to: "/catalogos/proveedores")
+menu_clientes = Menu.create!(codigo: "Clientes", nombre: "Clientes", modulo: modulo_catalogos, link_to: "/catalogos/clientes")
+
+# # Módulo Estadísticas
+Menu.create!(codigo: "ESTADISTICAS", nombre: "Estadísticas por período", modulo: modulo_estadisticas, link_to: "/estadisticas/estadisticas_periodo")
+
+# # Módulo Finanzas
+Menu.create!(codigo: "GASTOS_OPERATIVOS", nombre: "Gastos Operativos", modulo: modulo_finanzas, link_to: "/finanzas/gastos_operativos")
+Menu.create!(codigo: "DETALLE_PAGOS_EMPLEADOS", nombre: "Nómina Empleados", modulo: modulo_finanzas, link_to: "/finanzas/detalle_pagos_empleados")
+
+# # Módulo Gestión de Seguridad
+Menu.create!(codigo: "MODULOS", nombre: "Módulos", modulo: modulo_seguridad, link_to: "/seguridad/modulos")
+Menu.create!(codigo: "MENUS", nombre: "Menús", modulo: modulo_seguridad, link_to: "/seguridad/menus")
+Menu.create!(codigo: "USUARIOS", nombre: "Usuarios", modulo: modulo_seguridad, link_to: "/seguridad/usuarios")
+Menu.create!(codigo: "EMPLEADOS", nombre: "Empleados", modulo: modulo_seguridad, link_to: "/seguridad/empleados")
+
+menu_padre_gestion_roles = Menu.create!(codigo: "SM001", nombre: "Gestión de Roles", modulo: modulo_seguridad, link_to: "/seguridad/roles")
+Menu.create!(codigo: "ROLES", nombre: "Roles", modulo: modulo_seguridad, parent: menu_padre_gestion_roles, link_to: "/seguridad/roles")
+
+# -------------  Roles y Usuarios  ------------- #
+
+# Usuarios
+user_admin = User.create!(email_address: "admin@gmail.com", password: "123456", password_confirmation: "123456")
+user_normal = User.create!(email_address: "user@gmail.com", password: "123456", password_confirmation: "123456")
+
+# Roles
 admin_role = Rol.create!(nombre: "Administrador")
 seller_role = Rol.create!(nombre: "Vendedor")
 
+# Roles - Menús
 Menu.all.each do |menu|
   RolesMenu.create!(rol: admin_role, menu: menu)
 end
 
-[facturacion_menu, inventario_menu].each do |menu|
+[menu_ventas, menu_inventario, menu_clientes].each do |menu|
   RolesMenu.create!(rol: seller_role, menu: menu)
 end
 
-RolesUser.create!(user: admin_user, rol: admin_role)
-RolesUser.create!(user: normal_user, rol: seller_role)
+# Roles - Usuarios
+RolesUser.create!(user: user_admin, rol: admin_role)
+RolesUser.create!(user: user_normal, rol: seller_role)

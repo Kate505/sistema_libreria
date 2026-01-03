@@ -111,7 +111,6 @@ class Seguridad::UsuariosController < ApplicationController
 
   def add_rol
     rol = Rol.find(params[:rol_id])
-    # Usamos find_or_create_by para evitar duplicados si el usuario da doble clic rápido
     RolesUser.find_or_create_by(user: @usuario, rol: rol)
 
     refresh_lists_for_view
@@ -133,7 +132,7 @@ class Seguridad::UsuariosController < ApplicationController
   end
 
   def usuario_params
-    params.require(:user).permit(:primer_nombre, :segundo_nombre, :primer_apellido, :segundo_apellido, :email_address, :pasivo)
+    params.require(:user).permit(:email_address, :pasivo)
   end
 
   def refresh_lists_for_view

@@ -1,9 +1,8 @@
 class CreateMenus < ActiveRecord::Migration[8.0]
   def change
     create_table :menus do |t|
-      t.string :codigo, limit: 10, null: false
+      t.string :codigo, limit: 30, null: false
       t.string :nombre, limit: 50, null: false
-      t.string :icono, null: false
       t.references :modulo, null: false, foreign_key: true
       t.references :menu, foreign_key: { to_table: :menus }
       t.string :link_to, null: false
