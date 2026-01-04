@@ -7,7 +7,7 @@ class Cliente < ApplicationRecord
             length: { maximum: 50 }
 
   validates :segundo_nombre,
-            :primer_apellido,
+            :segundo_apellido,
             length: { maximum: 50 },
             allow_blank: true
 

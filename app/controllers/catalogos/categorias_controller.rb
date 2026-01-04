@@ -74,6 +74,6 @@ class Catalogos::CategoriasController < ApplicationController
   end
 
   def categoria_params
-    params.require(:categoria).permit(:nombre, :icono, :link_to, :pasivo)
+    params.require(:categoria).permit(:nombre)
   end
 end

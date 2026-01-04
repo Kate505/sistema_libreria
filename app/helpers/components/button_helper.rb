@@ -20,4 +20,13 @@ module Components::ButtonHelper
                 ])
     end
   end
+
+  def save_button(form, label: "Guardar", style_class: "btn btn-primary")
+    form.button class: style_class do
+      content_tag(:div, class: "flex items-center gap-2") do
+        concat inline_svg("save.svg", class_name: "w-4 h-4")
+        concat label
+      end
+    end
+  end
 end

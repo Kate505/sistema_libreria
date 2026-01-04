@@ -1,0 +1,32 @@
+<turbo-frame id="proveedor_form">
+  <%= form_with(model: proveedor, url: proveedor.new_record? ? catalogos_proveedores_path : catalogos_proveedor_path(proveedor), method: proveedor.new_record? ? :post : :patch, class: 'contents') do |f| %>
+
+    <div class="card-body">
+      <h2 class="card-title text-lg">
+        <%= proveedor.new_record? ? "Agregar nuevo proveedor" : "Actualizar proveedor" %>
+      </h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
+        <div class="w-full">
+          <%= f.label :nombre, 'Nombre', class: 'label pt-0' %>
+          <%= f.text_field :nombre, class: 'input input-bordered w-full validator', placeholder: 'Nombre', required: true %>
+        </div>
+
+        <div class="w-full">
+          <%= f.label :telefono, 'Teléfono', class: 'label pt-0' %>
+          <%= f.text_field :telefono, class: 'input input-bordered w-full validator', placeholder: 'Teléfono', required: true %>
+        </div>
+
+        <div class="w-full sm:col-span-2 col-span-full">
+          <%= f.label :direccion, 'Dirección', class: 'label pt-0' %>
+          <%= f.text_field :direccion, class: 'input input-bordered w-full validator', placeholder: 'Dirección', required: true %>
+        </div>
+
+        <div class="card-actions justify-end sm:col-span-2 col-span-full mt-2">
+          <%= save_button(f, style_class: 'btn btn-primary w-full sm:w-auto') %>
+        </div>
+
+      </div>
+    </div>
+  <% end %>
+</turbo-frame>

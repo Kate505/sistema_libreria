@@ -25,7 +25,7 @@
       </div>
 
       <div class="pb-[1px] flex gap-2">
-        <%= f.submit "Guardar", class: "btn btn-primary btn-sm" %>
+        <%= save_button(f, style_class: 'btn btn-primary btn-sm') %>
 
         <% unless rol.new_record? %>
           <%= link_to "Cancelar", seguridad_roles_path, class: "btn btn-error btn-sm" %>

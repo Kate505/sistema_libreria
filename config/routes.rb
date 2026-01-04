@@ -19,5 +19,6 @@ Rails.application.routes.draw do
   # root "home#index"
 
   draw :seguridad
+  draw :catalogos
 
 end

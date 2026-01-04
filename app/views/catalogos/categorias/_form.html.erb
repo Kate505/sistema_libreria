@@ -1,0 +1,22 @@
+<turbo-frame id="categoria_form">
+  <%= form_with(model: categoria, url: categoria.new_record? ? catalogos_categorias_path : catalogos_categoria_path(categoria), method: categoria.new_record? ? :post : :patch, class: 'contents') do |f| %>
+
+    <div class="card-body">
+      <h2 class="card-title text-lg">
+        <%= categoria.new_record? ? "Agregar nueva categoría" : "Actualizar categoría" %>
+      </h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
+        <div class="w-full">
+          <%= f.label :nombre, 'Nombre', class: 'label pt-0' %>
+          <%= f.text_field :nombre, class: 'input input-bordered w-full validator', placeholder: 'Nombre', required: true %>
+        </div>
+
+        <div class="card-actions justify-end sm:col-span-2 col-span-full mt-2">
+          <%= save_button(f, style_class: 'btn btn-primary w-full sm:w-auto') %>
+        </div>
+
+      </div>
+    </div>
+  <% end %>
+</turbo-frame>
