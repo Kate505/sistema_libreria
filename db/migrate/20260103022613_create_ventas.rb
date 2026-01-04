@@ -5,7 +5,7 @@ class CreateVentas < ActiveRecord::Migration[8.0]
 
       t.datetime :fecha_venta, default: -> { 'CURRENT_TIMESTAMP' }
 
-      t.string :metodo_pago, limit: 50
+      t.string :metodo_pago, limit: 2
       t.decimal :cantidad_total, precision: 10, scale: 2
 
       t.timestamps

@@ -2,11 +2,8 @@
   <thead>
   <tr class="bg-base-100 z-10">
     <th>ID</th>
-    <th>Primer Nombre</th>
-    <th>Segundo Nombre</th>
-    <th>Primer Apellido</th>
-    <th>Segundo Apellido</th>
     <th>Email</th>
+    <th>Empleado Vinculado</th>
     <th>Estado</th>
     <th class="text-right">Acciones</th>
   </tr>
@@ -16,12 +13,11 @@
   <% usuarios.each do |usuario| %>
     <tr class="hover:bg-base-200">
       <td><%= usuario.id %></td>
-      <td class="font-bold"><%= usuario.primer_nombre %></td>
-      <td class="font-bold"><%= usuario.segundo_nombre %></td>
-      <td class="font-bold"><%= usuario.primer_apellido %></td>
-      <td class="font-bold"><%= usuario.segundo_apellido %></td>
       <td>
         <%= usuario.email_address %>
+      </td>
+      <td>
+        <%= usuario.nombre_corto %>
       </td>
       <td>
         <%= status_badge(pasivo: usuario.pasivo) %>

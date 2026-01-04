@@ -5,15 +5,16 @@ class User < ApplicationRecord
   has_many :roles_users, dependent: :destroy
   has_many :roles, through: :roles_users, source: :rol
 
+  belongs_to :empleado
+
+  delegate :nombre_completo,
+           :nombre_corto,
+           :cargo, to: :empleado, allow_nil: true
+
   normalizes :email_address, with: ->(e) { e.strip.downcase }
 
   def has_role?(role_name)
     roles.where(nombre: role_name.to_s.capitalize).exists?
-  end
-
-  def nombre_completo
-    "nombre completo del usuario. acordate de la relacion con empleado"
-    # [primer_nombre, segundo_nombre, primer_apellido, segundo_apellido].compact_blank.join(" ")
   end
 
   def can_access_menu?(menu_code)

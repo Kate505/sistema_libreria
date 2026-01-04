@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_03_022647) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_04_005831) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -73,7 +73,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_03_022647) do
   end
 
   create_table "empleados", force: :cascade do |t|
-    t.bigint "user_id"
     t.string "primer_nombre", limit: 50, null: false
     t.string "segundo_nombre", limit: 50
     t.string "primer_apellido", limit: 50, null: false
@@ -85,7 +84,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_03_022647) do
     t.boolean "pasivo", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["user_id"], name: "index_empleados_on_user_id"
   end
 
   create_table "gastos_operativos", force: :cascade do |t|
@@ -94,8 +92,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_03_022647) do
     t.decimal "costos_alquiler", precision: 10, scale: 2, default: "0.0"
     t.decimal "costo_utilidades", precision: 10, scale: 2, default: "0.0"
     t.decimal "costo_mantenimiento", precision: 10, scale: 2, default: "0.0"
-    t.decimal "total_salary_cost", precision: 10, scale: 2, default: "0.0"
-    t.decimal "grand_total_expenses", precision: 10, scale: 2
+    t.decimal "costo_salario_total", precision: 10, scale: 2, default: "0.0"
+    t.decimal "gran_total_gastos", precision: 10, scale: 2
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["periodo_mes", "periodo_year"], name: "index_gastos_operativos_on_periodo_mes_and_periodo_year", unique: true
@@ -205,13 +203,15 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_03_022647) do
     t.boolean "pasivo", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "empleado_id", null: false
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
+    t.index ["empleado_id"], name: "index_users_on_empleado_id", unique: true
   end
 
   create_table "ventas", force: :cascade do |t|
     t.bigint "cliente_id"
     t.datetime "fecha_venta", default: -> { "CURRENT_TIMESTAMP" }
-    t.string "metodo_pago", limit: 50
+    t.string "metodo_pago", limit: 2
     t.decimal "cantidad_total", precision: 10, scale: 2
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -224,7 +224,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_03_022647) do
   add_foreign_key "detalle_pagos_empleados", "gastos_operativos"
   add_foreign_key "detalle_venta", "productos"
   add_foreign_key "detalle_venta", "ventas"
-  add_foreign_key "empleados", "users"
   add_foreign_key "menus", "menus"
   add_foreign_key "menus", "modulos"
   add_foreign_key "ordenes_de_compra", "proveedores"
@@ -234,5 +233,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_03_022647) do
   add_foreign_key "roles_users", "roles", column: "rol_id"
   add_foreign_key "roles_users", "users"
   add_foreign_key "sessions", "users"
+  add_foreign_key "users", "empleados"
   add_foreign_key "ventas", "clientes"
 end

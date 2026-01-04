@@ -3,14 +3,14 @@ class Seguridad::UsuariosController < ApplicationController
 
   def index
     @usuario = User.new
-    @usuarios = User.all.order(:primer_apellido)
+    @usuarios = User.all.order(:email_address)
     @roles_usuario = []
     @lista_agregar_roles = []
   end
 
   def edit
     @usuario = User.find_by(id: params[:id])
-    @usuarios = User.all.order(:primer_apellido)
+    @usuarios = User.all.order(:email_address)
 
     refresh_lists_for_view
 
@@ -35,7 +35,7 @@ class Seguridad::UsuariosController < ApplicationController
     refresh_lists_for_view
 
     if @usuario.save
-      @usuarios = User.all.order(:primer_apellido)
+      @usuarios = User.all.order(:email_address)
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
@@ -56,7 +56,7 @@ class Seguridad::UsuariosController < ApplicationController
 
   def update
     if @usuario.update(usuario_params)
-      @usuarios = User.all.order(:primer_apellido)
+      @usuarios = User.all.order(:email_address)
       refresh_lists_for_view
 
       respond_to do |format|
@@ -78,7 +78,7 @@ class Seguridad::UsuariosController < ApplicationController
 
   def destroy
     @usuario.destroy
-    @usuarios = User.all.order(:primer_apellido)
+    @usuarios = User.all.order(:email_address)
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [

@@ -2,7 +2,7 @@
   <div class="modal-box w-11/12 max-w-xl overflow-hidden flex flex-col max-h-[50vh] h-[50vh] p-0">
 
     <div class="p-4 border-b border-base-200 flex justify-between items-center shrink-0 bg-base-100">
-      <h3 class="font-bold text-lg">Roles de <%= defined?(usuario) ? usuario&.primer_nombre : '' %></h3>
+      <h3 class="font-bold text-lg">Roles de <%= defined?(usuario) ? usuario&.nombre_corto : '' %></h3>
       <form method="dialog">
         <button class="btn btn-sm btn-circle btn-ghost">✕</button>
       </form>

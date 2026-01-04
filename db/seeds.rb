@@ -46,10 +46,14 @@ menu_padre_gestion_roles = Menu.create!(codigo: "SM001", nombre: "Gestión de Ro
 Menu.create!(codigo: "ROLES", nombre: "Roles", modulo: modulo_seguridad, parent: menu_padre_gestion_roles, link_to: "/seguridad/roles")
 
 # -------------  Roles y Usuarios  ------------- #
+# Empleados
+
+empleado_admin = Empleado.create!(primer_nombre: "Administrador", primer_apellido: "Sistema", cargo: "Administrador", salario_base: 1000000, viatico_transporte: 0)
+empleado_usuario = Empleado.create!(primer_nombre: "Usuario", primer_apellido: "Sistema", cargo: "Usuario", salario_base: 50000, viatico_transporte: 0)
 
 # Usuarios
-user_admin = User.create!(email_address: "admin@gmail.com", password: "123456", password_confirmation: "123456")
-user_normal = User.create!(email_address: "user@gmail.com", password: "123456", password_confirmation: "123456")
+user_admin = User.create!(email_address: "admin@gmail.com", password: "123456", password_confirmation: "123456", empleado: empleado_admin)
+user_normal = User.create!(email_address: "user@gmail.com", password: "123456", password_confirmation: "123456", empleado: empleado_usuario)
 
 # Roles
 admin_role = Rol.create!(nombre: "Administrador")

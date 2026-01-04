@@ -8,8 +8,8 @@ class CreateGastosOperativos < ActiveRecord::Migration[8.0]
       t.decimal :costo_utilidades, precision: 10, scale: 2, default: 0.00
       t.decimal :costo_mantenimiento, precision: 10, scale: 2, default: 0.00
 
-      t.decimal :total_salary_cost, precision: 10, scale: 2, default: 0.00
-      t.decimal :grand_total_expenses, precision: 10, scale: 2
+      t.decimal :costo_salario_total, precision: 10, scale: 2, default: 0.00
+      t.decimal :gran_total_gastos, precision: 10, scale: 2
 
       t.timestamps
     end
