@@ -27,7 +27,7 @@ menu_inventario = Menu.create!(codigo: "PRODUCTOS", nombre: "Inventario de Produ
 # # Módulo Catálogos
 Menu.create!(codigo: "CATEGORIAS", nombre: "Categorías de Productos", modulo: modulo_catalogos, link_to: "/catalogos/categorias")
 Menu.create!(codigo: "PROVEEDORES", nombre: "Proveedores", modulo: modulo_catalogos, link_to: "/catalogos/proveedores")
-menu_clientes = Menu.create!(codigo: "Clientes", nombre: "Clientes", modulo: modulo_catalogos, link_to: "/catalogos/clientes")
+menu_clientes = Menu.create!(codigo: "CLIENTES", nombre: "Clientes", modulo: modulo_catalogos, link_to: "/catalogos/clientes")
 
 # # Módulo Estadísticas
 Menu.create!(codigo: "ESTADISTICAS", nombre: "Estadísticas por período", modulo: modulo_estadisticas, link_to: "/estadisticas/estadisticas_periodo")
