@@ -25,6 +25,15 @@ class Seguridad::UsuariosController < ApplicationController
     end
   end
 
+  def buscar_empleado
+    @empleados = Empleado.empleados_sin_usuario
+                         .empleados_activos
+                         .por_nombre_completo(params[:q])
+                         .limit(5)
+
+    render json: @empleados.map { |e| { id: e.id, text: e.nombre_completo } }
+  end
+
   def create
     @usuario = User.new(usuario_params)
     password_temporal = "Temporal123"
@@ -132,7 +141,7 @@ class Seguridad::UsuariosController < ApplicationController
   end
 
   def usuario_params
-    params.require(:user).permit(:email_address, :pasivo)
+    params.require(:user).permit(:email_address, :empleado_id, :pasivo)
   end
 
   def refresh_lists_for_view

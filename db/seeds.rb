@@ -5,6 +5,7 @@ Menu.delete_all
 Modulo.delete_all
 Rol.delete_all
 User.delete_all
+Empleado.delete_all
 
 
 # -------------  Módulos  ------------- #

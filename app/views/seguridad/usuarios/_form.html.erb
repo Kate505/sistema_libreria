@@ -19,6 +19,36 @@
           <%= f.text_field :email_address, class: 'input input-bordered w-full validator', placeholder: 'Email', required: true %>
         </div>
 
+        <div class="w-full relative"
+             data-controller="autocomplete"
+             data-autocomplete-url-value="<%= buscar_empleado_seguridad_usuarios_path %>"
+             data-action="click@window->autocomplete#hide">
+
+          <%= f.label :empleado_id, 'Empleado', class: 'label pt-0' %>
+
+          <%= f.hidden_field :empleado_id, data: { autocomplete_target: "hidden" } %>
+
+          <div class="relative">
+            <% nombre_actual = usuario.empleado_id.present? ? usuario&.nombre_completo : "" %>
+
+            <input type="text"
+                   class="input input-bordered w-full validator pr-10"
+                   placeholder="Buscar empleado..."
+                   value="<%= nombre_actual %>"
+                   data-autocomplete-target="input"
+                   data-action="input->autocomplete#search"
+                   autocomplete="off">
+
+            <div data-autocomplete-target="loading" class="absolute right-3 top-3 hidden">
+              <span class="loading loading-spinner loading-sm text-primary"></span>
+            </div>
+          </div>
+
+          <ul data-autocomplete-target="results"
+              class="menu dropdown-content bg-base-100 rounded-box z-[50] w-full p-2 shadow-lg absolute top-full mt-1 border border-base-200 hidden max-h-60 overflow-y-auto">
+          </ul>
+        </div>
+
         <div class="w-full flex items-end pb-3">
           <%= f.label :pasivo, class: 'cursor-pointer label flex items-center gap-3' do %>
             <%= f.check_box :pasivo, class: 'checkbox' %>

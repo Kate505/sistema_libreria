@@ -1,0 +1,66 @@
+<turbo-frame id="empleado_form">
+  <%= form_with(model: empleado, url: empleado.new_record? ? seguridad_empleados_path : seguridad_empleado_path(empleado), method: empleado.new_record? ? :post : :patch, class: 'contents') do |f| %>
+
+    <div class="card-body">
+      <h2 class="card-title text-lg">
+        <%= empleado.new_record? ? "Agregar nuevo empleado" : "Actualizar empleado" %>
+      </h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
+        <div class="w-full">
+          <%= f.label :primer_nombre, 'Primer Nombre', class: 'label pt-0' %>
+          <%= f.text_field :primer_nombre, class: 'input input-bordered w-full validator', placeholder: 'Primer Nombre', required: true %>
+        </div>
+
+        <div class="w-full">
+          <%= f.label :segundo_nombre, 'Segundo Nombre', class: 'label pt-0' %>
+          <%= f.text_field :segundo_nombre, class: 'input input-bordered w-full', placeholder: 'Segundo Nombre' %>
+        </div>
+
+        <div class="w-full">
+          <%= f.label :primer_apellido, 'Primer Apellido', class: 'label pt-0' %>
+          <%= f.text_field :primer_apellido, class: 'input input-bordered w-full validator', placeholder: 'Primer Apellido', required: true %>
+        </div>
+
+        <div class="w-full">
+          <%= f.label :segundo_apellido, 'Segundo Apellido', class: 'label pt-0' %>
+          <%= f.text_field :segundo_apellido, class: 'input input-bordered w-full', placeholder: 'Segundo Apellido' %>
+        </div>
+
+        <div class="w-full">
+          <%= f.label :cargo, 'Cargo', class: 'label pt-0' %>
+          <%= f.text_field :cargo, class: 'input input-bordered w-full', placeholder: 'Cargo' %>
+        </div>
+
+        <div class="w-full">
+          <%= f.label :salario_base, 'Salario Base', class: 'label pt-0' %>
+          <%= f.number_field :salario_base, class: 'input input-bordered w-full validator', placeholder: 'Salario Base', required: true %>
+        </div>
+
+        <div class="w-full">
+          <%= f.label :viatico_transporte, 'Viático Transporte', class: 'label pt-0' %>
+          <%= f.number_field :viatico_transporte, class: 'input input-bordered w-full validator', placeholder: 'Viático Transporte' %>
+        </div>
+
+        <div class="w-full">
+          <%= f.label :fecha_contratacion, 'Fecha de Contratación', class: 'label pt-0' %>
+          <%= f.date_field :fecha_contratacion,
+                           value: f.object.fecha_contratacion&.strftime('%Y-%m-%d'),
+                           class: 'input input-bordered w-full validator' %>
+        </div>
+
+        <div class="w-full flex items-end pb-3">
+          <%= f.label :pasivo, class: 'cursor-pointer label flex items-center gap-3' do %>
+            <%= f.check_box :pasivo, class: 'checkbox' %>
+            <span class="label-text">Pasivo</span>
+          <% end %>
+        </div>
+
+        <div class="card-actions justify-end sm:col-span-2 col-span-full mt-2">
+          <%= save_button(f, style_class: 'btn btn-primary w-full sm:w-auto') %>
+        </div>
+
+      </div>
+    </div>
+  <% end %>
+</turbo-frame>

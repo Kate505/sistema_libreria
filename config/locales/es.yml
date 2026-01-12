@@ -26,6 +26,20 @@
 #     en:
 #       "yes": yup
 #       enabled: "ON"
+#
+#en:
+#  hello: "Hello world"
 
-en:
-  hello: "Hello world"
+es:
+  date:
+    formats:
+      default: "%d/%m/%Y"
+
+  time:
+    formats:
+      default: "%d/%m/%Y %H:%M"
+
+  activerecord:
+    attributes:
+      empleado:
+        fecha_contratacion: "Fecha de Contratación"

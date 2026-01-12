@@ -36,4 +36,19 @@ class Empleado < ApplicationRecord
   def nombre_corto
     "#{primer_nombre} #{primer_apellido}"
   end
+
+  scope :empleados_sin_usuario, -> {
+    left_outer_joins(:user).where(users: { id: nil })
+  }
+
+  scope :empleados_activos, -> { where(pasivo: false) }
+
+  scope :por_nombre_completo, ->(nombre) {
+    where(
+      "primer_nombre ILIKE :q OR segundo_nombre ILIKE :q " \
+        "OR primer_apellido ILIKE :q OR segundo_apellido ILIKE :q",
+      q: "%#{nombre}%"
+    )
+  }
+
 end
