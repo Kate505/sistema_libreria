@@ -5,6 +5,15 @@ export default class extends Controller {
 	static targets = ["module"]
 
 	connect() {
+
+		this._onSidebarExpanded = () => {
+			try {
+				if (typeof this.updateActive === "function") this.updateActive();
+			} catch (e) {}
+		}
+
+		document.addEventListener("sidebar:expanded", this._onSidebarExpanded);
+
 		// Handlers that call updateActive only if it's defined — no .bind usage
 		this._onTurboLoad = () => {
 			try { if (typeof this.updateActive === "function") this.updateActive() } catch (e) { /* ignore */ }
@@ -19,6 +28,7 @@ export default class extends Controller {
 	}
 
 	disconnect() {
+		document.removeEventListener("sidebar:expanded", this._onSidebarExpanded);
 		document.removeEventListener("turbo:load", this._onTurboLoad)
 		window.removeEventListener("popstate", this._onPopState)
 	}

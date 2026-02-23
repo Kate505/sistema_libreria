@@ -3,24 +3,41 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
 	static targets = ["toggle"]
 
-	// Esta acción se ejecuta al hacer clic en el botón de la versión compacta
 	expandAndOpen(event) {
-		// 1. Abrir el sidebar marcando el checkbox del drawer
+		event?.preventDefault()
+		event?.stopPropagation()
+
+		const targetId =
+			      event?.currentTarget?.dataset?.targetId ||
+			      event?.currentTarget?.dataset?.target_id
+
 		if (this.hasToggleTarget) {
 			this.toggleTarget.checked = true
+			this.toggleTarget.dispatchEvent(new Event("change", { bubbles: true }))
 		}
 
-		// 2. Obtener el ID del elemento details objetivo
-		// Este ID lo pasaremos mediante data-target-id en el helper
-		const targetId = event.currentTarget.dataset.targetId
+		if (!targetId) return
+
+		requestAnimationFrame(() => {
+			this.openDetailsTree(targetId)
+		})
+	}
+
+	openDetailsTree(targetId) {
 		const detailsElement = document.getElementById(targetId)
+		if (!detailsElement) return
+		detailsElement.open = true
 
-		// 3. Abrir el elemento details
-		if (detailsElement) {
-			detailsElement.open = true
-
-			// Opcional: hacer scroll hacia el elemento si la lista es muy larga
-			// detailsElement.scrollIntoView({ behavior: "smooth", block: "center" })
+		let parent = detailsElement.closest("details")
+		while (parent) {
+			parent.open = true
+			parent = parent.parentElement?.closest("details")
 		}
+
+		document.dispatchEvent(
+			new CustomEvent("sidebar:expanded", {
+				detail: { targetId }
+			})
+		)
 	}
 }

@@ -16,19 +16,13 @@ module ApplicationHelper
     if menu.children.loaded? && menu.children.any?
       render_menu_padre(menu)
     else
-      # 1. Calculamos si este menú es el activo
       link_path = menu.link_to || "#"
-      is_active = active_class_for(link_path)
-
-      puts('HOLA: ' + is_active.to_s + '' + link_path)
 
       content_tag(:li) do
-        link_to(link_path, class: "#{is_active}",
-                data: { turbo_frame: "main_content",
-                        "helpers--components--arbol-navegacion-target": "module",
-                        action: "helpers--components--arbol-navegacion#open",
-                        turbo_action: "advance"
-                }) do
+        link_to(link_path, data: { turbo_frame: "main_content",
+                                   "helpers--components--arbol-navegacion-target": "module",
+                                   turbo_action: "advance"
+        }) do
           content_tag(:svg, "", xmlns: "http://www.w3.org/2000/svg",
                       fill: "none", viewBox: "0 0 24 24",
                       stroke_width: "1.5", stroke: "currentColor",
@@ -145,7 +139,7 @@ module ApplicationHelper
                     items-center justify-center w-full",
                         data: { tip: modulo.nombre,
                                 action: "click->sidebar#expandAndOpen",
-                                target_id: unique_details_id }
+                                "target-id": unique_details_id }
             ) do
               inline_svg(modulo.icono, class_name: "w-6 h-6 inline-block")
             end
@@ -197,7 +191,7 @@ module ApplicationHelper
   private
 
   def active_class_for(path)
-    current_page?(path) ? "active" : ""
+    request.path.start_with?(path) && path != "#" ? "active" : ""
   end
 
 end

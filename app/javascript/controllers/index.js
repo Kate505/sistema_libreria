@@ -10,6 +10,9 @@ application.register("autocomplete", AutocompleteController)
 import Helpers__Components__ArbolNavegacionController from "./helpers/components/arbol_navegacion_controller"
 application.register("helpers--components--arbol-navegacion", Helpers__Components__ArbolNavegacionController)
 
+import Helpers__Components__MenuListController from "./helpers/components/menu_list_controller"
+application.register("helpers--components--menu-list", Helpers__Components__MenuListController)
+
 import Helpers__Components__ThemeToggleController from "./helpers/components/theme_toggle_controller"
 application.register("helpers--components--theme-toggle", Helpers__Components__ThemeToggleController)
 
