@@ -2,8 +2,15 @@ class PermissionRegistry
 
   EXEMPT_CONTROLLERS = %w[sessions passwords home registrations].freeze
 
+  # Controladores que comparten el código de menú de otro controlador.
+  # Clave: controller_name  →  Valor: código de menú a usar para la verificación.
+  CONTROLLER_MENU_MAP = {
+    "detalle_pagos_empleados" => "GASTOS_OPERATIVOS",
+    "nomina_empleados"        => "GASTOS_OPERATIVOS"
+  }.freeze
+
   def self.menu_code_for(controller_name)
-    controller_name.upcase
+    CONTROLLER_MENU_MAP.fetch(controller_name, controller_name.upcase)
   end
 
   def self.requires_menu_check?(controller_name)

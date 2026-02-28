@@ -2,7 +2,6 @@
   <thead>
   <tr class="bg-base-100 z-10">
     <th>ID</th>
-    <th>SKU</th>
     <th>Nombre</th>
     <th>Categoría</th>
     <th class="text-right">Precio Venta</th>
@@ -15,10 +14,6 @@
   <% productos.each do |producto| %>
     <tr class="hover:bg-base-200">
       <td class="text-base-content/50 text-sm"><%= producto.id %></td>
-
-      <td>
-        <span class="badge badge-outline badge-sm font-mono"><%= producto.sku %></span>
-      </td>
 
       <td class="font-medium max-w-xs">
         <span class="truncate block"><%= producto.nombre %></span>

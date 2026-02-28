@@ -21,5 +21,6 @@ Rails.application.routes.draw do
   draw :seguridad
   draw :catalogos
   draw :inventario
+  draw :finanzas
 
 end

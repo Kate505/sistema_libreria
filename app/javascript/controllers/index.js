@@ -24,3 +24,6 @@ application.register("select-dependency", SelectDependencyController)
 
 import SidebarController from "./sidebar_controller"
 application.register("sidebar", SidebarController)
+
+import NominaCalcController from "./nomina_calc_controller"
+application.register("nomina-calc", NominaCalcController)

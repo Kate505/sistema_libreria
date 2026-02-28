@@ -1,0 +1,51 @@
+<%= turbo_frame_tag "main_content" do %>
+  <%= turbo_refreshes_with method: :morph, scroll: :preserve %>
+
+  <div class="grid grid-rows-[auto_1fr] gap-6 h-[calc(100vh-10rem)] w-full">
+
+    <%# Encabezado %>
+    <div class="flex items-center justify-between shrink-0">
+      <div class="flex items-center gap-3">
+        <%= link_to finanzas_gastos_operativos_path,
+                    data: { turbo_frame: "main_content", turbo_action: "advance" },
+                    class: "btn btn-ghost btn-sm btn-square" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+        <% end %>
+        <div>
+          <h1 class="text-3xl font-bold">Nómina: <%= @gasto_operativo.periodo_legible %></h1>
+          <p class="text-sm text-base-content/50">Detalle de pagos por empleado</p>
+        </div>
+      </div>
+
+      <%# Resumen del gasto %>
+      <%= render "finanzas/gastos_operativos/resumen", gasto_operativo: @gasto_operativo %>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 min-h-0">
+
+      <%# Formulario %>
+      <div class="card bg-base-100 shadow-xl overflow-hidden flex flex-col h-full lg:max-h-full">
+        <div class="overflow-y-auto flex-1 p-0">
+          <%= render "finanzas/detalle_pagos_empleados/form",
+                     gasto_operativo: @gasto_operativo,
+                     detalle_pago_empleado: @detalle_pago_empleado %>
+        </div>
+      </div>
+
+      <%# Tabla de detalles %>
+      <div class="card bg-base-100 shadow-xl col-span-2 flex flex-col h-full overflow-hidden">
+        <div class="flex-1 overflow-y-auto">
+          <div id="detalle_pagos_empleados_table" class="h-full">
+            <%= render "finanzas/detalle_pagos_empleados/table",
+                       gasto_operativo: @gasto_operativo,
+                       detalle_pagos_empleados: @detalle_pagos_empleados %>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+<% end %>

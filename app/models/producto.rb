@@ -1,12 +1,11 @@
 class Producto < ApplicationRecord
   self.table_name = "productos"
 
-  belongs_to :categoria, foreign_key: "categorias_id"
+  belongs_to :categoria, foreign_key: "categoria_id"
   has_many :detalle_ordenes_de_compra
   has_many :detalle_ventas
 
   validates :sku,
-            presence: true,
             length: { maximum: 50 },
             uniqueness: true
 
@@ -14,7 +13,7 @@ class Producto < ApplicationRecord
             presence: true,
             length: { maximum: 200 }
 
-  validates :categorias_id,
+  validates :categoria_id,
             presence: true
 
   validates :descuento_maximo,

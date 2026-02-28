@@ -30,6 +30,18 @@ class Inventario::ProductosController < ApplicationController
     render json: @categorias.map { |c| { id: c.id, text: c.nombre } }
   end
 
+  def consulta_precios
+    @q = params[:q].to_s.strip
+    @productos = Producto.includes(:categoria)
+                         .order(:nombre)
+    unless @q.blank?
+      @productos = @productos.where(
+        "productos.nombre ILIKE :term OR productos.sku ILIKE :term OR categorias.nombre ILIKE :term",
+        term: "%#{@q}%"
+      ).joins(:categoria)
+    end
+  end
+
   def create
     @producto = Producto.new(producto_params)
 
@@ -98,7 +110,7 @@ class Inventario::ProductosController < ApplicationController
 
   def producto_params
     params.require(:producto).permit(
-      :categorias_id,
+      :categoria_id,
       :sku,
       :nombre,
       :descuento,

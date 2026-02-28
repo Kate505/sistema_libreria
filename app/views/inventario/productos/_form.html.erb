@@ -40,12 +40,12 @@
              data-autocomplete-url-value="<%= buscar_categoria_inventario_productos_path %>"
              data-action="click@window->autocomplete#hide">
 
-          <%= f.label :categorias_id, 'Categoría', class: 'label pt-0' %>
+          <%= f.label :categoria_id, 'Categoría', class: 'label pt-0' %>
 
-          <%= f.hidden_field :categorias_id, data: { autocomplete_target: "hidden" } %>
+          <%= f.hidden_field :categoria_id, data: { autocomplete_target: "hidden" } %>
 
           <div class="relative">
-            <% nombre_categoria = producto.categorias_id.present? ? producto.categoria&.nombre : "" %>
+            <% nombre_categoria = producto.categoria_id.present? ? producto.categoria&.nombre : "" %>
 
             <input type="text"
                    class="input input-bordered w-full pr-10"

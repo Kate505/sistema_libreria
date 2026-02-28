@@ -1,0 +1,123 @@
+<turbo-frame id="gasto_operativo_form">
+  <%= form_with(model: gasto_operativo,
+                url: gasto_operativo.new_record? ? finanzas_gastos_operativos_path : finanzas_gasto_operativo_path(gasto_operativo),
+                method: gasto_operativo.new_record? ? :post : :patch,
+                class: 'contents') do |f| %>
+
+    <div class="card-body">
+      <h2 class="card-title text-lg">
+        <%= gasto_operativo.new_record? ? "Registrar Gasto Operativo" : "Editar: #{gasto_operativo.periodo_legible}" %>
+      </h2>
+
+      <%# Errores %>
+      <% if gasto_operativo.errors.any? %>
+        <div class="alert alert-error text-sm py-2">
+          <ul class="list-disc list-inside">
+            <% gasto_operativo.errors.full_messages.each do |msg| %>
+              <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+        <%# === SECCIÓN: PERÍODO === %>
+        <div class="sm:col-span-2">
+          <div class="divider divider-start text-xs font-semibold text-base-content/50 uppercase tracking-wider my-1">
+            Período
+          </div>
+        </div>
+
+        <%# Mes %>
+        <div class="w-full">
+          <%= f.label :periodo_mes, 'Mes', class: 'label pt-0' %>
+          <%= f.select :periodo_mes,
+                       [
+                         ["Enero",      1],  ["Febrero",   2],  ["Marzo",    3],
+                         ["Abril",      4],  ["Mayo",      5],  ["Junio",    6],
+                         ["Julio",      7],  ["Agosto",    8],  ["Septiembre", 9],
+                         ["Octubre",   10],  ["Noviembre", 11], ["Diciembre", 12]
+                       ],
+                       { include_blank: "— Seleccione un mes —" },
+                       class: 'select select-bordered w-full', required: true %>
+        </div>
+
+        <%# Año %>
+        <div class="w-full">
+          <%= f.label :periodo_year, 'Año', class: 'label pt-0' %>
+          <%= f.number_field :periodo_year,
+                             min: 2001,
+                             max: Date.today.year + 5,
+                             class: 'input input-bordered w-full',
+                             placeholder: Date.today.year.to_s,
+                             required: true %>
+        </div>
+
+        <%# === SECCIÓN: COSTOS === %>
+        <div class="sm:col-span-2">
+          <div class="divider divider-start text-xs font-semibold text-base-content/50 uppercase tracking-wider my-1">
+            Costos
+          </div>
+        </div>
+
+        <%# Costos de Alquiler %>
+        <div class="w-full">
+          <%= f.label :costos_alquiler, 'Alquiler', class: 'label pt-0' %>
+          <label class="input input-bordered flex items-center gap-2 w-full">
+            <span class="text-base-content/60 text-sm font-semibold">C$</span>
+            <%= f.number_field :costos_alquiler, step: '0.01', min: 0, class: 'grow', placeholder: '0.00' %>
+          </label>
+        </div>
+
+        <%# Costo Utilidades %>
+        <div class="w-full">
+          <%= f.label :costo_utilidades, 'Utilidades', class: 'label pt-0' %>
+          <label class="input input-bordered flex items-center gap-2 w-full">
+            <span class="text-base-content/60 text-sm font-semibold">C$</span>
+            <%= f.number_field :costo_utilidades, step: '0.01', min: 0, class: 'grow', placeholder: '0.00' %>
+          </label>
+        </div>
+
+        <%# Costo Mantenimiento %>
+        <div class="w-full">
+          <%= f.label :costo_mantenimiento, 'Mantenimiento', class: 'label pt-0' %>
+          <label class="input input-bordered flex items-center gap-2 w-full">
+            <span class="text-base-content/60 text-sm font-semibold">C$</span>
+            <%= f.number_field :costo_mantenimiento, step: '0.01', min: 0, class: 'grow', placeholder: '0.00' %>
+          </label>
+        </div>
+
+        <%# Costo Salario Total %>
+        <div class="w-full">
+          <%= f.label :costo_salario_total, 'Costo de Nómina', class: 'label pt-0' %>
+          <label class="input input-bordered flex items-center gap-2 w-full">
+            <span class="text-base-content/60 text-sm font-semibold">C$</span>
+            <%= f.number_field :costo_salario_total, step: '0.01', min: 0, class: 'grow', placeholder: '0.00' %>
+          </label>
+        </div>
+
+        <%# Botón Importar Nómina (solo en edición) %>
+        <% unless gasto_operativo.new_record? %>
+          <div class="sm:col-span-2">
+            <%= button_to importar_nomina_finanzas_gasto_operativo_path(gasto_operativo),
+                          method: :post,
+                          data: { turbo_confirm: "¿Importar el costo de nómina actual (salarios + viáticos de empleados activos)? Esto reemplazará el valor actual." },
+                          class: "btn btn-outline btn-info btn-sm w-full gap-2" do %>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+              </svg>
+              Importar costo de nómina actual
+            <% end %>
+          </div>
+        <% end %>
+
+        <%# Botones de acción %>
+        <div class="card-actions justify-end sm:col-span-2 col-span-full mt-4 pt-4 border-t border-base-200">
+          <%= save_button(f) %>
+        </div>
+
+      </div>
+    </div>
+  <% end %>
+</turbo-frame>

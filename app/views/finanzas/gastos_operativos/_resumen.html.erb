@@ -1,0 +1,16 @@
+<turbo-frame id="gasto_operativo_resumen">
+  <div class="stats shadow bg-base-200 text-sm">
+    <div class="stat py-2 px-4">
+      <div class="stat-title text-xs">Costo Nómina</div>
+      <div class="stat-value text-lg text-primary">
+        C$ <%= number_with_precision(gasto_operativo.costo_salario_total, precision: 2, delimiter: ',') %>
+      </div>
+    </div>
+    <div class="stat py-2 px-4">
+      <div class="stat-title text-xs">Total Gastos</div>
+      <div class="stat-value text-lg">
+        C$ <%= number_with_precision(gasto_operativo.gran_total_gastos, precision: 2, delimiter: ',') %>
+      </div>
+    </div>
+  </div>
+</turbo-frame>
