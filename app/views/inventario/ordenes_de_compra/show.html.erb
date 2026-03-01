@@ -1,0 +1,60 @@
+<%= turbo_frame_tag "main_content" do %>
+  <%= turbo_refreshes_with method: :morph, scroll: :preserve %>
+
+  <div class="grid grid-rows-[auto_1fr] gap-6 h-[calc(100vh-10rem)] w-full">
+
+    <%# Encabezado con botón de volver %>
+    <div class="flex items-center justify-between shrink-0 flex-wrap gap-3">
+      <div class="flex items-center gap-3">
+        <%= link_to inventario_ordenes_de_compra_path,
+                    data: { turbo_frame: "main_content", turbo_action: "advance" },
+                    class: "btn btn-ghost btn-sm btn-square" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+        <% end %>
+        <div>
+          <h1 class="text-3xl font-bold">
+            Orden #<%= @orden_de_compra.id %>
+            <span class="text-base-content/50 font-normal text-xl">— <%= @orden_de_compra.proveedor.nombre %></span>
+          </h1>
+          <p class="text-sm text-base-content/50">
+            <%= l(@orden_de_compra.fecha_compra, format: :long) rescue @orden_de_compra.fecha_compra.strftime("%d/%m/%Y") %>
+            <% if @orden_de_compra.numero_factura.present? %>
+              · Factura: <span class="font-medium"><%= @orden_de_compra.numero_factura %></span>
+            <% end %>
+          </p>
+        </div>
+      </div>
+
+      <%# Resumen totales %>
+      <%= render "resumen", orden_de_compra: @orden_de_compra %>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 min-h-0">
+
+      <%# Formulario de línea de detalle %>
+      <div class="card bg-base-100 shadow-xl overflow-hidden flex flex-col h-full lg:max-h-full">
+        <div class="overflow-y-auto flex-1 p-0">
+          <%= render "inventario/detalle_ordenes_de_compra/form",
+                     orden_de_compra: @orden_de_compra,
+                     detalle: @detalle %>
+        </div>
+      </div>
+
+      <%# Tabla de líneas %>
+      <div class="card bg-base-100 shadow-xl col-span-2 flex flex-col h-full overflow-hidden">
+        <div class="flex-1 overflow-y-auto">
+          <div id="detalle_ordenes_de_compra_table">
+            <%= render "inventario/detalle_ordenes_de_compra/table",
+                       orden_de_compra: @orden_de_compra,
+                       detalles: @detalles %>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+<% end %>
