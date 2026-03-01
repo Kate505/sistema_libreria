@@ -5,5 +5,4 @@ class Modulo < ApplicationRecord
 
   has_many :menus, dependent: :destroy
   validates :nombre, presence: true, length: { maximum: 50 }
-
 end

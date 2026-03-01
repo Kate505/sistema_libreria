@@ -1,5 +1,4 @@
 module ApplicationHelper
-
   def show_snack_bar?
     !%w[home sesions].include?(controller_name)
   end
@@ -92,7 +91,6 @@ module ApplicationHelper
     home_active_class = active_class_for(root_path)
 
     items << content_tag(:li, class: "py-4") do
-
       # -------- versión compacta --------
       concat(
         link_to(
@@ -128,7 +126,6 @@ module ApplicationHelper
       modulos.map do |modulo|
         unique_details_id = "details-modulo-#{modulo.id}"
         content_tag(:li, class: "py-4") do
-
           # --------------------
           # VERSION COMPACTA
           # --------------------
@@ -154,12 +151,10 @@ module ApplicationHelper
                         class: "is-drawer-open:block is-drawer-close:hidden",
                         open: false
             ) do
-
               concat(
                 content_tag(:summary,
                             class: "flex items-center gap-2 group cursor-pointer"
                 ) do
-
                   concat(
                     inline_svg(modulo.icono, class_name: "w-6 h-6 inline-block")
                   )
@@ -193,5 +188,4 @@ module ApplicationHelper
   def active_class_for(path)
     request.path.start_with?(path) && path != "#" ? "active" : ""
   end
-
 end

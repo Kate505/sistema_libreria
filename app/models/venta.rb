@@ -1,5 +1,4 @@
 class Venta < ApplicationRecord
-
   self.table_name = "ventas"
 
   belongs_to :cliente, optional: true

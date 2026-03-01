@@ -1,5 +1,4 @@
 namespace :inventario do
-
   resources :ordenes_de_compra do
     collection do
       get :buscar_proveedor
@@ -14,5 +13,4 @@ namespace :inventario do
       get :consulta_precios
     end
   end
-
 end

@@ -1,5 +1,4 @@
 class DetalleOrdenDeCompra < ApplicationRecord
-
   self.table_name = "detalle_ordenes_de_compra"
 
   belongs_to :orden_de_compra

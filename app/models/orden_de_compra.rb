@@ -1,5 +1,4 @@
 class OrdenDeCompra < ApplicationRecord
-
   self.table_name = "ordenes_de_compra"
 
   belongs_to :proveedor
@@ -19,5 +18,4 @@ class OrdenDeCompra < ApplicationRecord
 
   validates :costo_total_flete,
             numericality: { greater_than_or_equal_to: 0 }
-
 end

@@ -107,9 +107,9 @@ class Seguridad::UsuariosController < ApplicationController
                             User.where(modulo_id: modulo_id)
                                 .where.not(nombre: "Inicio")
                                 .order(:nombre)
-                          else
+    else
                             []
-                          end
+    end
 
     render turbo_stream: turbo_stream.replace(
       target,

@@ -1,5 +1,4 @@
 class PermissionRegistry
-
   EXEMPT_CONTROLLERS = %w[sessions passwords home registrations].freeze
 
   # Controladores que comparten el código de menú de otro controlador.

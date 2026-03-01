@@ -14,5 +14,4 @@ class Proveedor < ApplicationRecord
   validates :direccion,
             presence: true,
             length: { maximum: 255 }
-
 end

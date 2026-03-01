@@ -77,7 +77,7 @@ class Seguridad::MenusController < ApplicationController
                              .order(:nombre)
     else
                          []
-                       end
+    end
 
     render turbo_stream: turbo_stream.replace(
       target,

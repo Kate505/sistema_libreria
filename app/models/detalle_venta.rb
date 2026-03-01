@@ -1,5 +1,4 @@
 class DetalleVenta < ApplicationRecord
-
   # CRÍTICO: La migración (20260103022625_create_detalle_venta.rb) crea la tabla
   # con nombre SINGULAR: :detalle_venta — no :detalle_ventas
   self.table_name = "detalle_venta"

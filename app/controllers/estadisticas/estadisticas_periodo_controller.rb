@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class Estadisticas::EstadisticasPeriodoController < ApplicationController
-
   def index
     hoy = Time.current
 

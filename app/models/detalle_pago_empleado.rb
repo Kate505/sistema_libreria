@@ -59,7 +59,7 @@ class DetallePagoEmpleado < ApplicationRecord
     ].compact.sum
 
     neto = self.salario_bruto - total_deducciones
-    self.salario_neto = [neto, 0].max
+    self.salario_neto = [ neto, 0 ].max
   end
 
   def actualizar_gasto_operativo

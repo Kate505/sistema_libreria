@@ -44,9 +44,9 @@ class Producto < ApplicationRecord
 
       nuevo_cpp = if nuevo_stock > 0
                     ((costo_promedio_ponderado.to_d * stock_prev) + (costo * cantidad)) / nuevo_stock
-                  else
+      else
                     costo
-                  end
+      end
 
       update_columns(
         stock_actual:               nuevo_stock,

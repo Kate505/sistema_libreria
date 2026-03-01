@@ -67,7 +67,7 @@ Menu.all.each do |menu|
   RolesMenu.create!(rol: admin_role, menu: menu)
 end
 
-[menu_ventas, menu_clientes, menu_consulta_precios].each do |menu|
+[ menu_ventas, menu_clientes, menu_consulta_precios ].each do |menu|
   RolesMenu.create!(rol: seller_role, menu: menu)
 end
 

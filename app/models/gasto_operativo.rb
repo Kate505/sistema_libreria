@@ -1,5 +1,4 @@
 class GastoOperativo < ApplicationRecord
-
   self.table_name = "gastos_operativos"
 
   has_many :detalle_pagos_empleados,

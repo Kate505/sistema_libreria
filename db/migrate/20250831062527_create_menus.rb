@@ -12,6 +12,6 @@ class CreateMenus < ActiveRecord::Migration[8.0]
     end
 
     add_index :menus, :codigo, unique: true
-    add_index :menus, [:codigo, :modulo_id, :menu_id], unique: true, name: "menus_codigo_modulo_id_menu_id_uq"
+    add_index :menus, [ :codigo, :modulo_id, :menu_id ], unique: true, name: "menus_codigo_modulo_id_menu_id_uq"
   end
 end
