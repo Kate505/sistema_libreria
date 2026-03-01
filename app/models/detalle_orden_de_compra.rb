@@ -1,5 +1,4 @@
 class DetalleOrdenDeCompra < ApplicationRecord
-
   self.table_name = "detalle_ordenes_de_compra"
 
   belongs_to :orden_de_compra
@@ -25,9 +24,33 @@ class DetalleOrdenDeCompra < ApplicationRecord
 
   validate :costo_coherente_con_precio
 
-  # before_validation :calcular_costo_unitario
+  # Actualiza stock y costos del producto al registrar la línea
+  after_create :aplicar_en_producto
+
+  # Guarda los atributos necesarios antes del destroy (el record queda frozen después)
+  before_destroy :capturar_atributos_para_reversion
+
+  # Revierte el stock del producto al eliminar la línea
+  after_destroy :revertir_en_producto
 
   private
+
+  def aplicar_en_producto
+    producto.actualizar_por_compra!(self)
+  end
+
+  def capturar_atributos_para_reversion
+    @atributos_compra = {
+      cantidad:                        cantidad,
+      precio_unitario_compra:          precio_unitario_compra,
+      costo_unitario_compra_calculado: costo_unitario_compra_calculado
+    }
+  end
+
+  def revertir_en_producto
+    detalle_virtual = OpenStruct.new(@atributos_compra)
+    producto.revertir_compra!(detalle_virtual)
+  end
 
   def costo_coherente_con_precio
     return unless precio_unitario_compra.present? && costo_unitario_compra_calculado.present?
@@ -41,15 +64,5 @@ class DetalleOrdenDeCompra < ApplicationRecord
     return unless precio_unitario_compra.present?
 
     self.costo_unitario_compra_calculado = precio_unitario_compra
-
-    # 2. Lógica de Flete (Opcional pero recomendada)
-    # Nota: Distribuir el flete línea por línea al guardar es complejo porque 
-    # si agregas otro producto después, el prorrateo de los anteriores cambia.
-    # 
-    # Por ahora, esta lógica asegura que si el usuario no mete el costo manual,
-    # el sistema asuma: Costo = Precio.
-
-    # Si quisieras sumar un flete FIJO conocido por producto, sería así:
-    # self.costo_unitario_compra_calculado += (orden_de_compra.costo_total_flete / cantidad) rescue 0
   end
 end

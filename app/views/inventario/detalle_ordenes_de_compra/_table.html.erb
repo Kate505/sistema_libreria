@@ -1,0 +1,90 @@
+<table class="table table-pin-rows">
+  <thead>
+    <tr class="bg-base-100 z-10">
+      <th>Producto</th>
+      <th class="text-center">Cantidad</th>
+      <th class="text-right">P. Compra Unit.</th>
+      <th class="text-right">Costo Unit. Calc.</th>
+      <th class="text-right">Total Línea</th>
+      <th class="text-right">Acción</th>
+    </tr>
+  </thead>
+
+  <tbody>
+  <% detalles.each do |detalle| %>
+    <% total_linea = detalle.costo_unitario_compra_calculado.to_d * detalle.cantidad.to_i %>
+    <tr class="hover:bg-base-200">
+
+      <td class="font-medium max-w-xs">
+        <div class="flex flex-col">
+          <span class="truncate"><%= detalle.producto.nombre %></span>
+          <% if detalle.producto.sku.present? %>
+            <span class="text-xs text-base-content/40 font-mono"><%= detalle.producto.sku %></span>
+          <% end %>
+        </div>
+      </td>
+
+      <td class="text-center tabular-nums font-semibold">
+        <%= detalle.cantidad %>
+      </td>
+
+      <td class="text-right tabular-nums text-sm">
+        C$ <%= number_with_precision(detalle.precio_unitario_compra, precision: 2, delimiter: ',') %>
+      </td>
+
+      <td class="text-right tabular-nums text-sm">
+        <% diferencia = detalle.costo_unitario_compra_calculado.to_d - detalle.precio_unitario_compra.to_d %>
+        C$ <%= number_with_precision(detalle.costo_unitario_compra_calculado, precision: 2, delimiter: ',') %>
+        <% if diferencia > 0 %>
+          <div class="text-xs text-warning/70">+C$ <%= number_with_precision(diferencia, precision: 2) %> flete</div>
+        <% end %>
+      </td>
+
+      <td class="text-right font-semibold tabular-nums">
+        C$ <%= number_with_precision(total_linea, precision: 2, delimiter: ',') %>
+      </td>
+
+      <td class="text-right">
+        <%= link_to inventario_orden_de_compra_detalle_ordenes_de_compra_path(orden_de_compra, detalle),
+                    data: { turbo_method: :delete,
+                            turbo_confirm: "¿Eliminar #{detalle.producto.nombre} de esta orden? Se revertirán #{detalle.cantidad} unidades del stock." },
+                    class: "btn btn-sm btn-ghost btn-square text-error",
+                    title: "Eliminar línea" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6l-1 14H6L5 6"/>
+            <path d="M10 11v6M14 11v6"/>
+            <path d="M9 6V4h6v2"/>
+          </svg>
+        <% end %>
+      </td>
+
+    </tr>
+  <% end %>
+
+  <% if detalles.empty? %>
+    <tr>
+      <td colspan="6" class="text-center py-16 text-base-content/40">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-3 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+        </svg>
+        <p class="text-sm">Sin productos agregados. Usa el formulario de la izquierda.</p>
+      </td>
+    </tr>
+  <% end %>
+
+  </tbody>
+
+  <% if detalles.any? %>
+    <tfoot>
+      <tr class="bg-base-200/50">
+        <td colspan="4" class="text-right font-semibold text-sm">Subtotal (costo calculado):</td>
+        <td class="text-right font-bold tabular-nums">
+          <% subtotal = detalles.sum { |d| d.costo_unitario_compra_calculado.to_d * d.cantidad.to_i } %>
+          C$ <%= number_with_precision(subtotal, precision: 2, delimiter: ',') %>
+        </td>
+        <td></td>
+      </tr>
+    </tfoot>
+  <% end %>
+</table>

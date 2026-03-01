@@ -19,7 +19,7 @@ gem "jbuilder"
 
 gem "dotenv"
 
-gem 'kaminari'
+gem "kaminari"
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 gem "bcrypt", "~> 3.1.7"

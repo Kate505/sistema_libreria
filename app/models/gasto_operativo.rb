@@ -1,6 +1,8 @@
 class GastoOperativo < ApplicationRecord
-
   self.table_name = "gastos_operativos"
+
+  has_many :detalle_pagos_empleados,
+           dependent: :destroy
 
   validates :periodo_mes,
             presence: true,
@@ -21,9 +23,15 @@ class GastoOperativo < ApplicationRecord
 
   before_save :calcular_total_gastos
 
+  NOMBRES_MESES = {
+    1 => "Enero", 2 => "Febrero", 3 => "Marzo", 4 => "Abril",
+    5 => "Mayo", 6 => "Junio", 7 => "Julio", 8 => "Agosto",
+    9 => "Septiembre", 10 => "Octubre", 11 => "Noviembre", 12 => "Diciembre"
+  }.freeze
+
   def nombre_mes
     return unless periodo_mes
-    I18n.t("date.month_names")[periodo_mes].capitalize
+    NOMBRES_MESES[periodo_mes]
   end
 
   def periodo_legible

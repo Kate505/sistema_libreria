@@ -1,5 +1,4 @@
 class Venta < ApplicationRecord
-
   self.table_name = "ventas"
 
   belongs_to :cliente, optional: true
@@ -17,16 +16,28 @@ class Venta < ApplicationRecord
             presence: true,
             length: { maximum: 2 },
             inclusion: {
-              in: METODO_PAGO.keys,
+              in: METODOS_PAGO.keys,
               message: "%{value} no es un método de pago válido"
             }
 
+  # cantidad_total es CALCULADO automáticamente por DetalleVenta callbacks.
+  # NO debe validarse como presencia porque al crear una nueva venta siempre
+  # empieza en nil/0 antes de agregar productos.
   validates :cantidad_total,
-            presence: true,
-            numericality: { greater_than_or_equal_to: 0 }
+            numericality: { greater_than_or_equal_to: 0 },
+            allow_nil: true
 
-  normalizes :metodo_pago, with: ->(m) { m.strip.titleize }
+  normalizes :metodo_pago, with: ->(m) { m.strip.upcase }
 
-  scope :hoy, -> { where(fecha_venta: Time.current.all_day) }
+  # Garantiza que cantidad_total nunca sea nil en BD al guardar
+  before_validation :inicializar_cantidad_total
+
+  scope :hoy,             -> { where(fecha_venta: Time.current.all_day) }
   scope :por_metodo_pago, ->(metodo) { where(metodo_pago: metodo) }
+
+  private
+
+  def inicializar_cantidad_total
+    self.cantidad_total ||= 0
+  end
 end

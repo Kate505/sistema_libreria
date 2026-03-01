@@ -1,0 +1,89 @@
+<table class="table table-pin-rows px-4">
+  <thead>
+    <tr class="bg-base-100 z-10">
+      <th>Período</th>
+      <th class="text-right">Alquiler</th>
+      <th class="text-right">Utilidades</th>
+      <th class="text-right">Mantenimiento</th>
+      <th class="text-right">Nómina</th>
+      <th class="text-right font-bold">Total</th>
+      <th class="text-right">Acciones</th>
+    </tr>
+  </thead>
+
+  <tbody>
+  <% gastos_operativos.each do |gasto| %>
+    <tr class="hover:bg-base-200">
+
+      <td>
+        <div class="flex flex-col">
+          <span class="font-semibold"><%= gasto.nombre_mes %></span>
+          <span class="text-xs text-base-content/50"><%= gasto.periodo_year %></span>
+        </div>
+      </td>
+
+      <td class="text-right tabular-nums">
+        C$ <%= number_with_precision(gasto.costos_alquiler, precision: 2, delimiter: ',') %>
+      </td>
+
+      <td class="text-right tabular-nums">
+        C$ <%= number_with_precision(gasto.costo_utilidades, precision: 2, delimiter: ',') %>
+      </td>
+
+      <td class="text-right tabular-nums">
+        C$ <%= number_with_precision(gasto.costo_mantenimiento, precision: 2, delimiter: ',') %>
+      </td>
+
+      <td class="text-right tabular-nums">
+        C$ <%= number_with_precision(gasto.costo_salario_total, precision: 2, delimiter: ',') %>
+      </td>
+
+      <td class="text-right tabular-nums font-bold text-primary">
+        C$ <%= number_with_precision(gasto.gran_total_gastos, precision: 2, delimiter: ',') %>
+      </td>
+
+      <td class="flex gap-2 justify-end">
+        <%# Ver Nómina %>
+        <%= link_to finanzas_gasto_operativo_path(gasto),
+                    data: { turbo_frame: "main_content", turbo_action: "advance" },
+                    class: "btn btn-sm btn-ghost btn-square text-info",
+                    title: "Ver Nómina" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+            <path fill="currentColor" d="M10 12.796V3.204L4.519 8zm-.659.753-5.48-4.796a1 1 0 0 1 0-1.506l5.48-4.796A1 1 0 0 1 11 3.204v9.592a1 1 0 0 1-1.659.753"/>
+          </svg>
+        <% end %>
+
+        <%# Editar %>
+        <%= link_to edit_finanzas_gasto_operativo_path(gasto),
+                    data: { turbo_frame: "gasto_operativo_form" },
+                    class: "btn btn-sm btn-ghost btn-square",
+                    title: "Editar" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+            <path fill="currentColor" d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+            <path fill="currentColor" fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+          </svg>
+        <% end %>
+
+        <%= link_to finanzas_gasto_operativo_path(gasto),
+                    data: { turbo_method: :delete, turbo_confirm: "¿Eliminar el gasto operativo de #{gasto.periodo_legible}? Esta acción no se puede deshacer." },
+                    class: "btn btn-sm btn-ghost btn-square text-error",
+                    title: "Eliminar" do %>
+          <% inline_svg "remove.svg" %>
+        <% end %>
+      </td>
+    </tr>
+  <% end %>
+
+  <% if gastos_operativos.empty? %>
+    <tr>
+      <td colspan="7" class="text-center py-12 text-base-content/40">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-3 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M12 7h.01M3 5a2 2 0 012-2h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5z" />
+        </svg>
+        <p class="text-sm">No hay gastos operativos registrados</p>
+      </td>
+    </tr>
+  <% end %>
+
+  </tbody>
+</table>

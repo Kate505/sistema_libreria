@@ -38,7 +38,7 @@ class User < ApplicationRecord
 
     Modulo
       .where(id: modulo_ids)
-      .includes(menus: [:children, :roles])
+      .includes(menus: [ :children, :roles ])
   end
 
   def accessible_menus_by_user

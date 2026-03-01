@@ -1,0 +1,87 @@
+<turbo-frame id="orden_de_compra_form">
+  <%= form_with(model: orden_de_compra,
+                url: orden_de_compra.new_record? ? inventario_ordenes_de_compra_path : inventario_orden_de_compra_path(orden_de_compra),
+                method: orden_de_compra.new_record? ? :post : :patch,
+                class: 'contents') do |f| %>
+
+    <div class="card-body">
+      <h2 class="card-title text-lg">
+        <%= orden_de_compra.new_record? ? "Nueva Orden de Compra" : "Editar Orden ##{orden_de_compra.id}" %>
+      </h2>
+
+      <%# Errores %>
+      <% if orden_de_compra.errors.any? %>
+        <div class="alert alert-error text-sm py-2">
+          <ul class="list-disc list-inside">
+            <% orden_de_compra.errors.full_messages.each do |msg| %>
+              <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+        <%# Proveedor - Autocomplete %>
+        <div class="w-full sm:col-span-2 relative"
+             data-controller="autocomplete"
+             data-autocomplete-url-value="<%= buscar_proveedor_inventario_ordenes_de_compra_path %>"
+             data-action="click@window->autocomplete#hide">
+
+          <%= f.label :proveedor_id, 'Proveedor', class: 'label pt-0' %>
+          <%= f.hidden_field :proveedor_id, data: { autocomplete_target: "hidden" } %>
+
+          <div class="relative">
+            <% nombre_proveedor = orden_de_compra.proveedor_id.present? ? orden_de_compra.proveedor&.nombre : "" %>
+            <input type="text"
+                   class="input input-bordered w-full pr-10"
+                   placeholder="Buscar proveedor..."
+                   value="<%= nombre_proveedor %>"
+                   data-autocomplete-target="input"
+                   data-action="input->autocomplete#search"
+                   autocomplete="off">
+
+            <div data-autocomplete-target="loading" class="absolute right-3 top-3 hidden">
+              <span class="loading loading-spinner loading-sm text-primary"></span>
+            </div>
+          </div>
+
+          <ul data-autocomplete-target="results"
+              class="menu dropdown-content bg-base-100 rounded-box z-[50] w-full p-2 shadow-lg absolute top-full mt-1 border border-base-200 hidden max-h-60 overflow-y-auto">
+          </ul>
+        </div>
+
+        <%# Fecha de Compra %>
+        <div class="w-full sm:col-span-2">
+          <%= f.label :fecha_compra, 'Fecha de Compra', class: 'label pt-0' %>
+          <%= f.date_field :fecha_compra,
+                           class: 'input input-bordered w-full',
+                           required: true %>
+        </div>
+
+        <%# N° Factura %>
+        <div class="w-full">
+          <%= f.label :numero_factura, 'N° Factura', class: 'label pt-0' %>
+          <%= f.text_field :numero_factura,
+                           class: 'input input-bordered w-full',
+                           placeholder: 'Ej: F001-0045 (opcional)' %>
+        </div>
+
+        <%# Costo de Flete %>
+        <div class="w-full">
+          <%= f.label :costo_total_flete, 'Costo de Flete', class: 'label pt-0' %>
+          <label class="input input-bordered flex items-center gap-2 w-full">
+            <span class="text-base-content/60 text-sm font-semibold">C$</span>
+            <%= f.number_field :costo_total_flete, step: '0.01', min: 0, class: 'grow', placeholder: '0.00' %>
+          </label>
+        </div>
+
+        <%# Botones de acción %>
+        <div class="card-actions justify-end sm:col-span-2 mt-4 pt-4 border-t border-base-200">
+          <%= save_button(f) %>
+        </div>
+
+      </div>
+    </div>
+  <% end %>
+</turbo-frame>

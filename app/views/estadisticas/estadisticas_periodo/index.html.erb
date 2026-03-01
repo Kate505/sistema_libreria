@@ -1,0 +1,56 @@
+<%= turbo_frame_tag "main_content" do %>
+  <%= turbo_refreshes_with method: :morph, scroll: :preserve %>
+
+  <%# ── Print CSS ─────────────────────────────────────────────────────── %>
+  <style>
+    @media print {
+      .no-print, .drawer-side, nav, .navbar, .btn { display: none !important; }
+      .drawer-content { margin-left: 0 !important; }
+      body { background: white !important; }
+      .card { break-inside: avoid; box-shadow: none !important; border: 1px solid #e5e7eb !important; }
+      canvas { max-height: 220px !important; }
+      .print-header { display: block !important; }
+    }
+    .print-header { display: none; }
+  </style>
+
+  <%# ── Encabezado de impresión (solo visible en PDF) ─────────────────── %>
+  <div class="print-header mb-4 pb-3 border-b-2 border-gray-300">
+    <h1 class="text-2xl font-bold">Librería Pequeños Detalles</h1>
+    <h2 class="text-lg font-semibold text-gray-600">Reporte de Estadísticas por Período</h2>
+    <p class="text-sm text-gray-500">
+      Período: <%= @fecha_desde.strftime("%d/%m/%Y") %> — <%= @fecha_hasta.strftime("%d/%m/%Y") %>
+      &nbsp;|&nbsp; Generado: <%= Time.current.strftime("%d/%m/%Y %H:%M") %>
+    </p>
+  </div>
+
+  <%# ── Encabezado de pantalla ──────────────────────────────────────────%>
+  <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+    <div>
+      <h1 class="text-3xl font-bold">Estadísticas por Período</h1>
+      <p class="text-base-content/50 text-sm mt-0.5">
+        Análisis financiero completo ·
+        <%= @fecha_desde.strftime("%d %b %Y") %> — <%= @fecha_hasta.strftime("%d %b %Y") %>
+      </p>
+    </div>
+  </div>
+
+  <%# ── Filtros ─────────────────────────────────────────────────────────%>
+  <%= render "filters" %>
+
+  <%# ── KPIs ───────────────────────────────────────────────────────────-%>
+  <%= render "kpis" %>
+
+  <%# ── Gráficos ───────────────────────────────────────────────────────-%>
+  <%= render "charts" %>
+
+  <%# ── Tablas de detalle ───────────────────────────────────────────────%>
+  <%= render "tables" %>
+
+  <%# ── EDA ────────────────────────────────────────────────────────────-%>
+  <%= render "eda" %>
+
+  <%# ── Chart.js Scripts ───────────────────────────────────────────────-%>
+  <%= render "chart_scripts" %>
+
+<% end %>

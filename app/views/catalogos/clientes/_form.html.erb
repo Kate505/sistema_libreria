@@ -6,7 +6,7 @@
         <%= cliente.new_record? ? "Agregar nuevo cliente" : "Actualizar cliente" %>
       </h2>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div class="w-full">
           <%= f.label :primer_nombre, 'Primer Nombre', class: 'label pt-0' %>
           <%= f.text_field :primer_nombre, class: 'input input-bordered w-full validator', placeholder: 'Primer Nombre', required: true %>

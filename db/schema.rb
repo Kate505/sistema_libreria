@@ -135,7 +135,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_04_005831) do
   end
 
   create_table "productos", force: :cascade do |t|
-    t.bigint "categorias_id", null: false
+    t.bigint "categoria_id", null: false
     t.string "sku", limit: 50
     t.string "nombre", limit: 200, null: false
     t.boolean "descuento", default: false, null: false
@@ -149,7 +149,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_04_005831) do
     t.decimal "precio_venta_al_mayor", precision: 10, scale: 2, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["categorias_id"], name: "index_productos_on_categorias_id"
+    t.index ["categoria_id"], name: "index_productos_on_categoria_id"
     t.index ["sku"], name: "index_productos_on_sku", unique: true
   end
 
@@ -227,7 +227,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_04_005831) do
   add_foreign_key "menus", "menus"
   add_foreign_key "menus", "modulos"
   add_foreign_key "ordenes_de_compra", "proveedores"
-  add_foreign_key "productos", "categorias", column: "categorias_id"
+  add_foreign_key "productos", "categorias"
   add_foreign_key "roles_menus", "menus"
   add_foreign_key "roles_menus", "roles", column: "rol_id"
   add_foreign_key "roles_users", "roles", column: "rol_id"

@@ -1,0 +1,160 @@
+<%# ── Tabla: Detalle de Ventas ─────────────────────────────────────────── %>
+<div class="card bg-base-100 shadow-sm border border-base-200 mb-4">
+  <div class="card-body p-4">
+    <h2 class="card-title text-base">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+      </svg>
+      Detalle de Ventas del Período
+      <span class="badge badge-primary badge-sm font-normal"><%= @ventas_detalle.size %> registros</span>
+    </h2>
+
+    <% if @ventas_detalle.any? %>
+      <div class="overflow-x-auto mt-2">
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Cliente</th>
+              <th>Método Pago</th>
+              <th class="text-center"># Productos</th>
+              <th class="text-right">Total (C$)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @ventas_detalle.each do |v| %>
+              <tr class="hover">
+                <td class="text-sm"><%= v.fecha_venta.strftime("%d/%m/%Y %H:%M") %></td>
+                <td class="text-sm"><%= v.cliente ? "#{v.cliente.primer_nombre} #{v.cliente.primer_apellido}" : "—" %></td>
+                <td>
+                  <span class="badge badge-sm badge-outline">
+                    <%= Venta::METODOS_PAGO[v.metodo_pago] || v.metodo_pago %>
+                  </span>
+                </td>
+                <td class="text-center text-sm"><%= v.detalle_ventas.size %></td>
+                <td class="text-right font-semibold tabular-nums">
+                  <%= number_with_precision(v.cantidad_total, precision: 2, delimiter: ',') %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+          <tfoot>
+            <tr class="font-bold">
+              <td colspan="4" class="text-right text-sm text-base-content/60">TOTAL PERÍODO:</td>
+              <td class="text-right tabular-nums text-primary">
+                C$ <%= number_with_precision(@ingresos_brutos, precision: 2, delimiter: ',') %>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    <% else %>
+      <p class="text-sm text-base-content/40 mt-2 text-center py-6">No hay ventas registradas en el período seleccionado.</p>
+    <% end %>
+  </div>
+</div>
+
+<%# ── Tabla: Resumen Gastos Operativos ───────────────────────────────── %>
+<div class="card bg-base-100 shadow-sm border border-base-200 mb-4">
+  <div class="card-body p-4">
+    <h2 class="card-title text-base">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-error" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z"/>
+      </svg>
+      Gastos Operativos del Período
+    </h2>
+
+    <% if @gastos_detalle.any? %>
+      <div class="overflow-x-auto mt-2">
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>Período</th>
+              <th class="text-right">Alquiler</th>
+              <th class="text-right">Utilidades</th>
+              <th class="text-right">Mantenimiento</th>
+              <th class="text-right">Salarios</th>
+              <th class="text-right font-bold">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @gastos_detalle.each do |g| %>
+              <tr class="hover">
+                <td class="font-medium"><%= g.periodo_legible %></td>
+                <td class="text-right tabular-nums text-sm"><%= number_with_precision(g.costos_alquiler, precision: 2, delimiter: ',') %></td>
+                <td class="text-right tabular-nums text-sm"><%= number_with_precision(g.costo_utilidades, precision: 2, delimiter: ',') %></td>
+                <td class="text-right tabular-nums text-sm"><%= number_with_precision(g.costo_mantenimiento, precision: 2, delimiter: ',') %></td>
+                <td class="text-right tabular-nums text-sm"><%= number_with_precision(g.costo_salario_total, precision: 2, delimiter: ',') %></td>
+                <td class="text-right font-bold tabular-nums text-error">
+                  C$ <%= number_with_precision(g.gran_total_gastos, precision: 2, delimiter: ',') %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+          <tfoot>
+            <tr class="font-bold">
+              <td class="text-right text-sm text-base-content/60" colspan="5">TOTAL GASTOS:</td>
+              <td class="text-right tabular-nums text-error">
+                C$ <%= number_with_precision(@gastos_operativos_total, precision: 2, delimiter: ',') %>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    <% else %>
+      <p class="text-sm text-base-content/40 mt-2 text-center py-6">No hay gastos operativos registrados en el período seleccionado.</p>
+    <% end %>
+  </div>
+</div>
+
+<%# ── Tabla: Órdenes de Compra ────────────────────────────────────────── %>
+<div class="card bg-base-100 shadow-sm border border-base-200 mb-4">
+  <div class="card-body p-4">
+    <h2 class="card-title text-base">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+      </svg>
+      Órdenes de Compra del Período
+      <span class="badge badge-secondary badge-sm font-normal"><%= @compras_detalle.size %> registros</span>
+    </h2>
+
+    <% if @compras_detalle.any? %>
+      <div class="overflow-x-auto mt-2">
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Proveedor</th>
+              <th>No. Factura</th>
+              <th class="text-center"># Productos</th>
+              <th class="text-right">Costo Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @compras_detalle.each do |c| %>
+              <tr class="hover">
+                <td class="text-sm"><%= c.fecha_compra.strftime("%d/%m/%Y") %></td>
+                <td class="text-sm font-medium"><%= c.proveedor.nombre %></td>
+                <td class="text-sm font-mono text-base-content/60"><%= c.numero_factura.presence || "—" %></td>
+                <td class="text-center text-sm"><%= c.detalle_ordenes_de_compra.size %></td>
+                <td class="text-right font-semibold tabular-nums">
+                  C$ <%= number_with_precision(c.detalle_ordenes_de_compra.sum { |d| d.precio_unitario_compra * d.cantidad }, precision: 2, delimiter: ',') %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+          <tfoot>
+            <tr class="font-bold">
+              <td colspan="4" class="text-right text-sm text-base-content/60">TOTAL COMPRAS:</td>
+              <td class="text-right tabular-nums text-secondary">
+                C$ <%= number_with_precision(@costo_compras, precision: 2, delimiter: ',') %>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    <% else %>
+      <p class="text-sm text-base-content/40 mt-2 text-center py-6">No hay órdenes de compra en el período seleccionado.</p>
+    <% end %>
+  </div>
+</div>

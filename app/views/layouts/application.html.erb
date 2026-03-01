@@ -8,6 +8,8 @@
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+
     <%= yield :head %>
 
     <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
@@ -87,7 +89,7 @@
           <main class="flex-1">
             <%#= breadcrumbs %>
             <div class="p-8">
-              <%= render "shared/flash" %>
+              <%#= render "shared/flash" %>
 
               <%= turbo_frame_tag "main_content" do %>
                 <%= yield %>

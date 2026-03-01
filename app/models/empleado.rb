@@ -1,5 +1,4 @@
 class Empleado < ApplicationRecord
-
   self.table_name = "empleados"
 
   has_one :user, dependent: :nullify
@@ -30,7 +29,7 @@ class Empleado < ApplicationRecord
   scope :pasivos, -> { where(pasivo: true) }
 
   def nombre_completo
-    [primer_nombre, segundo_nombre, primer_apellido, segundo_apellido].compact.join(' ')
+    [ primer_nombre, segundo_nombre, primer_apellido, segundo_apellido ].compact.join(" ")
   end
 
   def nombre_corto
@@ -50,5 +49,4 @@ class Empleado < ApplicationRecord
       q: "%#{nombre}%"
     )
   }
-
 end

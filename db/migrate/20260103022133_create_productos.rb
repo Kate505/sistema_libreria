@@ -1,7 +1,7 @@
 class CreateProductos < ActiveRecord::Migration[8.0]
   def change
     create_table :productos do |t|
-      t.references :categorias, null: false, foreign_key: true
+      t.references :categoria, null: false, foreign_key: true
 
       t.string :sku, limit: 50
       t.string :nombre, null: false, limit: 200

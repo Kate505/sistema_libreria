@@ -96,6 +96,11 @@ export default class extends Controller {
 		this.resultsTarget.classList.add("hidden")
 		// Disparar evento de cambio por si otros controladores dependen de este input
 		this.hiddenTarget.dispatchEvent(new Event('change'))
+		// Disparar evento personalizado con todos los datos del ítem seleccionado
+		this.element.dispatchEvent(new CustomEvent('autocomplete:select', {
+			detail: item,
+			bubbles: true
+		}))
 	}
 
 	hide(event) {

@@ -1,0 +1,92 @@
+<%= turbo_frame_tag "main_content" do %>
+  <%= turbo_refreshes_with method: :morph, scroll: :preserve %>
+
+  <div class="grid grid-rows-[auto_1fr] gap-4 h-[calc(100vh-10rem)] w-full">
+
+    <%# Encabezado %>
+    <div class="flex items-center justify-between shrink-0">
+      <div>
+        <h1 class="text-3xl font-bold">Nómina de Empleados</h1>
+        <p class="text-sm text-base-content/50">Gestión de pagos por período</p>
+      </div>
+      <% if @gasto_operativo %>
+        <%= render "finanzas/gastos_operativos/resumen", gasto_operativo: @gasto_operativo %>
+      <% end %>
+    </div>
+
+    <div class="grid grid-cols-[16rem_1fr_2fr] gap-4 min-h-0">
+
+      <%# Columna 1: Lista de períodos %>
+      <div class="card bg-base-100 shadow-xl flex flex-col overflow-hidden">
+        <div class="card-body p-0 flex flex-col overflow-hidden">
+          <div class="px-4 pt-4 pb-2 shrink-0">
+            <h2 class="font-bold text-sm uppercase tracking-wider text-base-content/50">Períodos</h2>
+          </div>
+          <div class="overflow-y-auto flex-1">
+            <% if @periodos.empty? %>
+              <div class="px-4 py-8 text-center text-sm text-base-content/40">
+                No hay períodos registrados
+              </div>
+            <% else %>
+              <ul class="menu menu-sm p-2 gap-1">
+                <% @periodos.each do |periodo| %>
+                  <li>
+                    <%= link_to finanzas_nomina_empleados_path(gasto_operativo_id: periodo.id),
+                                data: { turbo_frame: "main_content", turbo_action: "advance" },
+                                class: "flex flex-col items-start rounded-lg px-3 py-2 #{@gasto_operativo&.id == periodo.id ? 'bg-primary text-primary-content' : 'hover:bg-base-200'}" do %>
+                      <span class="font-semibold text-sm"><%= periodo.nombre_mes %></span>
+                      <span class="text-xs opacity-60"><%= periodo.periodo_year %></span>
+                      <span class="text-xs font-mono opacity-70 mt-0.5">
+                        <%= periodo.detalle_pagos_empleados.count %> empleados
+                      </span>
+                    <% end %>
+                  </li>
+                <% end %>
+              </ul>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <% if @gasto_operativo %>
+        <%# Columna 2: Formulario %>
+        <div class="card bg-base-100 shadow-xl overflow-hidden flex flex-col">
+          <div class="overflow-y-auto flex-1 p-0">
+            <%= render "finanzas/detalle_pagos_empleados/form",
+                       gasto_operativo: @gasto_operativo,
+                       detalle_pago_empleado: @detalle_pago_empleado %>
+          </div>
+        </div>
+
+        <%# Columna 3: Tabla %>
+        <div class="card bg-base-100 shadow-xl flex flex-col overflow-hidden">
+          <div class="flex-1 overflow-y-auto">
+            <div id="detalle_pagos_empleados_table" class="h-full">
+              <%= render "finanzas/detalle_pagos_empleados/table",
+                         gasto_operativo: @gasto_operativo,
+                         detalle_pagos_empleados: @detalle_pagos_empleados %>
+            </div>
+          </div>
+        </div>
+      <% else %>
+        <%# Sin períodos registrados todavía %>
+        <div class="col-span-2 flex items-center justify-center">
+          <div class="text-center text-base-content/40">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+            <p class="text-lg font-semibold">No hay períodos de gastos operativos</p>
+            <p class="text-sm mt-1">Crea un período en
+              <%= link_to "Gastos Operativos", finanzas_gastos_operativos_path,
+                          data: { turbo_frame: "main_content", turbo_action: "advance" },
+                          class: "link link-primary" %>
+              para poder gestionar la nómina.
+            </p>
+          </div>
+        </div>
+      <% end %>
+
+    </div>
+
+  </div>
+<% end %>

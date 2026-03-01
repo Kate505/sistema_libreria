@@ -1,0 +1,90 @@
+<%# ── Fila 1: Ingresos vs Costos + Método de Pago ─────────────────────── %>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+
+  <div class="lg:col-span-2 card bg-base-100 shadow-sm border border-base-200">
+    <div class="card-body p-4">
+      <h2 class="card-title text-base">Ingresos vs Costo de Ventas</h2>
+      <div class="h-56 mt-2">
+        <canvas id="ingresosVsCostosChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="card bg-base-100 shadow-sm border border-base-200">
+    <div class="card-body p-4">
+      <h2 class="card-title text-base">Por Método de Pago</h2>
+      <% if @metodo_pago_data.any? %>
+        <div class="h-56 mt-2 flex items-center justify-center">
+          <canvas id="metodoPagoChart"></canvas>
+        </div>
+      <% else %>
+        <div class="flex flex-col items-center justify-center h-56 text-base-content/30">
+          <p class="text-sm">Sin ventas en el período</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+</div>
+
+<%# ── Fila 2: Utilidad por Mes + Desglose Gastos ────────────────────── %>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+
+  <div class="card bg-base-100 shadow-sm border border-base-200">
+    <div class="card-body p-4">
+      <h2 class="card-title text-base">Utilidad Neta por Mes</h2>
+      <% if @util_mes_labels.any? %>
+        <div class="h-52 mt-2">
+          <canvas id="utilidadMesChart"></canvas>
+        </div>
+      <% else %>
+        <div class="flex items-center justify-center h-52 text-base-content/30 text-sm">Sin datos en el período</div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card bg-base-100 shadow-sm border border-base-200">
+    <div class="card-body p-4">
+      <h2 class="card-title text-base">Desglose Gastos Operativos</h2>
+      <% if @gastos_desglose_data.sum > 0 %>
+        <div class="h-52 mt-2 flex items-center justify-center">
+          <canvas id="gastosDesglosChart"></canvas>
+        </div>
+      <% else %>
+        <div class="flex items-center justify-center h-52 text-base-content/30 text-sm">Sin gastos operativos en el período</div>
+      <% end %>
+    </div>
+  </div>
+
+</div>
+
+<%# ── Fila 3: Top Productos Ingreso + Top Productos Margen ──────────── %>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+
+  <div class="card bg-base-100 shadow-sm border border-base-200">
+    <div class="card-body p-4">
+      <h2 class="card-title text-base">Top 10 Productos por Ingreso (C$)</h2>
+      <% if @top_ingresos_data.any? %>
+        <div class="h-64 mt-2">
+          <canvas id="topProductosIngresoChart"></canvas>
+        </div>
+      <% else %>
+        <div class="flex items-center justify-center h-64 text-base-content/30 text-sm">Sin ventas en el período</div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card bg-base-100 shadow-sm border border-base-200">
+    <div class="card-body p-4">
+      <h2 class="card-title text-base">Top 10 Productos por Margen (%)</h2>
+      <% if @top_margen_data.any? %>
+        <div class="h-64 mt-2">
+          <canvas id="topProductosMargenChart"></canvas>
+        </div>
+      <% else %>
+        <div class="flex items-center justify-center h-64 text-base-content/30 text-sm">Sin ventas en el período</div>
+      <% end %>
+    </div>
+  </div>
+
+</div>

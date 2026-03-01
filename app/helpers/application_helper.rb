@@ -1,5 +1,4 @@
 module ApplicationHelper
-
   def show_snack_bar?
     !%w[home sesions].include?(controller_name)
   end
@@ -16,10 +15,13 @@ module ApplicationHelper
     if menu.children.loaded? && menu.children.any?
       render_menu_padre(menu)
     else
+      link_path = menu.link_to || "#"
+
       content_tag(:li) do
-        link_to(menu.link_to || "#", data: { turbo_frame: "main_content",
-                                             "helpers--components--arbol-navegacion-target": "module",
-                                             action: "helpers--components--arbol-navegacion#open" }) do
+        link_to(link_path, data: { turbo_frame: "main_content",
+                                   "helpers--components--arbol-navegacion-target": "module",
+                                   turbo_action: "advance"
+        }) do
           content_tag(:svg, "", xmlns: "http://www.w3.org/2000/svg",
                       fill: "none", viewBox: "0 0 24 24",
                       stroke_width: "1.5", stroke: "currentColor",
@@ -86,17 +88,18 @@ module ApplicationHelper
     # HOME
     # --------------------
 
-    items << content_tag(:li, class: "py-4") do
+    home_active_class = active_class_for(root_path)
 
+    items << content_tag(:li, class: "py-4") do
       # -------- versión compacta --------
       concat(
         link_to(
           root_path,
           class: "is-drawer-close:tooltip is-drawer-close:tooltip-right
                 is-drawer-close:flex is-drawer-open:hidden
-                items-center justify-center w-full",
+                items-center justify-center w-full #{home_active_class}",
           data: { tip: "Home",
-                  turbo_frame: "main_content" }
+                  turbo_action: "advance" }
         ) do
           inline_svg("home.svg", class_name: "w-6 h-6 inline-block")
         end
@@ -106,9 +109,9 @@ module ApplicationHelper
       concat(
         link_to(
           root_path,
-          data: { turbo_frame: "main_content" },
+          data: { turbo_action: "advance" },
           class: "is-drawer-open:flex is-drawer-close:hidden
-                items-center gap-2 w-full"
+                items-center gap-2 w-full #{home_active_class}"
         ) do
           concat(
             inline_svg("home.svg", class_name: "w-6 h-6 inline-block")
@@ -123,7 +126,6 @@ module ApplicationHelper
       modulos.map do |modulo|
         unique_details_id = "details-modulo-#{modulo.id}"
         content_tag(:li, class: "py-4") do
-
           # --------------------
           # VERSION COMPACTA
           # --------------------
@@ -134,7 +136,7 @@ module ApplicationHelper
                     items-center justify-center w-full",
                         data: { tip: modulo.nombre,
                                 action: "click->sidebar#expandAndOpen",
-                                target_id: unique_details_id }
+                                "target-id": unique_details_id }
             ) do
               inline_svg(modulo.icono, class_name: "w-6 h-6 inline-block")
             end
@@ -149,12 +151,10 @@ module ApplicationHelper
                         class: "is-drawer-open:block is-drawer-close:hidden",
                         open: false
             ) do
-
               concat(
                 content_tag(:summary,
                             class: "flex items-center gap-2 group cursor-pointer"
                 ) do
-
                   concat(
                     inline_svg(modulo.icono, class_name: "w-6 h-6 inline-block")
                   )
@@ -183,4 +183,9 @@ module ApplicationHelper
     safe_join(items)
   end
 
+  private
+
+  def active_class_for(path)
+    request.path.start_with?(path) && path != "#" ? "active" : ""
+  end
 end

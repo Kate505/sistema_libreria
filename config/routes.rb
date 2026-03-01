@@ -20,5 +20,8 @@ Rails.application.routes.draw do
 
   draw :seguridad
   draw :catalogos
-
+  draw :inventario
+  draw :finanzas
+  draw :facturacion
+  draw :estadisticas
 end

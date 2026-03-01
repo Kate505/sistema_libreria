@@ -23,7 +23,9 @@ modulo_seguridad = Modulo.create!(nombre: "Gestión de Seguridad", icono: "segur
 menu_ventas = Menu.create!(codigo: "VENTAS", nombre: "Ventas", modulo: modulo_facturacion, link_to: "/facturacion/ventas")
 
 # # Módulo Inventario
-menu_inventario = Menu.create!(codigo: "PRODUCTOS", nombre: "Inventario de Productos", modulo: modulo_inventario, link_to: "/inventario/productos")
+Menu.create!(codigo: "PRODUCTOS", nombre: "Inventario de Productos", modulo: modulo_inventario, link_to: "/inventario/productos")
+menu_consulta_precios = Menu.create!(codigo: "CONSULTA_PRECIOS", nombre: "Consulta de Precios", modulo: modulo_inventario, link_to: "/inventario/productos/consulta_precios")
+Menu.create!(codigo: "ORDENES_DE_COMPRA", nombre: "Órdenes de Compra", modulo: modulo_inventario, link_to: "/inventario/ordenes_de_compra")
 
 # # Módulo Catálogos
 Menu.create!(codigo: "CATEGORIAS", nombre: "Categorías de Productos", modulo: modulo_catalogos, link_to: "/catalogos/categorias")
@@ -35,7 +37,7 @@ Menu.create!(codigo: "ESTADISTICAS", nombre: "Estadísticas por período", modul
 
 # # Módulo Finanzas
 Menu.create!(codigo: "GASTOS_OPERATIVOS", nombre: "Gastos Operativos", modulo: modulo_finanzas, link_to: "/finanzas/gastos_operativos")
-Menu.create!(codigo: "DETALLE_PAGOS_EMPLEADOS", nombre: "Nómina Empleados", modulo: modulo_finanzas, link_to: "/finanzas/detalle_pagos_empleados")
+Menu.create!(codigo: "DETALLE_PAGOS_EMPLEADOS", nombre: "Nómina Empleados", modulo: modulo_finanzas, link_to: "/finanzas/nomina_empleados")
 
 # # Módulo Gestión de Seguridad
 Menu.create!(codigo: "MODULOS", nombre: "Módulos", modulo: modulo_seguridad, link_to: "/seguridad/modulos")
@@ -49,8 +51,8 @@ Menu.create!(codigo: "ROLES", nombre: "Roles", modulo: modulo_seguridad, parent:
 # -------------  Roles y Usuarios  ------------- #
 # Empleados
 
-empleado_admin = Empleado.create!(primer_nombre: "Administrador", primer_apellido: "Sistema", cargo: "Administrador", salario_base: 1000000, viatico_transporte: 0)
-empleado_usuario = Empleado.create!(primer_nombre: "Usuario", primer_apellido: "Sistema", cargo: "Usuario", salario_base: 50000, viatico_transporte: 0)
+empleado_admin = Empleado.create!(primer_nombre: "Administrador", primer_apellido: "Sistema", cargo: "Administrador", salario_base: 7000, viatico_transporte: 0)
+empleado_usuario = Empleado.create!(primer_nombre: "Usuario", primer_apellido: "Sistema", cargo: "Usuario", salario_base: 5000, viatico_transporte: 0)
 
 # Usuarios
 user_admin = User.create!(email_address: "admin@gmail.com", password: "123456", password_confirmation: "123456", empleado: empleado_admin)
@@ -65,7 +67,7 @@ Menu.all.each do |menu|
   RolesMenu.create!(rol: admin_role, menu: menu)
 end
 
-[menu_ventas, menu_inventario, menu_clientes].each do |menu|
+[ menu_ventas, menu_clientes, menu_consulta_precios ].each do |menu|
   RolesMenu.create!(rol: seller_role, menu: menu)
 end
 

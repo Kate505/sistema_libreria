@@ -14,6 +14,6 @@ class CreateGastosOperativos < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :gastos_operativos, [:periodo_mes, :periodo_year], unique: true
+    add_index :gastos_operativos, [ :periodo_mes, :periodo_year ], unique: true
   end
 end
