@@ -1,0 +1,258 @@
+<script>
+(function() {
+  function destroyChart(id) {
+    const el = document.getElementById(id)
+    if (el && el._chartInstance) {
+      el._chartInstance.destroy()
+      el._chartInstance = null
+    }
+  }
+
+  function initCharts() {
+    const COLORS = [
+      "rgba(99,102,241,0.82)",
+      "rgba(16,185,129,0.82)",
+      "rgba(245,158,11,0.82)",
+      "rgba(239,68,68,0.82)",
+      "rgba(139,92,246,0.82)",
+      "rgba(6,182,212,0.82)",
+      "rgba(249,115,22,0.82)",
+      "rgba(236,72,153,0.82)",
+      "rgba(20,184,166,0.82)",
+      "rgba(234,179,8,0.82)",
+    ]
+    const BORDERS = COLORS.map(c => c.replace("0.82", "1"))
+    const toMoney = v => "C$ " + Number(v).toLocaleString("es-NI", {minimumFractionDigits: 2})
+    const moneyTip = ctx => toMoney(ctx.parsed.y !== undefined ? ctx.parsed.y : ctx.parsed)
+    const moneyTipX = ctx => toMoney(ctx.parsed.x !== undefined ? ctx.parsed.x : ctx.parsed)
+
+    // ── Gráfico 1: Ingresos vs Costos (dual-line) ─────────────────────────
+    destroyChart("ingresosVsCostosChart")
+    const ctxDual = document.getElementById("ingresosVsCostosChart")
+    if (ctxDual) {
+      ctxDual._chartInstance = new Chart(ctxDual, {
+        type: "line",
+        data: {
+          labels: <%= raw @trend_labels.to_json %>,
+          datasets: [
+            {
+              label: "Ingresos (C$)",
+              data: <%= raw @trend_ingresos.to_json %>,
+              borderColor: "rgba(99,102,241,1)",
+              backgroundColor: "rgba(99,102,241,0.1)",
+              fill: true, tension: 0.4,
+              pointRadius: 3, pointHoverRadius: 5
+            },
+            {
+              label: "Costo Ventas (C$)",
+              data: <%= raw @trend_costos.to_json %>,
+              borderColor: "rgba(239,68,68,1)",
+              backgroundColor: "rgba(239,68,68,0.08)",
+              fill: true, tension: 0.4,
+              pointRadius: 3, pointHoverRadius: 5
+            }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { position: "top", labels: { boxWidth: 12, padding: 10 } },
+            tooltip: { callbacks: { label: moneyTip } }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { callback: v => "C$ " + Number(v).toLocaleString("es-NI") },
+              grid: { color: "rgba(128,128,128,0.1)" }
+            },
+            x: { grid: { display: false }, ticks: { maxTicksLimit: 12 } }
+          }
+        }
+      })
+    }
+
+    // ── Gráfico 2: Método de pago (doughnut) ──────────────────────────────
+    destroyChart("metodoPagoChart")
+    const ctxDough = document.getElementById("metodoPagoChart")
+    if (ctxDough) {
+      ctxDough._chartInstance = new Chart(ctxDough, {
+        type: "doughnut",
+        data: {
+          labels: <%= raw @metodo_pago_labels.to_json %>,
+          datasets: [{ data: <%= raw @metodo_pago_data.to_json %>, backgroundColor: COLORS, borderColor: BORDERS, borderWidth: 1 }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { position: "bottom", labels: { boxWidth: 12, padding: 10 } },
+            tooltip: { callbacks: { label: ctx => toMoney(ctx.parsed) } }
+          }
+        }
+      })
+    }
+
+    // ── Gráfico 3: Utilidad neta por mes (barras) ─────────────────────────
+    destroyChart("utilidadMesChart")
+    const ctxUtil = document.getElementById("utilidadMesChart")
+    if (ctxUtil) {
+      const utilData = <%= raw @util_mes_data.to_json %>
+      ctxUtil._chartInstance = new Chart(ctxUtil, {
+        type: "bar",
+        data: {
+          labels: <%= raw @util_mes_labels.to_json %>,
+          datasets: [{
+            label: "Utilidad Neta (C$)",
+            data: utilData,
+            backgroundColor: utilData.map(v => v >= 0 ? "rgba(16,185,129,0.8)" : "rgba(239,68,68,0.8)"),
+            borderColor:      utilData.map(v => v >= 0 ? "rgba(16,185,129,1)"   : "rgba(239,68,68,1)"),
+            borderWidth: 1, borderRadius: 5
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: moneyTip } }
+          },
+          scales: {
+            y: {
+              ticks: { callback: v => "C$ " + Number(v).toLocaleString("es-NI") },
+              grid: { color: "rgba(128,128,128,0.1)" }
+            },
+            x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+          }
+        }
+      })
+    }
+
+    // ── Gráfico 4: Desglose gastos operativos (pie) ───────────────────────
+    destroyChart("gastosDesglosChart")
+    const ctxGastos = document.getElementById("gastosDesglosChart")
+    if (ctxGastos) {
+      ctxGastos._chartInstance = new Chart(ctxGastos, {
+        type: "pie",
+        data: {
+          labels: <%= raw @gastos_desglose_labels.to_json %>,
+          datasets: [{ data: <%= raw @gastos_desglose_data.to_json %>, backgroundColor: COLORS, borderColor: BORDERS, borderWidth: 1 }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { position: "bottom", labels: { boxWidth: 12, padding: 8 } },
+            tooltip: { callbacks: { label: ctx => toMoney(ctx.parsed) } }
+          }
+        }
+      })
+    }
+
+    // ── Gráfico 5: Top 10 productos por ingreso (horizontal bar) ──────────
+    destroyChart("topProductosIngresoChart")
+    const ctxTopIng = document.getElementById("topProductosIngresoChart")
+    if (ctxTopIng) {
+      ctxTopIng._chartInstance = new Chart(ctxTopIng, {
+        type: "bar",
+        data: {
+          labels: <%= raw @top_ingresos_labels.to_json %>,
+          datasets: [{
+            label: "Ingreso (C$)",
+            data: <%= raw @top_ingresos_data.to_json %>,
+            backgroundColor: COLORS, borderColor: BORDERS, borderWidth: 1, borderRadius: 5
+          }]
+        },
+        options: {
+          indexAxis: "y",
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: moneyTipX } }
+          },
+          scales: {
+            x: {
+              beginAtZero: true,
+              ticks: { callback: v => "C$" + Number(v).toLocaleString("es-NI") },
+              grid: { color: "rgba(128,128,128,0.1)" }
+            },
+            y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+          }
+        }
+      })
+    }
+
+    // ── Gráfico 6: Top 10 productos por margen % (horizontal bar) ─────────
+    destroyChart("topProductosMargenChart")
+    const ctxTopMrg = document.getElementById("topProductosMargenChart")
+    if (ctxTopMrg) {
+      ctxTopMrg._chartInstance = new Chart(ctxTopMrg, {
+        type: "bar",
+        data: {
+          labels: <%= raw @top_margen_labels.to_json %>,
+          datasets: [{
+            label: "Margen (%)",
+            data: <%= raw @top_margen_data.to_json %>,
+            backgroundColor: COLORS, borderColor: BORDERS, borderWidth: 1, borderRadius: 5
+          }]
+        },
+        options: {
+          indexAxis: "y",
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.x.toFixed(2)}%` } }
+          },
+          scales: {
+            x: {
+              beginAtZero: true,
+              ticks: { callback: v => v + "%" },
+              grid: { color: "rgba(128,128,128,0.1)" }
+            },
+            y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+          }
+        }
+      })
+    }
+
+    // ── Gráfico 7: Histograma EDA ─────────────────────────────────────────
+    destroyChart("histogramaVentasChart")
+    const ctxHist = document.getElementById("histogramaVentasChart")
+    if (ctxHist) {
+      ctxHist._chartInstance = new Chart(ctxHist, {
+        type: "bar",
+        data: {
+          labels: <%= raw @hist_labels.to_json %>,
+          datasets: [{
+            label: "Frecuencia",
+            data: <%= raw @hist_data.to_json %>,
+            backgroundColor: "rgba(99,102,241,0.75)",
+            borderColor: "rgba(99,102,241,1)",
+            borderWidth: 1,
+            borderRadius: 3
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y} ventas` } }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { precision: 0 },
+              title: { display: true, text: "Frecuencia" },
+              grid: { color: "rgba(128,128,128,0.1)" }
+            },
+            x: {
+              grid: { display: false },
+              ticks: { font: { size: 9 } }
+            }
+          }
+        }
+      })
+    }
+  }
+
+  document.addEventListener("turbo:load", initCharts)
+  document.addEventListener("turbo:frame-load", initCharts)
+  document.addEventListener("turbo:render", initCharts)
+})()
+</script>

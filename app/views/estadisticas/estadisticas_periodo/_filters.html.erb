@@ -1,0 +1,71 @@
+<%# ── Barra de Filtros ──────────────────────────────────────────────────── %>
+<div class="card bg-base-100 shadow-sm border border-base-200 mb-6">
+  <div class="card-body p-3">
+    <%= form_with url: estadisticas_estadisticas_periodo_index_path,
+                  method: :get,
+                  data: { turbo_frame: "main_content", turbo_action: "advance" },
+                  class: "flex flex-wrap items-end gap-3" do |f| %>
+
+      <%# Accesos rápidos %>
+      <div class="flex gap-1.5 flex-wrap items-center">
+        <span class="text-sm text-base-content/50 font-medium mr-1">Período:</span>
+        <%
+          hoy    = Date.current
+          atajos = [
+            ["Hoy",          hoy,                               hoy],
+            ["Esta semana",  hoy.beginning_of_week,             hoy],
+            ["Este mes",     hoy.beginning_of_month,            hoy],
+            ["Último trim.", (hoy - 3.months).beginning_of_month, hoy],
+            ["Este año",     hoy.beginning_of_year,             hoy],
+          ]
+        %>
+        <% atajos.each do |label, desde, hasta| %>
+          <%
+            activo = @fecha_desde.to_date == desde && @fecha_hasta.to_date == hasta
+          %>
+          <%= link_to label,
+                      estadisticas_estadisticas_periodo_index_path(fecha_desde: desde.strftime("%Y-%m-%d"), fecha_hasta: hasta.strftime("%Y-%m-%d")),
+                      data: { turbo_frame: "main_content", turbo_action: "advance" },
+                      class: "btn btn-sm #{activo ? 'btn-primary' : 'btn-ghost border border-base-300'}" %>
+        <% end %>
+      </div>
+
+      <div class="divider divider-horizontal mx-0 hidden lg:flex"></div>
+
+      <%# Rango personalizado %>
+      <div class="flex items-end gap-2 flex-wrap">
+        <div>
+          <%= f.label :fecha_desde, "Desde", class: "label py-0 text-xs text-base-content/60" %>
+          <%= f.date_field :fecha_desde,
+                           value: @fecha_desde.to_date.strftime("%Y-%m-%d"),
+                           class: "input input-sm input-bordered w-36" %>
+        </div>
+        <div>
+          <%= f.label :fecha_hasta, "Hasta", class: "label py-0 text-xs text-base-content/60" %>
+          <%= f.date_field :fecha_hasta,
+                           value: @fecha_hasta.to_date.strftime("%Y-%m-%d"),
+                           class: "input input-sm input-bordered w-36" %>
+        </div>
+        <button type="submit" class="btn btn-sm btn-primary gap-1">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/>
+          </svg>
+          Filtrar
+        </button>
+      </div>
+
+      <div class="ml-auto text-xs text-base-content/40 self-center hidden lg:block">
+        <%= @fecha_desde.strftime("%d/%m/%Y") %> — <%= @fecha_hasta.strftime("%d/%m/%Y") %>
+      </div>
+
+      <%# Botón exportar PDF %>
+      <button type="button" onclick="window.print()" class="btn btn-sm btn-outline gap-1 no-print">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+        </svg>
+        Exportar PDF
+      </button>
+
+    <% end %>
+  </div>
+</div>

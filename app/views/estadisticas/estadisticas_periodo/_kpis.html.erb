@@ -1,0 +1,86 @@
+<%# ── KPI Cards ────────────────────────────────────────────────────────── %>
+<div class="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+
+  <div class="card bg-primary text-primary-content shadow-sm">
+    <div class="card-body p-4">
+      <div class="flex items-center justify-between">
+        <p class="text-sm font-medium opacity-80">Ingresos Brutos</p>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+        </svg>
+      </div>
+      <p class="text-2xl font-bold mt-1 tabular-nums">C$ <%= number_with_precision(@ingresos_brutos, precision: 2, delimiter: ',') %></p>
+      <p class="text-xs opacity-70 mt-1"><%= @total_ventas_count %> transacciones en el período</p>
+    </div>
+  </div>
+
+  <div class="card bg-base-100 shadow-sm border border-base-200">
+    <div class="card-body p-4">
+      <div class="flex items-center justify-between">
+        <p class="text-sm text-base-content/60 font-medium">Costo de Ventas (COGS)</p>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-warning" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+        </svg>
+      </div>
+      <p class="text-2xl font-bold mt-1 tabular-nums text-warning">C$ <%= number_with_precision(@cogs, precision: 2, delimiter: ',') %></p>
+      <p class="text-xs text-base-content/40 mt-1">costo promedio ponderado × unidades</p>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border <%= @utilidad_bruta >= 0 ? 'bg-success/10 border-success/30' : 'bg-error/10 border-error/30' %>">
+    <div class="card-body p-4">
+      <div class="flex items-center justify-between">
+        <p class="text-sm font-medium <%= @utilidad_bruta >= 0 ? 'text-success' : 'text-error' %>">Utilidad Bruta</p>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 <%= @utilidad_bruta >= 0 ? 'text-success' : 'text-error' %>" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+        </svg>
+      </div>
+      <p class="text-2xl font-bold mt-1 tabular-nums <%= @utilidad_bruta >= 0 ? 'text-success' : 'text-error' %>">
+        C$ <%= number_with_precision(@utilidad_bruta, precision: 2, delimiter: ',') %>
+      </p>
+      <p class="text-xs text-base-content/40 mt-1">margen bruto: <%= @margen_bruto_pct %>%</p>
+    </div>
+  </div>
+
+  <div class="card bg-base-100 shadow-sm border border-base-200">
+    <div class="card-body p-4">
+      <div class="flex items-center justify-between">
+        <p class="text-sm text-base-content/60 font-medium">Gastos Operativos</p>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-error" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z"/>
+        </svg>
+      </div>
+      <p class="text-2xl font-bold mt-1 tabular-nums text-error">C$ <%= number_with_precision(@gastos_operativos_total, precision: 2, delimiter: ',') %></p>
+      <p class="text-xs text-base-content/40 mt-1">alquiler + utilidades + mantenimiento + salarios</p>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border <%= @utilidad_neta >= 0 ? 'bg-info/10 border-info/30' : 'bg-error/10 border-error/30' %>">
+    <div class="card-body p-4">
+      <div class="flex items-center justify-between">
+        <p class="text-sm font-medium <%= @utilidad_neta >= 0 ? 'text-info' : 'text-error' %>">Utilidad Neta</p>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 <%= @utilidad_neta >= 0 ? 'text-info' : 'text-error' %>" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+        </svg>
+      </div>
+      <p class="text-2xl font-bold mt-1 tabular-nums <%= @utilidad_neta >= 0 ? 'text-info' : 'text-error' %>">
+        C$ <%= number_with_precision(@utilidad_neta, precision: 2, delimiter: ',') %>
+      </p>
+      <p class="text-xs text-base-content/40 mt-1">margen neto: <%= @margen_neto_pct %>%</p>
+    </div>
+  </div>
+
+  <div class="card bg-base-100 shadow-sm border border-base-200">
+    <div class="card-body p-4">
+      <div class="flex items-center justify-between">
+        <p class="text-sm text-base-content/60 font-medium">Costo de Compras</p>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+        </svg>
+      </div>
+      <p class="text-2xl font-bold mt-1 tabular-nums">C$ <%= number_with_precision(@costo_compras, precision: 2, delimiter: ',') %></p>
+      <p class="text-xs text-base-content/40 mt-1">órdenes de compra registradas en el período</p>
+    </div>
+  </div>
+
+</div>
