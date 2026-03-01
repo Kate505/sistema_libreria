@@ -1,0 +1,67 @@
+<%= turbo_frame_tag "main_content" do %>
+  <%= turbo_refreshes_with method: :morph, scroll: :preserve %>
+
+  <div class="grid grid-rows-[auto_1fr] gap-6 h-[calc(100vh-10rem)] w-full">
+
+    <%# Encabezado con botón de volver %>
+    <div class="flex items-center justify-between shrink-0 flex-wrap gap-3">
+      <div class="flex items-center gap-3">
+        <%= link_to facturacion_ventas_path,
+                    data: { turbo_frame: "main_content", turbo_action: "advance" },
+                    class: "btn btn-ghost btn-sm btn-square" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+        <% end %>
+        <div>
+          <h1 class="text-3xl font-bold">
+            Venta #<%= @venta.id %>
+            <% if @venta.cliente.present? %>
+              <span class="text-base-content/50 font-normal text-xl">
+                — <%= @venta.cliente.primer_nombre %> <%= @venta.cliente.primer_apellido %>
+              </span>
+            <% else %>
+              <span class="text-base-content/50 font-normal text-xl">— Consumidor final</span>
+            <% end %>
+          </h1>
+          <p class="text-sm text-base-content/50">
+            <%= @venta.fecha_venta.strftime("%d/%m/%Y %H:%M") %>
+            · Pago:
+            <span class="font-medium">
+              <%= Venta::METODOS_PAGO[@venta.metodo_pago] || @venta.metodo_pago %>
+            </span>
+          </p>
+        </div>
+      </div>
+
+      <%# Resumen totales %>
+      <%= render "resumen", venta: @venta %>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 min-h-0">
+
+      <%# Formulario de línea de detalle %>
+      <div class="card bg-base-100 shadow-xl overflow-hidden flex flex-col h-full lg:max-h-full">
+        <div class="overflow-y-auto flex-1 p-0">
+          <%= render "facturacion/detalle_ventas/form",
+                     venta: @venta,
+                     detalle: @detalle %>
+        </div>
+      </div>
+
+      <%# Tabla de líneas %>
+      <div class="card bg-base-100 shadow-xl col-span-2 flex flex-col h-full overflow-hidden">
+        <div class="flex-1 overflow-y-auto">
+          <div id="detalle_ventas_table">
+            <%= render "facturacion/detalle_ventas/table",
+                       venta: @venta,
+                       detalles: @detalles %>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+<% end %>

@@ -1,96 +1,464 @@
 <%= turbo_frame_tag "main_content" do %>
+  <%= turbo_refreshes_with method: :morph, scroll: :preserve %>
 
-  <h1 class="text-4xl font-bold">Bienvenido <%= @user.nombre_corto %></h1>
-
-  <div class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-
-    <div class="card w-full bg-base-100 card-sm shadow-sm">
-      <div class="card-body">
-        <h2 class="card-title">Ventas Diarias</h2>
-        <p class="mt-2 text-3xl font-bold">$2,500</p>
-        <p class="mt-1 text-base font-medium text-green-500">+10%</p>
-      </div>
-    </div>
-
-    <div class="card w-full bg-base-100 card-sm shadow-sm">
-      <div class="card-body">
-        <h2 class="card-title">Productos Vendidos</h2>
-        <p class="mt-2 text-3xl font-bold">150</p>
-        <p class="mt-1 text-base font-medium text-green-500">+5%</p>
-      </div>
-    </div>
-
-    <div class="card w-full bg-base-100 card-sm shadow-sm">
-      <div class="card-body">
-        <h2 class="card-title">Valor Total del Inventario</h2>
-        <p class="mt-2 text-3xl font-bold">$15,000</p>
-        <p class="mt-1 text-base font-medium text-green-500">-2%</p>
-      </div>
+  <%# ── Encabezado ──────────────────────────────────────────────────────── %>
+  <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+    <div>
+      <h1 class="text-3xl font-bold">Dashboard</h1>
+      <p class="text-base-content/50 text-sm mt-0.5">
+        <%= Time.current.strftime("%A, %d de %B de %Y") %>
+      </p>
     </div>
   </div>
 
-  <div class="mt-8">
-    <h2 class="text-xl font-bold">Productos Más Vendidos</h2>
+  <%# ── Barra de Filtros ────────────────────────────────────────────────── %>
+  <div class="card bg-base-100 shadow-sm border border-base-200 mb-6">
+    <div class="card-body p-3">
+      <%= form_with url: root_path, method: :get, data: { turbo_frame: "main_content", turbo_action: "advance" }, class: "flex flex-wrap items-end gap-3" do |f| %>
 
-    <div class="mt-4 col-span-2 card bg-base-100 p-4 shadow-2xl flex flex-col">
+        <%# Accesos rápidos %>
+        <div class="flex gap-1.5 flex-wrap items-center">
+          <span class="text-md text-base-content/50 font-medium mr-1">Período:</span>
+          <%
+            hoy    = Date.current
+            atajos = [
+                ["Hoy",         hoy,                          hoy],
+                ["Esta semana", hoy.beginning_of_week,        hoy],
+                ["Este mes",    hoy.beginning_of_month,       hoy],
+                ["Último trim.", (hoy - 3.months).beginning_of_month, hoy],
+                ["Este año",    hoy.beginning_of_year,        hoy],
+            ]
+          %>
+          <% atajos.each do |label, desde, hasta| %>
+            <%
+              activo = @fecha_desde.to_date == desde && @fecha_hasta.to_date == hasta
+            %>
+            <%= link_to label,
+                        root_path(fecha_desde: desde.strftime("%Y-%m-%d"), fecha_hasta: hasta.strftime("%Y-%m-%d")),
+                        data: { turbo_frame: "main_content", turbo_action: "advance" },
+                        # Se cambió 'btn-xs' por 'btn-sm' para que sea un poco más grande
+                        class: "btn btn-sm #{activo ? 'btn-primary' : 'btn-ghost border border-base-300'}" %>
+          <% end %>
+        </div>
 
-      <div class="overflow-x-auto w-full">
-        <table class="table w-full">
-          <thead>
-          <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Producto</th>
-            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Cantidad Vendida
-            </th>
-            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Ingresos</th>
-          </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-200">
-          <tr>
-            <td class="whitespace-nowrap px-6 py-4 text-sm font-medium">El Principito</td>
-            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">30</td>
-            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">$300</td>
-          </tr>
-          <tr>
-            <td class="whitespace-nowrap px-6 py-4 text-sm font-medium">Cien Años de Soledad</td>
-            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">25</td>
-            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">$250</td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
+        <%# Separador %>
+        <div class="divider divider-horizontal mx-0 hidden lg:flex"></div>
+
+        <%# Rango personalizado %>
+        <div class="flex items-end gap-2 flex-wrap">
+          <div>
+            <%= f.label :fecha_desde, "Desde", class: "label py-0 text-xs text-base-content/60" %>
+            <%= f.date_field :fecha_desde,
+                             value: @fecha_desde.to_date.strftime("%Y-%m-%d"),
+                             class: "input input-sm input-bordered w-36" %>
+          </div>
+          <div>
+            <%= f.label :fecha_hasta, "Hasta", class: "label py-0 text-xs text-base-content/60" %>
+            <%= f.date_field :fecha_hasta,
+                             value: @fecha_hasta.to_date.strftime("%Y-%m-%d"),
+                             class: "input input-sm input-bordered w-36" %>
+          </div>
+          <button type="submit" class="btn btn-sm btn-primary gap-1">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/>
+            </svg>
+            Filtrar
+          </button>
+        </div>
+
+        <%# Etiqueta del período activo %>
+        <div class="ml-auto text-xs text-base-content/40 self-center hidden lg:block">
+          <%= @fecha_desde.strftime("%d/%m/%Y") %> — <%= @fecha_hasta.strftime("%d/%m/%Y") %>
+        </div>
+
+      <% end %>
     </div>
   </div>
 
-  <div class="mt-8">
-    <h2 class="text-xl font-bold">Estado del Inventario</h2>
-    <div class="mt-4 col-span-2 card bg-base-100 p-4 shadow-2xl flex flex-col">
-      <div class="flex items-start justify-between">
-        <div>
-          <p class="text-base font-medium text-gray-500">Nivel de Stock</p>
-          <p class="mt-2 text-3xl font-bold">1000 <span class="text-base font-normal text-gray-500">Total</span></p>
-          <p class="mt-1 text-base font-medium text-green-500">+5%</p>
+  <%# ── KPI Cards ───────────────────────────────────────────────────────── %>
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+
+    <div class="card bg-primary text-primary-content shadow-sm">
+      <div class="card-body p-4">
+        <div class="flex items-center justify-between">
+          <p class="text-sm font-medium opacity-80">Ventas en Período</p>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+          </svg>
+        </div>
+        <p class="text-2xl font-bold mt-1 tabular-nums">
+          C$ <%= number_with_precision(@ventas_periodo, precision: 2, delimiter: ',') %>
+        </p>
+        <p class="text-xs opacity-70 mt-1"><%= @total_ventas_count %> transacciones</p>
+      </div>
+    </div>
+
+    <div class="card bg-base-100 shadow-sm border border-base-200">
+      <div class="card-body p-4">
+        <div class="flex items-center justify-between">
+          <p class="text-sm text-base-content/60 font-medium">Ventas Hoy</p>
+          <span class="text-success">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+            </svg>
+          </span>
+        </div>
+        <p class="text-2xl font-bold mt-1 tabular-nums">
+          C$ <%= number_with_precision(@ventas_hoy, precision: 2, delimiter: ',') %>
+        </p>
+        <p class="text-xs text-base-content/40 mt-1">día actual (independiente del filtro)</p>
+      </div>
+    </div>
+
+    <div class="card bg-base-100 shadow-sm border border-base-200">
+      <div class="card-body p-4">
+        <div class="flex items-center justify-between">
+          <p class="text-sm text-base-content/60 font-medium">Valor Inventario</p>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-info" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+          </svg>
+        </div>
+        <p class="text-2xl font-bold mt-1 tabular-nums">
+          C$ <%= number_with_precision(@valor_inventario, precision: 2, delimiter: ',') %>
+        </p>
+        <p class="text-xs text-base-content/40 mt-1"><%= @total_productos %> productos</p>
+      </div>
+    </div>
+
+    <div class="card shadow-sm border <%= @productos_stock_bajo > 0 ? 'bg-error/10 border-error/30' : 'bg-base-100 border-base-200' %>">
+      <div class="card-body p-4">
+        <div class="flex items-center justify-between">
+          <p class="text-sm font-medium <%= @productos_stock_bajo > 0 ? 'text-error' : 'text-base-content/60' %>">Stock Bajo</p>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 <%= @productos_stock_bajo > 0 ? 'text-error' : 'text-base-content/40' %>" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+        </div>
+        <p class="text-2xl font-bold mt-1 <%= @productos_stock_bajo > 0 ? 'text-error' : '' %>">
+          <%= @productos_stock_bajo %>
+        </p>
+        <p class="text-xs text-base-content/40 mt-1">bajo mínimo requerido</p>
+      </div>
+    </div>
+
+  </div>
+
+  <%# ── Fila 1: Tendencia ventas + Método de pago ──────────────────────── %>
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+
+    <div class="lg:col-span-2 card bg-base-100 shadow-sm border border-base-200">
+      <div class="card-body p-4">
+        <h2 class="card-title text-base">Tendencia de Ventas en el Período</h2>
+        <div class="h-52 mt-2">
+          <canvas id="ventasLineChart"></canvas>
         </div>
       </div>
-      <div class="mt-6 h-48">
-        <div class="grid h-full grid-flow-col items-end justify-items-center gap-4">
-          <div class="flex h-full w-full flex-col items-center justify-end">
-            <div class="w-8 rounded-t bg-primary/50" style="height: 100%;"></div>
-            <p class="mt-2 text-xs font-medium text-gray-500">Libros</p>
+    </div>
+
+    <div class="card bg-base-100 shadow-sm border border-base-200">
+      <div class="card-body p-4">
+        <h2 class="card-title text-base">Por Método de Pago</h2>
+        <% if @metodo_pago_data.any? %>
+          <div class="h-52 mt-2 flex items-center justify-center">
+            <canvas id="metodoPagoChart"></canvas>
           </div>
-          <div class="flex h-full w-full flex-col items-center justify-end">
-            <div class="w-8 rounded-t bg-primary/50" style="height: 70%;"></div>
-            <p class="mt-2 text-xs font-medium text-gray-500">Papelería</p>
+        <% else %>
+          <div class="flex flex-col items-center justify-center h-52 text-base-content/30">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-2 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            <p class="text-sm">Sin ventas en el período</p>
           </div>
-          <div class="flex h-full w-full flex-col items-center justify-end">
-            <div class="w-8 rounded-t bg-primary/50" style="height: 40%;"></div>
-            <p class="mt-2 text-xs font-medium text-gray-500">Revistas</p>
+        <% end %>
+      </div>
+    </div>
+
+  </div>
+
+  <%# ── Fila 2: Ventas por categoría + Top 5 productos ─────────────────── %>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+
+    <%# NUEVO: Ventas por categoría %>
+    <div class="card bg-base-100 shadow-sm border border-base-200">
+      <div class="card-body p-4">
+        <h2 class="card-title text-base">Ventas por Categoría (C$)</h2>
+        <% if @ventas_cat_data.any? %>
+          <div class="h-52 mt-2">
+            <canvas id="ventasCatChart"></canvas>
           </div>
-          <div class="flex h-full w-full flex-col items-center justify-end">
-            <div class="w-8 rounded-t bg-primary/50" style="height: 10%;"></div>
-            <p class="mt-2 text-xs font-medium text-gray-500">Otros</p>
+        <% else %>
+          <div class="flex flex-col items-center justify-center h-52 text-base-content/30">
+            <p class="text-sm">Sin ventas en el período</p>
           </div>
+        <% end %>
+      </div>
+    </div>
+
+    <%# Top 5 productos %>
+    <div class="card bg-base-100 shadow-sm border border-base-200">
+      <div class="card-body p-4">
+        <h2 class="card-title text-base">Top 5 Productos Más Vendidos</h2>
+        <% if @top_productos_data.any? %>
+          <div class="h-52 mt-2">
+            <canvas id="topProductosChart"></canvas>
+          </div>
+        <% else %>
+          <div class="flex flex-col items-center justify-center h-52 text-base-content/30">
+            <p class="text-sm">Sin ventas en el período</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+  </div>
+
+  <%# ── Fila 3: Stock por categoría ────────────────────────────────────── %>
+  <% if @stock_cat_data.any? %>
+    <div class="card bg-base-100 shadow-sm border border-base-200 mb-4">
+      <div class="card-body p-4">
+        <h2 class="card-title text-base">Stock Actual por Categoría</h2>
+        <div class="h-44 mt-2">
+          <canvas id="stockCatChart"></canvas>
         </div>
       </div>
     </div>
-  </div>
+  <% end %>
+
+  <%# ── Tabla de Alertas de Stock Bajo ─────────────────────────────────── %>
+  <% if @productos_bajo_stock.any? %>
+    <div class="card bg-base-100 shadow-sm border border-error/20 mb-4">
+      <div class="card-body p-4">
+        <h2 class="card-title text-base text-error">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+          Alertas de Stock Bajo
+        </h2>
+        <div class="overflow-x-auto mt-2">
+          <table class="table table-sm">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Categoría</th>
+                <th class="text-center">Stock Actual</th>
+                <th class="text-center">Mínimo</th>
+                <th class="text-center">Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @productos_bajo_stock.each do |p| %>
+                <tr class="hover">
+                  <td>
+                    <div class="font-medium"><%= p.nombre %></div>
+                    <% if p.sku.present? %>
+                      <div class="text-xs text-base-content/40 font-mono"><%= p.sku %></div>
+                    <% end %>
+                  </td>
+                  <td class="text-sm"><%= p.categoria.nombre %></td>
+                  <td class="text-center font-bold <%= p.stock_actual == 0 ? 'text-error' : 'text-warning' %>">
+                    <%= p.stock_actual %>
+                  </td>
+                  <td class="text-center text-sm text-base-content/60"><%= p.stock_minimo_limite %></td>
+                  <td class="text-center">
+                    <% if p.stock_actual == 0 %>
+                      <span class="badge badge-error badge-sm">Sin stock</span>
+                    <% else %>
+                      <span class="badge badge-warning badge-sm">Bajo</span>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
 <% end %>
+
+<%# ── Chart.js Scripts ─────────────────────────────────────────────────── %>
+<script>
+(function() {
+  // Destruye gráficos existentes para evitar duplicados con Turbo morph
+  function destroyChart(id) {
+    const el = document.getElementById(id)
+    if (el && el._chartInstance) {
+      el._chartInstance.destroy()
+      el._chartInstance = null
+    }
+  }
+
+  function initCharts() {
+    const COLORS = [
+      "rgba(99,102,241,0.82)",  // indigo
+      "rgba(16,185,129,0.82)",  // emerald
+      "rgba(245,158,11,0.82)",  // amber
+      "rgba(239,68,68,0.82)",   // red
+      "rgba(139,92,246,0.82)",  // violet
+      "rgba(6,182,212,0.82)",   // cyan
+      "rgba(249,115,22,0.82)",  // orange
+    ]
+    const BORDERS = COLORS.map(c => c.replace("0.82", "1"))
+
+    const moneyTooltip = ctx =>
+      ` C$ ${ctx.parsed.y !== undefined ? ctx.parsed.y : ctx.parsed}`.replace(
+        /\B(?=(\d{3})+(?!\d))/g, ","
+      )
+
+    // ── Gráfico 1: Tendencia ventas (línea) ──────────────────────────────
+    destroyChart("ventasLineChart")
+    const ctxLine = document.getElementById("ventasLineChart")
+    if (ctxLine) {
+      ctxLine._chartInstance = new Chart(ctxLine, {
+        type: "line",
+        data: {
+          labels: <%= raw @trend_labels.to_json %>,
+          datasets: [{
+            label: "C$ Ventas",
+            data: <%= raw @trend_data.to_json %>,
+            borderColor: "rgba(99,102,241,1)",
+            backgroundColor: "rgba(99,102,241,0.1)",
+            fill: true, tension: 0.4,
+            pointBackgroundColor: "rgba(99,102,241,1)",
+            pointRadius: 3, pointHoverRadius: 5
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: moneyTooltip } }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { callback: v => "C$ " + Number(v).toLocaleString("es-NI") },
+              grid: { color: "rgba(128,128,128,0.1)" }
+            },
+            x: { grid: { display: false }, ticks: { maxTicksLimit: 12 } }
+          }
+        }
+      })
+    }
+
+    // ── Gráfico 2: Método de pago (doughnut) ─────────────────────────────
+    destroyChart("metodoPagoChart")
+    const ctxDough = document.getElementById("metodoPagoChart")
+    if (ctxDough) {
+      ctxDough._chartInstance = new Chart(ctxDough, {
+        type: "doughnut",
+        data: {
+          labels: <%= raw @metodo_pago_labels.to_json %>,
+          datasets: [{ data: <%= raw @metodo_pago_data.to_json %>, backgroundColor: COLORS, borderColor: BORDERS, borderWidth: 1 }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { position: "bottom", labels: { boxWidth: 12, padding: 10 } },
+            tooltip: {
+              callbacks: {
+                label: ctx => ` C$ ${ctx.parsed.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`
+              }
+            }
+          }
+        }
+      })
+    }
+
+    // ── Gráfico 3: Ventas por categoría (barras) ─────────────────────────
+    destroyChart("ventasCatChart")
+    const ctxVCat = document.getElementById("ventasCatChart")
+    if (ctxVCat) {
+      ctxVCat._chartInstance = new Chart(ctxVCat, {
+        type: "bar",
+        data: {
+          labels: <%= raw @ventas_cat_labels.to_json %>,
+          datasets: [{
+            label: "C$ Ingresos",
+            data: <%= raw @ventas_cat_data.to_json %>,
+            backgroundColor: COLORS,
+            borderColor: BORDERS,
+            borderWidth: 1,
+            borderRadius: 5
+          }]
+        },
+        options: {
+          indexAxis: "y",
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: moneyTooltip } }
+          },
+          scales: {
+            x: {
+              beginAtZero: true,
+              ticks: { callback: v => "C$" + Number(v).toLocaleString("es-NI") },
+              grid: { color: "rgba(128,128,128,0.1)" }
+            },
+            y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+          }
+        }
+      })
+    }
+
+    // ── Gráfico 4: Top 5 productos (barras horizontales) ─────────────────
+    destroyChart("topProductosChart")
+    const ctxBar = document.getElementById("topProductosChart")
+    if (ctxBar) {
+      ctxBar._chartInstance = new Chart(ctxBar, {
+        type: "bar",
+        data: {
+          labels: <%= raw @top_productos_labels.to_json %>,
+          datasets: [{
+            label: "Unidades vendidas",
+            data: <%= raw @top_productos_data.to_json %>,
+            backgroundColor: COLORS,
+            borderColor: BORDERS,
+            borderWidth: 1,
+            borderRadius: 5
+          }]
+        },
+        options: {
+          indexAxis: "y",
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { beginAtZero: true, grid: { color: "rgba(128,128,128,0.1)" } },
+            y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+          }
+        }
+      })
+    }
+
+    // ── Gráfico 5: Stock por categoría (barras) ───────────────────────────
+    destroyChart("stockCatChart")
+    const ctxCat = document.getElementById("stockCatChart")
+    if (ctxCat) {
+      ctxCat._chartInstance = new Chart(ctxCat, {
+        type: "bar",
+        data: {
+          labels: <%= raw @stock_cat_labels.to_json %>,
+          datasets: [{
+            label: "Unidades en stock",
+            data: <%= raw @stock_cat_data.to_json %>,
+            backgroundColor: COLORS,
+            borderColor: BORDERS,
+            borderWidth: 1,
+            borderRadius: 5
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true, grid: { color: "rgba(128,128,128,0.1)" } },
+            x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+          }
+        }
+      })
+    }
+  }
+
+  document.addEventListener("turbo:load", initCharts)
+  document.addEventListener("turbo:frame-load", initCharts)
+  document.addEventListener("turbo:render", initCharts)
+})()
+</script>

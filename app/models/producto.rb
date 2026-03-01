@@ -63,4 +63,17 @@ class Producto < ApplicationRecord
     nuevo_stock = [ stock_actual.to_i - cantidad, 0 ].max
     update_column(:stock_actual, nuevo_stock)
   end
+
+  # Llamado después de crear un DetalleVenta.
+  # Descuenta stock (nunca baja de 0, aunque ya fue validado antes de crear).
+  def vender!(cantidad)
+    nuevo_stock = [ stock_actual.to_i - cantidad.to_i, 0 ].max
+    update_column(:stock_actual, nuevo_stock)
+  end
+
+  # Llamado después de destruir un DetalleVenta.
+  # Restaura el stock que fue descontado al momento de la venta.
+  def revertir_venta!(cantidad)
+    update_column(:stock_actual, stock_actual.to_i + cantidad.to_i)
+  end
 end

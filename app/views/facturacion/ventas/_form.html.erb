@@ -1,0 +1,81 @@
+<turbo-frame id="venta_form">
+  <%= form_with(model: venta,
+                url: venta.new_record? ? facturacion_ventas_path : facturacion_venta_path(venta),
+                method: venta.new_record? ? :post : :patch,
+                class: 'contents') do |f| %>
+
+    <div class="card-body">
+      <h2 class="card-title text-lg">
+        <%= venta.new_record? ? "Nueva Venta" : "Editar Venta ##{venta.id}" %>
+      </h2>
+
+      <%# Errores %>
+      <% if venta.errors.any? %>
+        <div class="alert alert-error text-sm py-2">
+          <ul class="list-disc list-inside">
+            <% venta.errors.full_messages.each do |msg| %>
+              <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+        <%# Cliente - Autocomplete (opcional) %>
+        <div class="w-full sm:col-span-2 relative"
+             data-controller="autocomplete"
+             data-autocomplete-url-value="<%= buscar_cliente_facturacion_ventas_path %>"
+             data-action="click@window->autocomplete#hide">
+
+          <%= f.label :cliente_id, 'Cliente (opcional)', class: 'label pt-0' %>
+          <%= f.hidden_field :cliente_id, data: { autocomplete_target: "hidden" } %>
+
+          <div class="relative">
+            <% nombre_cliente = venta.cliente_id.present? ? "#{venta.cliente&.primer_nombre} #{venta.cliente&.primer_apellido}" : "" %>
+            <input type="text"
+                   class="input input-bordered w-full pr-10"
+                   placeholder="Buscar cliente..."
+                   value="<%= nombre_cliente %>"
+                   data-autocomplete-target="input"
+                   data-action="input->autocomplete#search"
+                   autocomplete="off">
+
+            <div data-autocomplete-target="loading" class="absolute right-3 top-3 hidden">
+              <span class="loading loading-spinner loading-sm text-primary"></span>
+            </div>
+          </div>
+
+          <ul data-autocomplete-target="results"
+              class="menu dropdown-content bg-base-100 rounded-box z-[50] w-full p-2 shadow-lg absolute top-full mt-1 border border-base-200 hidden max-h-60 overflow-y-auto">
+          </ul>
+        </div>
+
+        <%# Fecha de Venta %>
+        <div class="w-full sm:col-span-2">
+          <%= f.label :fecha_venta, 'Fecha de Venta', class: 'label pt-0' %>
+          <%= f.datetime_local_field :fecha_venta,
+                                     class: 'input input-bordered w-full',
+                                     value: (venta.fecha_venta || Time.current).strftime("%Y-%m-%dT%H:%M"),
+                                     required: true %>
+        </div>
+
+        <%# Método de Pago %>
+        <div class="w-full sm:col-span-2">
+          <%= f.label :metodo_pago, 'Método de Pago', class: 'label pt-0' %>
+          <%= f.select :metodo_pago,
+                       Venta::METODOS_PAGO.map { |k, v| [v, k] },
+                       { include_blank: '-- Seleccionar --' },
+                       class: 'select select-bordered w-full',
+                       required: true %>
+        </div>
+
+        <%# Botones de acción %>
+        <div class="card-actions justify-end sm:col-span-2 mt-4 pt-4 border-t border-base-200">
+          <%= save_button(f) %>
+        </div>
+
+      </div>
+    </div>
+  <% end %>
+</turbo-frame>

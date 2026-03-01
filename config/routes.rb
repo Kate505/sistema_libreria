@@ -22,5 +22,7 @@ Rails.application.routes.draw do
   draw :catalogos
   draw :inventario
   draw :finanzas
+  draw :facturacion
+  draw :estadisticas
 
 end

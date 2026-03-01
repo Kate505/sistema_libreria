@@ -1,0 +1,103 @@
+<table class="table table-pin-rows px-4">
+  <thead>
+    <tr class="bg-base-100 z-10">
+      <th>ID</th>
+      <th>Cliente</th>
+      <th>Fecha</th>
+      <th>Método Pago</th>
+      <th class="text-center">Líneas</th>
+      <th class="text-right">Total</th>
+      <th class="text-right">Acciones</th>
+    </tr>
+  </thead>
+
+  <tbody>
+  <% ventas.each do |venta| %>
+    <tr class="hover:bg-base-200">
+
+      <td class="text-base-content/50 text-sm">#<%= venta.id %></td>
+
+      <td class="font-medium">
+        <% if venta.cliente.present? %>
+          <span class="truncate block max-w-[160px]">
+            <%= venta.cliente.primer_nombre %> <%= venta.cliente.primer_apellido %>
+          </span>
+        <% else %>
+          <span class="text-base-content/30 italic text-xs">Consumidor final</span>
+        <% end %>
+      </td>
+
+      <td class="text-sm whitespace-nowrap">
+        <%= venta.fecha_venta.strftime("%d/%m/%Y %H:%M") %>
+      </td>
+
+      <td>
+        <span class="badge badge-ghost badge-sm font-mono">
+          <%= Venta::METODOS_PAGO[venta.metodo_pago] || venta.metodo_pago %>
+        </span>
+      </td>
+
+      <td class="text-center">
+        <span class="badge badge-neutral badge-sm">
+          <%= venta.detalle_ventas.size %>
+        </span>
+      </td>
+
+      <td class="text-right tabular-nums font-semibold">
+        C$ <%= number_with_precision(venta.cantidad_total, precision: 2, delimiter: ',') %>
+      </td>
+
+      <td class="flex gap-2 justify-end">
+        <%# Ver detalles %>
+        <%= link_to facturacion_venta_path(venta),
+                    data: { turbo_frame: "main_content", turbo_action: "advance" },
+                    class: "btn btn-sm btn-ghost btn-square",
+                    title: "Ver detalle" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        <% end %>
+
+        <%# Editar %>
+        <%= link_to edit_facturacion_venta_path(venta),
+                    data: { turbo_frame: "venta_form" },
+                    class: "btn btn-sm btn-ghost btn-square",
+                    title: "Editar" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+            <path fill="currentColor" d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+            <path fill="currentColor" fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+          </svg>
+        <% end %>
+
+        <%# Eliminar %>
+        <%= link_to facturacion_venta_path(venta),
+                    data: { turbo_method: :delete,
+                            turbo_confirm: "¿Eliminar la Venta ##{venta.id}? Se eliminarán todos sus detalles y se restaurará el stock de los productos." },
+                    class: "btn btn-sm btn-ghost btn-square text-error",
+                    title: "Eliminar" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6l-1 14H6L5 6"/>
+            <path d="M10 11v6M14 11v6"/>
+            <path d="M9 6V4h6v2"/>
+          </svg>
+        <% end %>
+      </td>
+
+    </tr>
+  <% end %>
+
+  <% if ventas.empty? %>
+    <tr>
+      <td colspan="7" class="text-center py-12 text-base-content/40">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-3 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+        </svg>
+        <p class="text-sm">No hay ventas registradas</p>
+      </td>
+    </tr>
+  <% end %>
+
+  </tbody>
+</table>
