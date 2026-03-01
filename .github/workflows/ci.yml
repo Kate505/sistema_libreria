@@ -14,7 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      security-events: write # required by brakeman SARIF upload (optional)
 
     steps:
       - name: Checkout code
@@ -92,6 +91,15 @@ jobs:
         with:
           ruby-version: .ruby-version
           bundler-cache: true
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - name: Install JavaScript dependencies (daisyui, etc.)
+        run: npm ci
 
       - name: Run tests
         env:
