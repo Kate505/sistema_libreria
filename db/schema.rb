@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_04_005831) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_04_010000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -99,6 +99,12 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_04_005831) do
     t.index ["periodo_mes", "periodo_year"], name: "index_gastos_operativos_on_periodo_mes_and_periodo_year", unique: true
   end
 
+  create_table "marcas", force: :cascade do |t|
+    t.string "nombre", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "menus", force: :cascade do |t|
     t.string "codigo", limit: 30, null: false
     t.string "nombre", limit: 50, null: false
@@ -149,7 +155,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_04_005831) do
     t.decimal "precio_venta_al_mayor", precision: 10, scale: 2, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "marca_id"
     t.index ["categoria_id"], name: "index_productos_on_categoria_id"
+    t.index ["marca_id"], name: "index_productos_on_marca_id"
     t.index ["sku"], name: "index_productos_on_sku", unique: true
   end
 
@@ -228,6 +236,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_04_005831) do
   add_foreign_key "menus", "modulos"
   add_foreign_key "ordenes_de_compra", "proveedores"
   add_foreign_key "productos", "categorias"
+  add_foreign_key "productos", "marcas"
   add_foreign_key "roles_menus", "menus"
   add_foreign_key "roles_menus", "roles", column: "rol_id"
   add_foreign_key "roles_users", "roles", column: "rol_id"

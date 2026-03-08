@@ -27,7 +27,7 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="font-display bg-base-300 h-full flex flex-col" data-controller="sidebar">
+  <body class="font-display bg-base-300 h-full flex flex-col" data-controller="sidebar page-transition">
   <% if authenticated? %>
     <div class="drawer lg:drawer-open flex-1">
       <input id="my-drawer-4" type="checkbox" class="drawer-toggle" data-sidebar-target="toggle"/>
@@ -91,7 +91,7 @@
             <div class="p-8">
               <%#= render "shared/flash" %>
 
-              <%= turbo_frame_tag "main_content" do %>
+              <%= turbo_frame_tag "main_content", class: "content-fade-in" do %>
                 <%= yield %>
               <% end %>
             </div>

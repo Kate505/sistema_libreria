@@ -2,6 +2,7 @@ class Producto < ApplicationRecord
   self.table_name = "productos"
 
   belongs_to :categoria, foreign_key: "categoria_id"
+  belongs_to :marca, optional: true
   has_many :detalle_ordenes_de_compra
   has_many :detalle_ventas
 
@@ -30,6 +31,19 @@ class Producto < ApplicationRecord
   validates :stock_minimo_limite,
             :stock_maximo_limite,
             numericality: { greater_than_or_equal_to: 1 }
+
+  # Virtual attribute for handling brand creation
+  def nombre_marca
+    marca&.nombre
+  end
+
+  def nombre_marca=(nombre)
+    if nombre.present?
+      self.marca = Marca.find_or_create_by(nombre: nombre.strip)
+    else
+      self.marca = nil
+    end
+  end
 
   # Llamado después de crear un DetalleOrdenDeCompra.
   # Incrementa stock, actualiza último precio de compra y recalcula CPP.

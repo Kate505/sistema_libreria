@@ -21,6 +21,10 @@ gem "dotenv"
 
 gem "kaminari"
 
+gem 'roo'
+# Ruby 3.4+ ya no incluye CSV como default gem; Roo lo requiere.
+gem 'csv'
+
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 gem "bcrypt", "~> 3.1.7"
 
