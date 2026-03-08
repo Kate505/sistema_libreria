@@ -22,12 +22,11 @@ class Producto < ApplicationRecord
             numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100 },
             if: :descuento
 
-  validates :precio_venta,
-            :precio_venta_al_mayor,
-            numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
-
   validates :stock_actual,
-            numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
+            :precio_venta,
+            :precio_venta_al_mayor,
+            presence: true,
+            numericality: { greater_than_or_equal_to: 0 }
 
   validates :stock_minimo_limite,
             :stock_maximo_limite,
@@ -46,37 +45,8 @@ class Producto < ApplicationRecord
     end
   end
 
-  # ─── Lógica de Precios ───────────────────────────────────────────────
-
-  # Precio de venta sugerido basado en el CPP actual y la configuración global.
-  # Fórmula: CPP / (1 - (% Ganancia + % OpEx))
-  def precio_sugerido
-    return nil if costo_promedio_ponderado.to_d <= 0
-
-    ConfiguracionNegocio.configuracion.precio_sugerido(costo_promedio_ponderado)
-  end
-
-  # Margen de ganancia neta estimado al precio de venta actual.
-  # Retorna un decimal (ej: 0.40 = 40%)
-  def margen_estimado
-    pv    = precio_venta.to_d
-    costo = costo_promedio_ponderado.to_d
-    return BigDecimal("0") if pv <= 0
-
-    ConfiguracionNegocio.configuracion.margen_actual(pv, costo)
-  end
-
-  # Retorna true si el margen neta actual está por debajo del umbral de alerta.
-  def margen_bajo?
-    umbral = ConfiguracionNegocio.configuracion.margen_alerta_minimo.to_d
-    margen_estimado < umbral
-  end
-
-  # ─── Callbacks de compras ────────────────────────────────────────────
-
   # Llamado después de crear un DetalleOrdenDeCompra.
-  # Incrementa stock, actualiza último precio de compra, recalcula CPP
-  # y actualiza precio_venta con el precio sugerido por la configuración.
+  # Incrementa stock, actualiza último precio de compra y recalcula CPP.
   def actualizar_por_compra!(detalle)
     transaction do
       cantidad   = detalle.cantidad.to_i
@@ -92,21 +62,11 @@ class Producto < ApplicationRecord
                     costo
       end
 
-      nuevo_cpp_redondeado = nuevo_cpp.round(4)
-
-      # Calcular precio sugerido con el nuevo CPP
-      nuevo_precio_sugerido = ConfiguracionNegocio.configuracion
-                                                  .precio_sugerido(nuevo_cpp_redondeado)
-
-      columnas = {
-        stock_actual:             nuevo_stock,
-        ultimo_precio_compra:     precio,
-        costo_promedio_ponderado: nuevo_cpp_redondeado
-      }
-      # Actualizar precio_venta con el precio sugerido (el usuario puede modificarlo)
-      columnas[:precio_venta] = nuevo_precio_sugerido if nuevo_precio_sugerido&.positive?
-
-      update_columns(columnas)
+      update_columns(
+        stock_actual:               nuevo_stock,
+        ultimo_precio_compra:       precio,
+        costo_promedio_ponderado:   nuevo_cpp.round(2)
+      )
     end
   end
 

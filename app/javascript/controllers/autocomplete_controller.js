@@ -2,10 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
 	static targets = ["input", "hidden", "results", "loading"]
-	static values = {
-		url: String,
-		createUrl: String
-	}
+	static values = { url: String }
 
 	connect() {
 		this.resultsTarget.classList.add("hidden")
@@ -89,11 +86,7 @@ export default class extends Controller {
 			aCreate.innerHTML = `Crear <strong>“${this.escapeHtml(q)}”</strong>`
 			aCreate.addEventListener("click", (e) => {
 				e.preventDefault()
-				if (this.hasCreateUrlValue && this.createUrlValue) {
-					this.createRecord(q)
-				} else {
-					this.selectTextOnly(q)
-				}
+				this.selectTextOnly(q)
 			})
 			liCreate.appendChild(aCreate)
 			this.resultsTarget.appendChild(liCreate)
@@ -104,51 +97,6 @@ export default class extends Controller {
 		li.innerHTML = `<span class="text-gray-500 italic cursor-default pointer-events-none">No se encontraron resultados</span>`
 		this.resultsTarget.appendChild(li)
 		this.resultsTarget.classList.remove("hidden")
-	}
-
-	createRecord(text) {
-		const nombre = (text || "").trim()
-		if (nombre.length === 0) return
-
-		if (this.hasLoadingTarget) this.loadingTarget.classList.remove("hidden")
-
-		const token = document
-			.querySelector('meta[name="csrf-token"]')
-			?.getAttribute("content")
-
-		fetch(this.createUrlValue, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				"Accept": "application/json",
-				...(token ? { "X-CSRF-Token": token } : {})
-			},
-			body: JSON.stringify({ nombre })
-		})
-			.then(async (response) => {
-				const data = await response.json().catch(() => ({}))
-				if (!response.ok) {
-					throw new Error(data.error || "No se pudo crear el registro")
-				}
-				return data
-			})
-			.then((item) => {
-				// Esperamos {id, text}
-				if (item && item.id) {
-					this.select(item)
-				} else {
-					this.selectTextOnly(nombre)
-				}
-			})
-			.catch((error) => {
-				console.error("Error creando registro:", error)
-				if (error?.message) window.alert(error.message)
-				// Fallback: dejar el texto sin ID
-				this.selectTextOnly(nombre)
-			})
-			.finally(() => {
-				if (this.hasLoadingTarget) this.loadingTarget.classList.add("hidden")
-			})
 	}
 
 	select(item) {

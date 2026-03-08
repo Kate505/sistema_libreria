@@ -1,6 +1,5 @@
 require 'roo'
 
-# Limpiar tablas para que el seed sea re-ejecutable sin conflictos
 Session.delete_all
 RolesUser.delete_all
 RolesMenu.delete_all
@@ -9,15 +8,6 @@ Modulo.delete_all
 Rol.delete_all
 User.delete_all
 Empleado.delete_all
-# Limpiar inventario y catálogos relacionados (en orden correcto por FK)
-DetalleVenta.delete_all
-Venta.delete_all
-DetalleOrdenDeCompra.delete_all
-OrdenDeCompra.delete_all
-Producto.delete_all
-Marca.delete_all
-Categoria.delete_all
-Proveedor.delete_all
 
 
 # -------------  Módulos  ------------- #
@@ -28,18 +18,16 @@ modulo_catalogos = Modulo.create!(nombre: "Catálogos", icono: "catalogos.svg", 
 modulo_estadisticas = Modulo.create!(nombre: "Estadísticas", icono: "estadisticas.svg", link_to: "/estadisticas")
 modulo_finanzas = Modulo.create!(nombre: "Finanzas", icono: "finanzas.svg", link_to: "/finanzas")
 modulo_seguridad = Modulo.create!(nombre: "Gestión de Seguridad", icono: "seguridad.svg", link_to: "/seguridad")
-modulo_configuraciones = Modulo.create!(nombre: "Configuraciones", icono: "seguridad.svg", link_to: "/configuraciones")
 
 # -------------  Menús  ------------- #
 
 # # Módulo Facturación
 menu_ventas = Menu.create!(codigo: "VENTAS", nombre: "Ventas", modulo: modulo_facturacion, link_to: "/facturacion/ventas")
-menu_ventas = Menu.create!(codigo: "HISTORIAL", nombre: "Historial de Ventas", modulo: modulo_facturacion, link_to: "	/facturacion/ventas/historial")
 
 # # Módulo Inventario
 Menu.create!(codigo: "PRODUCTOS", nombre: "Inventario de Productos", modulo: modulo_inventario, link_to: "/inventario/productos")
 menu_consulta_precios = Menu.create!(codigo: "CONSULTA_PRECIOS", nombre: "Consulta de Precios", modulo: modulo_inventario, link_to: "/inventario/productos/consulta_precios")
-Menu.create!(codigo: "ORDENES_DE_COMPRA", nombre: "Órdenes de Abastecimiento", modulo: modulo_inventario, link_to: "/inventario/ordenes_de_compra")
+Menu.create!(codigo: "ORDENES_DE_COMPRA", nombre: "Órdenes de Compra", modulo: modulo_inventario, link_to: "/inventario/ordenes_de_compra")
 
 # # Módulo Catálogos
 Menu.create!(codigo: "CATEGORIAS", nombre: "Categorías de Productos", modulo: modulo_catalogos, link_to: "/catalogos/categorias")
@@ -51,9 +39,7 @@ Menu.create!(codigo: "ESTADISTICAS", nombre: "Estadísticas por período", modul
 
 # # Módulo Finanzas
 Menu.create!(codigo: "GASTOS_OPERATIVOS", nombre: "Gastos Operativos", modulo: modulo_finanzas, link_to: "/finanzas/gastos_operativos")
-
-# # Módulo Configuraciones
-Menu.create!(codigo: "NEGOCIO", nombre: "Configuración de Negocio", modulo: modulo_configuraciones, link_to: "/configuraciones/negocio/edit")
+Menu.create!(codigo: "DETALLE_PAGOS_EMPLEADOS", nombre: "Nómina Empleados", modulo: modulo_finanzas, link_to: "/finanzas/nomina_empleados")
 
 # # Módulo Gestión de Seguridad
 Menu.create!(codigo: "MODULOS", nombre: "Módulos", modulo: modulo_seguridad, link_to: "/seguridad/modulos")
@@ -67,8 +53,8 @@ Menu.create!(codigo: "ROLES", nombre: "Roles", modulo: modulo_seguridad, parent:
 # -------------  Roles y Usuarios  ------------- #
 # Empleados
 
-empleado_admin = Empleado.create!(primer_nombre: "Administrador", primer_apellido: "Sistema", cargo: "Administrador")
-empleado_usuario = Empleado.create!(primer_nombre: "Usuario", primer_apellido: "Sistema", cargo: "Usuario")
+empleado_admin = Empleado.create!(primer_nombre: "Administrador", primer_apellido: "Sistema", cargo: "Administrador", salario_base: 7000, viatico_transporte: 0)
+empleado_usuario = Empleado.create!(primer_nombre: "Usuario", primer_apellido: "Sistema", cargo: "Usuario", salario_base: 5000, viatico_transporte: 0)
 
 # Usuarios
 user_admin = User.create!(email_address: "admin@gmail.com", password: "123456", password_confirmation: "123456", empleado: empleado_admin)
@@ -112,7 +98,7 @@ headers = sheet.row(1).map { |h| h.to_s.strip }
 # Proveedor genérico para inventario inicial
 
 proveedor = Proveedor.find_or_create_by!(nombre: "Proveedor Inicial Inventario") do |p|
-  p.telefono = "88888888"     # 8 caracteres sin guion (límite del modelo)
+  p.telefono = "8888-8888"     # Example field
   p.direccion = "Ciudad"       # Example field
 end
 
