@@ -3,6 +3,7 @@
   <tr class="bg-base-100 z-10">
     <th>ID</th>
     <th>Nombre</th>
+    <th>Marca</th>
     <th>Categoría</th>
     <th class="text-right">Precio Venta</th>
     <th>Stock</th>
@@ -20,8 +21,16 @@
       </td>
 
       <td>
+        <% if producto.marca.present? %>
+          <span class="badge badge-outline badge-sm"><%= producto.marca.nombre %></span>
+        <% else %>
+          <span class="text-base-content/30 text-sm italic">—</span>
+        <% end %>
+      </td>
+
+      <td>
         <% if producto.categoria.present? %>
-          <span class="badge badge-ghost badge-sm"><%= producto.categoria.nombre %></span>
+          <span class="badge badge-outline badge-sm"><%= producto.categoria.nombre %></span>
         <% else %>
           <span class="text-base-content/30 text-sm italic">—</span>
         <% end %>

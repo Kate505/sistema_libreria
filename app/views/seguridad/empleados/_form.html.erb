@@ -56,8 +56,9 @@
           <% end %>
         </div>
 
-        <div class="card-actions justify-end sm:col-span-2 col-span-full mt-2">
+        <div class="card-actions justify-end sm:col-span-2 col-span-full mt-2 gap-2">
           <%= save_button(f, style_class: 'btn btn-primary w-full sm:w-auto') %>
+          <%= cancel_button(seguridad_empleados_path, frame_id: "empleado_form", style_class: 'btn btn-soft btn-error w-full sm:w-auto') %>
         </div>
 
       </div>

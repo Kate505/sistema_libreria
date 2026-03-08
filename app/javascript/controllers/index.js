@@ -27,3 +27,6 @@ application.register("sidebar", SidebarController)
 
 import NominaCalcController from "./nomina_calc_controller"
 application.register("nomina-calc", NominaCalcController)
+
+import PageTransitionController from "./page_transition_controller"
+application.register("page-transition", PageTransitionController)

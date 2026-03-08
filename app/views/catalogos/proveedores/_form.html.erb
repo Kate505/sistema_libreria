@@ -22,8 +22,9 @@
           <%= f.text_field :direccion, class: 'input input-bordered w-full validator', placeholder: 'Dirección', required: true %>
         </div>
 
-        <div class="card-actions justify-end sm:col-span-2 col-span-full mt-2">
+        <div class="card-actions justify-end sm:col-span-2 col-span-full mt-2 gap-2">
           <%= save_button(f, style_class: 'btn btn-primary w-full sm:w-auto') %>
+          <%= cancel_button(catalogos_proveedores_path, frame_id: "proveedor_form", style_class: 'btn btn-soft btn-error w-full sm:w-auto') %>
         </div>
 
       </div>

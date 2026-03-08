@@ -69,8 +69,9 @@
             <% end %>
           </div>
 
-          <div>
+          <div class="flex gap-2">
             <%= save_button(f) %>
+            <%= cancel_button(seguridad_usuarios_path, frame_id: "usuario_form", style_class: 'btn btn-soft btn-error') %>
           </div>
         </div>
 

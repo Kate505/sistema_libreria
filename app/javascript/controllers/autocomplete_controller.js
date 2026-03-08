@@ -7,14 +7,14 @@ export default class extends Controller {
 	connect() {
 		this.resultsTarget.classList.add("hidden")
 		// Ocultar icono de carga si existe
-		if (this.loadingTarget) this.loadingTarget.classList.add("hidden")
+		if (this.hasLoadingTarget) this.loadingTarget.classList.add("hidden")
 	}
 
 	search() {
-		// 1. DEBOUNCE: Cancelar el temporizador anterior si el usuario sigue tecleando
-		clearTimeout(this.timeout)
+		// Si el usuario está escribiendo, el valor id seleccionado ya no es confiable.
+		if (this.hasHiddenTarget) this.hiddenTarget.value = ""
 
-		// 2. Establecer un nuevo temporizador (300ms es el estándar de la industria)
+		clearTimeout(this.timeout)
 		this.timeout = setTimeout(() => {
 			this.performSearch()
 		}, 300)
@@ -23,55 +23,48 @@ export default class extends Controller {
 	performSearch() {
 		const query = this.inputTarget.value.trim()
 
-		// No buscar si es muy corto
 		if (query.length < 2) {
 			this.resultsTarget.classList.add("hidden")
 			return
 		}
 
-		// 3. ABORT CONTROLLER: Cancelar petición HTTP anterior si aún está viajando
 		if (this.abortController) {
 			this.abortController.abort()
 		}
 		this.abortController = new AbortController()
 
-		// Mostrar estado de "Cargando..."
-		if (this.loadingTarget) this.loadingTarget.classList.remove("hidden")
+		if (this.hasLoadingTarget) this.loadingTarget.classList.remove("hidden")
 
 		fetch(`${this.urlValue}?q=${encodeURIComponent(query)}`, {
-			signal: this.abortController.signal // Vinculamos la señal de aborto
+			signal: this.abortController.signal
 		})
 			.then(response => {
 				if (!response.ok) throw new Error("Network response was not ok")
 				return response.json()
 			})
 			.then(data => {
-				this.renderResults(data)
+				this.renderResults(data, query)
 			})
 			.catch(error => {
-				// Ignoramos errores de aborto (es normal cuando el usuario escribe rápido)
 				if (error.name !== 'AbortError') {
 					console.error("Error en búsqueda:", error)
 				}
 			})
 			.finally(() => {
-				// Ocultar "Cargando..." solo si no fue abortado (para evitar parpadeos)
-				if (this.loadingTarget && !this.abortController.signal.aborted) {
+				if (this.hasLoadingTarget && !this.abortController.signal.aborted) {
 					this.loadingTarget.classList.add("hidden")
 				}
 			})
 	}
 
-	renderResults(data) {
+	renderResults(data, query) {
 		this.resultsTarget.innerHTML = ""
 
 		if (data.length > 0) {
 			data.forEach(item => {
 				const li = document.createElement("li")
 				const a = document.createElement("a")
-				// Renderizado seguro
 				a.textContent = item.text
-				// Evento para seleccionar
 				a.addEventListener("click", (e) => {
 					e.preventDefault()
 					this.select(item)
@@ -80,27 +73,71 @@ export default class extends Controller {
 				li.appendChild(a)
 				this.resultsTarget.appendChild(li)
 			})
+
 			this.resultsTarget.classList.remove("hidden")
-		} else {
-			// Opcional: Mostrar mensaje de "No encontrado"
-			const li = document.createElement("li")
-			li.innerHTML = `<span class="text-gray-500 italic cursor-default pointer-events-none">No se encontraron resultados</span>`
-			this.resultsTarget.appendChild(li)
-			this.resultsTarget.classList.remove("hidden")
+			return
 		}
+
+		// Sin resultados: ofrecer "Crear 'X'" si hay texto
+		const q = (query || "").trim()
+		if (q.length > 0) {
+			const liCreate = document.createElement("li")
+			const aCreate = document.createElement("a")
+			aCreate.innerHTML = `Crear <strong>“${this.escapeHtml(q)}”</strong>`
+			aCreate.addEventListener("click", (e) => {
+				e.preventDefault()
+				this.selectTextOnly(q)
+			})
+			liCreate.appendChild(aCreate)
+			this.resultsTarget.appendChild(liCreate)
+		}
+
+		// Mensaje informativo
+		const li = document.createElement("li")
+		li.innerHTML = `<span class="text-gray-500 italic cursor-default pointer-events-none">No se encontraron resultados</span>`
+		this.resultsTarget.appendChild(li)
+		this.resultsTarget.classList.remove("hidden")
 	}
 
 	select(item) {
 		this.inputTarget.value = item.text
-		this.hiddenTarget.value = item.id
+
+		if (this.hasHiddenTarget) {
+			this.hiddenTarget.value = item.id
+			this.hiddenTarget.dispatchEvent(new Event('change'))
+		}
+
 		this.resultsTarget.classList.add("hidden")
-		// Disparar evento de cambio por si otros controladores dependen de este input
-		this.hiddenTarget.dispatchEvent(new Event('change'))
-		// Disparar evento personalizado con todos los datos del ítem seleccionado
+
 		this.element.dispatchEvent(new CustomEvent('autocomplete:select', {
 			detail: item,
 			bubbles: true
 		}))
+	}
+
+	selectTextOnly(text) {
+		this.inputTarget.value = text
+
+		if (this.hasHiddenTarget) {
+			this.hiddenTarget.value = ""
+			this.hiddenTarget.dispatchEvent(new Event('change'))
+		}
+
+		this.resultsTarget.classList.add("hidden")
+
+		this.element.dispatchEvent(new CustomEvent('autocomplete:select', {
+			detail: { id: null, text },
+			bubbles: true
+		}))
+	}
+
+	escapeHtml(str) {
+		return String(str)
+			.replaceAll("&", "&amp;")
+			.replaceAll("<", "&lt;")
+			.replaceAll(">", "&gt;")
+			.replaceAll('"', "&quot;")
+			.replaceAll("'", "&#039;")
 	}
 
 	hide(event) {
