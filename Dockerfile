@@ -17,6 +17,8 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x -o nodesource_setup.sh && \
 # Habilita Corepack para usar Yarn
 RUN corepack enable && corepack prepare yarn@stable --activate
 
+ENV TZ=America/Managua
+
 # Instala Rails
 RUN gem install rails -v 8.0.2
 
