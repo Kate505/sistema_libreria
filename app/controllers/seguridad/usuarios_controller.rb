@@ -31,7 +31,7 @@ class Seguridad::UsuariosController < ApplicationController
                          .por_nombre_completo(params[:q])
                          .limit(5)
 
-    render json: @empleados.map { |e| { id: e.id, text: e.nombre_completo } }
+    render json: @empleados.map { |e| { id: e.id, text: e.nombre_completo } }\
   end
 
   def create

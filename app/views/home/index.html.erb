@@ -6,7 +6,7 @@
     <div>
       <h1 class="text-3xl font-bold">Dashboard</h1>
       <p class="text-base-content/50 text-sm mt-0.5">
-        <%= Time.current.strftime("%A, %d de %B de %Y") %>
+        <%= l(Date.current, format: :long).capitalize %>
       </p>
     </div>
   </div>

@@ -16,7 +16,21 @@
 
         <div class="w-full">
           <%= f.label :email_address, 'Email', class: 'label pt-0' %>
-          <%= f.text_field :email_address, class: 'input input-bordered w-full validator', placeholder: 'Email', required: true %>
+
+          <label class="input input-bordered validator flex items-center gap-2 w-full">
+            <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <g stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none" stroke="currentColor">
+                <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+              </g>
+            </svg>
+
+            <%= f.email_field :email_address,
+              class: 'w-full',
+              placeholder: 'mail@site.com',
+              required: true %>
+          </label>
+          <div class="validator-hint hidden">Ingrese un correo válido</div>
         </div>
 
         <div class="w-full relative"
@@ -31,13 +45,23 @@
           <div class="relative">
             <% nombre_actual = usuario.empleado_id.present? ? usuario&.nombre_completo : "" %>
 
-            <input type="text"
-                   class="input input-bordered w-full validator pr-10"
-                   placeholder="Buscar empleado..."
-                   value="<%= nombre_actual %>"
-                   data-autocomplete-target="input"
-                   data-action="input->autocomplete#search"
-                   autocomplete="off">
+            <label class="input input-bordered w-full validator flex items-center gap-2 pr-10">
+              <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <g stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none" stroke="currentColor">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <path d="m21 21-4.3-4.3"></path>
+                </g>
+              </svg>
+
+              <input type="search"
+                     class="w-full"
+                     required
+                     placeholder="Buscar empleado..."
+                     value="<%= nombre_actual %>"
+                     data-autocomplete-target="input"
+                     data-action="input->autocomplete#search"
+                     autocomplete="off">
+            </label>
 
             <div data-autocomplete-target="loading" class="absolute right-3 top-3 hidden">
               <span class="loading loading-spinner loading-sm text-primary"></span>

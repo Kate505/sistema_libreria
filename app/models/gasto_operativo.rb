@@ -23,6 +23,11 @@ class GastoOperativo < ApplicationRecord
 
   before_save :calcular_total_gastos
 
+  scope :ultimos_n_meses, ->(n) {
+    fecha_inicio = n.months.ago.beginning_of_month
+    where("MAKE_DATE(periodo_year, periodo_mes, 1) >= ?", fecha_inicio)
+  }
+
   NOMBRES_MESES = {
     1 => "Enero", 2 => "Febrero", 3 => "Marzo", 4 => "Abril",
     5 => "Mayo", 6 => "Junio", 7 => "Julio", 8 => "Agosto",

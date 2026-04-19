@@ -25,5 +25,9 @@ module App
     # config.eager_load_paths << Rails.root.join("extras")
     config.i18n.default_locale = :es
     config.i18n.available_locales = [ :es ]
+
+    config.time_zone = 'Central America'
+    config.active_record.default_timezone = :local
+    config.active_record.time_zone_aware_types = [:datetime, :time]
   end
 end

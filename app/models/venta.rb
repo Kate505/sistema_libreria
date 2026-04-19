@@ -34,6 +34,7 @@ class Venta < ApplicationRecord
 
   scope :hoy,             -> { where(fecha_venta: Time.current.all_day) }
   scope :por_metodo_pago, ->(metodo) { where(metodo_pago: metodo) }
+  scope :ultimos_n_meses, ->(n) { where("fecha_venta >= ?", n.months.ago.beginning_of_month) }
 
   private
 

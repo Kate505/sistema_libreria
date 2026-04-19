@@ -15,9 +15,8 @@
     <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
     <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
 
-    <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/icon.png">
+    <link rel="icon" href="/libreria.png" type="image/png">
+    <link rel="apple-touch-icon" href="/libreria.png">
     <meta name="turbo-refresh-method" content="morph">
     <meta name="turbo-refresh-scroll" content="preserve">
 
@@ -104,7 +103,9 @@
         <div class="flex min-h-full flex-col items-start bg-base-200 is-drawer-close:w-14 is-drawer-open:w-64">
           <!--             Sidebar content here-->
           <ul class="menu w-full grow">
-            <%= menu_for_drawer %>
+            <% cache ["sidebar_drawer", Current.user] do %>
+              <%= menu_for_drawer %>
+            <% end %>
           </ul>
         </div>
       </div>

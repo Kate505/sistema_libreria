@@ -5,7 +5,9 @@
     <th>Nombre</th>
     <th>Marca</th>
     <th>Categoría</th>
+    <th class="text-right">CPP</th>
     <th class="text-right">Precio Venta</th>
+    <th class="text-right">Margen Est.</th>
     <th>Stock</th>
     <th class="text-right">Acciones</th>
   </tr>
@@ -36,8 +38,25 @@
         <% end %>
       </td>
 
+      <td class="text-right tabular-nums text-sm text-base-content/60">
+        C$ <%= number_with_precision(producto.costo_promedio_ponderado, precision: 2, delimiter: ',') %>
+      </td>
+
       <td class="text-right font-semibold tabular-nums">
         C$ <%= number_with_precision(producto.precio_venta, precision: 2, delimiter: ',') %>
+      </td>
+
+      <%# Margen estimado con alerta %>
+      <td class="text-right tabular-nums">
+        <% margen = producto.margen_estimado %>
+        <% bajo = producto.margen_bajo? %>
+        <% pct = (margen * 100).round(1) %>
+        <span class="badge badge-sm <%= bajo ? 'badge-warning' : 'badge-success' %>">
+          <% if bajo %>
+            ⚠️
+          <% end %>
+          <%= pct %>%
+        </span>
       </td>
 
       <td>

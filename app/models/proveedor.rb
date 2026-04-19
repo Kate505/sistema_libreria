@@ -8,10 +8,8 @@ class Proveedor < ApplicationRecord
             length: { maximum: 150 }
 
   validates :telefono,
-            presence: true,
-            length: { maximum: 11 }
+            length: { maximum: 8 }
 
   validates :direccion,
-            presence: true,
             length: { maximum: 255 }
 end
