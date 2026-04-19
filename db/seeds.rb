@@ -18,6 +18,7 @@ modulo_catalogos = Modulo.create!(nombre: "Catálogos", icono: "catalogos.svg", 
 modulo_estadisticas = Modulo.create!(nombre: "Estadísticas", icono: "estadisticas.svg", link_to: "/estadisticas")
 modulo_finanzas = Modulo.create!(nombre: "Finanzas", icono: "finanzas.svg", link_to: "/finanzas")
 modulo_seguridad = Modulo.create!(nombre: "Gestión de Seguridad", icono: "seguridad.svg", link_to: "/seguridad")
+modulo_configuraciones = Modulo.create!(nombre: "Configuraciones", icono: "seguridad.svg", link_to: "/configuraciones")
 
 # -------------  Menús  ------------- #
 
@@ -40,6 +41,9 @@ Menu.create!(codigo: "ESTADISTICAS", nombre: "Estadísticas por período", modul
 # # Módulo Finanzas
 Menu.create!(codigo: "GASTOS_OPERATIVOS", nombre: "Gastos Operativos", modulo: modulo_finanzas, link_to: "/finanzas/gastos_operativos")
 Menu.create!(codigo: "DETALLE_PAGOS_EMPLEADOS", nombre: "Nómina Empleados", modulo: modulo_finanzas, link_to: "/finanzas/nomina_empleados")
+
+# # Módulo Configuraciones
+Menu.create!(codigo: "NEGOCIO", nombre: "Configuración de Negocio", modulo: modulo_configuraciones, link_to: "/configuraciones/negocio/edit")
 
 # # Módulo Gestión de Seguridad
 Menu.create!(codigo: "MODULOS", nombre: "Módulos", modulo: modulo_seguridad, link_to: "/seguridad/modulos")
@@ -83,6 +87,7 @@ RolesUser.create!(user: user_normal, rol: seller_role)
 
 # -----------------------------
 
+=begin
 puts "Cargando inventario desde Excel..."
 
 file = Rails.root.join('db', 'inventario.csv')
@@ -259,3 +264,4 @@ puts "Inventario cargado correctamente"
 puts "Productos creados: #{Producto.count}"
 puts "Marcas creadas: #{Marca.count}"
 puts "Categorías creadas: #{Categoria.count}"
+=end

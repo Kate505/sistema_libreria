@@ -91,7 +91,6 @@ es:
       default: "%d/%m/%Y %H:%M"
       long: "%A, %d de %B de %Y"
     pm: pm
-
   activerecord:
     attributes:
       empleado:
