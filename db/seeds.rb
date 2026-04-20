@@ -1,5 +1,6 @@
 require 'roo'
 
+# Limpiar tablas para que el seed sea re-ejecutable sin conflictos
 Session.delete_all
 RolesUser.delete_all
 RolesMenu.delete_all
@@ -8,6 +9,16 @@ Modulo.delete_all
 Rol.delete_all
 User.delete_all
 Empleado.delete_all
+
+# Limpiar inventario y catálogos relacionados (en orden correcto por FK)
+DetalleVenta.delete_all
+Venta.delete_all
+DetalleOrdenDeCompra.delete_all
+OrdenDeCompra.delete_all
+Producto.delete_all
+Marca.delete_all
+Categoria.delete_all
+Proveedor.delete_all
 
 
 # -------------  Módulos  ------------- #
@@ -87,7 +98,6 @@ RolesUser.create!(user: user_normal, rol: seller_role)
 
 # -----------------------------
 
-=begin
 puts "Cargando inventario desde Excel..."
 
 file = Rails.root.join('db', 'inventario.csv')
@@ -103,7 +113,7 @@ headers = sheet.row(1).map { |h| h.to_s.strip }
 # Proveedor genérico para inventario inicial
 
 proveedor = Proveedor.find_or_create_by!(nombre: "Proveedor Inicial Inventario") do |p|
-  p.telefono = "8888-8888"     # Example field
+  p.telefono = "88888888"     # 8 caracteres sin guion (límite del modelo)
   p.direccion = "Ciudad"       # Example field
 end
 
@@ -133,67 +143,67 @@ def detectar_categoria(nombre)
 
   # Regex utilitarias
   re_colores = /\bcolor(?:es)?\b/
-  re_papeleria = /\b(?:hojas?|papel|cartulina|papelografo|folder|carpeta|cuaderno|libreta|block)\b/
-  re_instrumento_escritura = /\b(?:lapic(?:er)?o(?:s)?|lapiz(?:ces)?|pluma(?:s)?|boligrafo(?:s)?|esfero(?:s)?|portamin(?:a|as)|lapicera(?:s)?|marcador(?:es)?|resaltador(?:es)?)\b/
+      re_papeleria = /\b(?:hojas?|papel|cartulina|papelografo|folder|carpeta|cuaderno|libreta|block)\b/
+      re_instrumento_escritura = /\b(?:lapic(?:er)?o(?:s)?|lapiz(?:ces)?|pluma(?:s)?|boligrafo(?:s)?|esfero(?:s)?|portamin(?:a|as)|lapicera(?:s)?|marcador(?:es)?|resaltador(?:es)?)\b/
 
-  # Regla inteligente de "colores":
-  # - "lapiceros/marcadores/... de colores" => Lapices y Lapiceros
-  # - "colores" suelto => Lapices de colores
-  # EXCEPTO: si habla de papelería (papel/cartulina/etc.), se va a Papelería.
-  if t.match?(re_colores)
-    if t.match?(re_papeleria)
-      return pick.call("Papelería", "Papeleria")
-    end
-
-    if t.match?(re_instrumento_escritura)
-      return pick.call("Lapices y Lapiceros", nil)
-    end
-
-    return pick.call("Lapices de colores", "Lapices y Lapiceros")
+      # Regla inteligente de "colores":
+      # - "lapiceros/marcadores/... de colores" => Lapices y Lapiceros
+      # - "colores" suelto => Lapices de colores
+      # EXCEPTO: si habla de papelería (papel/cartulina/etc.), se va a Papelería.
+      if t.match?(re_colores)
+  if t.match?(re_papeleria)
+    return pick.call("Papelería", "Papeleria")
   end
 
-  case t
-  when /tajador|borrador/
+  if t.match?(re_instrumento_escritura)
+    return pick.call("Lapices y Lapiceros", nil)
+  end
+
+  return pick.call("Lapices de colores", "Lapices y Lapiceros")
+end
+
+case t
+when /tajador|borrador/
     pick.call("Tajadores y Borradores", nil)
 
-  when /lapiz|lapicero|lapiceros|pluma|boligrafo|esfero|portamin|lapicera/
+when /lapiz|lapicero|lapiceros|pluma|boligrafo|esfero|portamin|lapicera/
     pick.call("Lapices y Lapiceros", nil)
 
-  when /corrector|mina|minas/
+when /corrector|mina|minas/
     pick.call("Correctores y minas", nil)
 
-  when /tape|sellador|pega|silicon/
+when /tape|sellador|pega|silicon/
     pick.call("Pegas, silicones y cintas", nil)
 
-  when /tijera|cutter/
+when /tijera|cutter/
     pick.call("Tijeras y cutter", nil)
 
-  when /tachuelas|pushpin|chinches/
+when /tachuelas|pushpin|chinches/
     pick.call("Tachuelas y chinches", nil)
 
-  when /notitas|notas/
+when /notitas|notas/
     pick.call("Notitas", nil)
 
-  when /marcador|marcadores|resaltador|resaltadores/
+when /marcador|marcadores|resaltador|resaltadores/
     pick.call("Marcadores", nil)
 
-  when /cuaderno|libreta|block/
+when /cuaderno|libreta|block/
     pick.call("Cuadernos y libretas", nil)
 
-  when /folder|carpeta/
+when /folder|carpeta/
     pick.call("Folders y Carpetas", nil)
 
-  when /foami/
+when /foami/
     pick.call("Foamis", nil)
 
-  when /hojas|papel|cartulina|papelografo/
+when /hojas|papel|cartulina|papelografo/
     pick.call("Papelería", "Papeleria")
 
-  when /regla|geometrico/
+when /regla|geometrico/
     pick.call("Geometría", "Geometria")
-  else
-    pick.call("Otros", nil)
-  end
+else
+  pick.call("Otros", nil)
+end
 end
 
 (2..sheet.last_row).each_with_index do |i, index|
@@ -221,8 +231,8 @@ end
 
   precio_mayor =
     row["Precio por mayor de venta"].present? ?
-      row["Precio por mayor de venta"].to_f :
-      precio_venta
+  row["Precio por mayor de venta"].to_f :
+  precio_venta
 
   sku = "#{categoria.nombre[0..2].upcase}-#{marca.nombre[0..2].upcase}-#{index.to_s.rjust(5,'0')}"
 
@@ -264,4 +274,3 @@ puts "Inventario cargado correctamente"
 puts "Productos creados: #{Producto.count}"
 puts "Marcas creadas: #{Marca.count}"
 puts "Categorías creadas: #{Categoria.count}"
-=end

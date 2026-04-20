@@ -4,6 +4,11 @@ class Facturacion::DetalleVentasController < ApplicationController
 
   # POST /facturacion/ventas/:venta_id/detalle_ventas
   def create
+    if @venta.finalizada?
+      redirect_to facturacion_venta_path(@venta), alert: "No se puede modificar una venta finalizada."
+      return
+    end
+
     @detalle = @venta.detalle_ventas.new(detalle_params)
 
     if @detalle.save
@@ -49,6 +54,11 @@ class Facturacion::DetalleVentasController < ApplicationController
 
   # DELETE /facturacion/ventas/:venta_id/detalle_ventas/:id
   def destroy
+    if @venta.finalizada?
+      redirect_to facturacion_venta_path(@venta), alert: "No se puede modificar una venta finalizada."
+      return
+    end
+
     @detalle.destroy
     @detalles = detalles_recargados
     respond_to do |format|

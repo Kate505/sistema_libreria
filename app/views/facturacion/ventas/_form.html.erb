@@ -1,4 +1,4 @@
-<turbo-frame id="venta_form">
+<div id="venta_form">
   <%= form_with(model: venta,
                 url: venta.new_record? ? facturacion_ventas_path : facturacion_venta_path(venta),
                 method: venta.new_record? ? :post : :patch,
@@ -60,15 +60,7 @@
                                      required: true %>
         </div>
 
-        <%# Método de Pago %>
-        <div class="w-full sm:col-span-2">
-          <%= f.label :metodo_pago, 'Método de Pago', class: 'label pt-0' %>
-          <%= f.select :metodo_pago,
-                       Venta::METODOS_PAGO.map { |k, v| [v, k] },
-                       { include_blank: '-- Seleccionar --' },
-                       class: 'select select-bordered w-full',
-                       required: true %>
-        </div>
+
 
         <%# Botones de acción %>
         <div class="card-actions justify-end sm:col-span-2 mt-4 pt-4 border-t border-base-200 gap-2">
@@ -79,4 +71,4 @@
       </div>
     </div>
   <% end %>
-</turbo-frame>
+</div>

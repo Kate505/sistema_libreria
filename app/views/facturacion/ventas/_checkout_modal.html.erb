@@ -1,0 +1,140 @@
+<%# Modal de finalización / checkout de la venta %>
+<% total = venta.cantidad_total.to_d %>
+<% tasa = Venta::TASA_CAMBIO_USD %>
+
+<dialog id="checkout_modal" class="modal"
+        data-checkout-target="modal">
+  <div class="modal-box max-w-md">
+
+    <%# Header %>
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-xl font-bold">Finalizar Venta #<%= venta.id %></h3>
+      <button type="button" class="btn btn-sm btn-circle btn-ghost"
+              data-action="checkout#close">✕</button>
+    </div>
+
+    <%# Alert area for errors %>
+    <div id="checkout_alert"></div>
+    <div data-checkout-target="errorMsg"
+         class="alert alert-error text-sm py-2 mb-3 hidden"></div>
+
+    <%# Total de la venta %>
+    <div class="bg-base-200 rounded-box p-4 mb-5 text-center">
+      <p class="text-sm text-base-content/60 mb-1">Total a cobrar</p>
+      <p class="text-3xl font-bold tabular-nums text-primary"
+         data-checkout-target="totalCordobas">
+        C$ <%= number_with_precision(total, precision: 2, delimiter: ',') %>
+      </p>
+      <p data-checkout-target="totalConvertido"
+         class="text-sm text-base-content/50 mt-1 hidden"></p>
+    </div>
+
+    <%= form_with(url: finalizar_facturacion_venta_path(venta),
+                  method: :patch,
+                  data: { action: "submit->checkout#submitPago" }) do |f| %>
+
+      <%# Paso 1: Método de pago (Solo Efectivo y Transferencia) %>
+      <div class="mb-5">
+        <label class="label pt-0 font-semibold">Método de Pago</label>
+        <div class="grid grid-cols-2 gap-2">
+          <% metodos_permitidos = Venta::METODOS_PAGO.reject { |k, v| k == "T" } %>
+          <% metodos_permitidos.each do |key, label| %>
+            <button type="button"
+                    class="btn btn-outline btn-sm"
+                    data-checkout-target="metodoPago"
+                    data-action="click->checkout#selectMetodo"
+                    data-metodo="<%= key %>">
+              <% icon = case key
+                         when "E" then "💵"
+                         when "TR" then "🏦"
+                         end %>
+              <%= icon %> <%= label %>
+            </button>
+          <% end %>
+        </div>
+        <%# Hidden field that carries the selected metodo_pago %>
+        <input type="hidden" name="metodo_pago" value=""
+               data-checkout-target="metodoPagoHidden">
+      </div>
+
+      <%# Paso 2: Campos de efectivo (solo visibles si se selecciona Efectivo) %>
+      <div data-checkout-target="efectivoFields" class="hidden space-y-4">
+
+        <%# Moneda %>
+        <div>
+          <label class="label pt-0 font-semibold">Moneda</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button"
+                    class="btn btn-outline btn-sm btn-active btn-primary"
+                    data-checkout-target="moneda"
+                    data-action="click->checkout#selectMoneda"
+                    data-moneda="NIO">
+              🇳🇮 Córdobas (C$)
+            </button>
+            <button type="button"
+                    class="btn btn-outline btn-sm"
+                    data-checkout-target="moneda"
+                    data-action="click->checkout#selectMoneda"
+                    data-moneda="USD">
+              🇺🇸 Dólares (US$)
+            </button>
+          </div>
+          <p class="text-xs text-base-content/40 mt-1">
+            Tasa BCN: 1 US$ = C$ <%= number_with_precision(tasa, precision: 4) %>
+          </p>
+        </div>
+
+        <%# Monto recibido %>
+        <div>
+          <label class="label pt-0 font-semibold">Monto Recibido</label>
+          <label class="input input-bordered flex items-center gap-2 w-full">
+            <span class="text-base-content/60 text-sm font-semibold"
+                  data-checkout-target="monedaLabel">C$</span>
+            <input type="number"
+                   step="0.01"
+                   min="0"
+                   class="grow"
+                   placeholder="0.00"
+                   data-checkout-target="montoRecibido"
+                   data-action="input->checkout#calcularVuelto"
+                   autocomplete="off">
+          </label>
+        </div>
+
+        <%# Vuelto %>
+        <div data-checkout-target="vueltoDisplay"
+             class="bg-success/10 rounded-box p-4 text-center hidden">
+          <p class="text-sm text-base-content/60 mb-1">Vuelto</p>
+          <p data-checkout-target="vueltoAmount"
+             class="font-bold text-xl tabular-nums text-success">
+            C$ 0.00
+          </p>
+        </div>
+
+      </div>
+
+      <%# Botón confirmar %>
+      <div class="modal-action">
+        <button type="button" class="btn btn-ghost"
+                data-action="checkout#close">
+          Cancelar
+        </button>
+        <button type="submit"
+                class="btn btn-primary"
+                data-checkout-target="submitBtn"
+                disabled>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+          </svg>
+          Confirmar Pago
+        </button>
+      </div>
+
+    <% end %>
+  </div>
+
+  <%# Click fuera del modal para cerrar %>
+  <form method="dialog" class="modal-backdrop">
+    <button>close</button>
+  </form>
+</dialog>

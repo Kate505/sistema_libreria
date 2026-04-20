@@ -1,10 +1,30 @@
 class Facturacion::VentasController < ApplicationController
-  before_action :set_venta, only: %i[show edit update destroy]
+  before_action :set_venta, only: %i[show edit update destroy finalizar]
 
   # GET /facturacion/ventas
   def index
     @venta = Venta.new
-    @ventas = Venta.includes(:cliente).order(fecha_venta: :desc)
+    @ventas = Venta.includes(:cliente).where(metodo_pago: [nil, '']).order(fecha_venta: :desc)
+  end
+
+  # GET /facturacion/ventas/historial
+  def historial
+    @ventas = Venta.includes(:cliente).where.not(metodo_pago: [nil, ''])
+
+    if params[:q].present?
+      @ventas = @ventas.left_outer_joins(:cliente)
+                       .where("ventas.id::text ILIKE :q OR clientes.primer_nombre ILIKE :q OR clientes.primer_apellido ILIKE :q", q: "%#{params[:q]}%")
+    end
+
+    if params[:metodo_pago].present?
+      @ventas = @ventas.where(metodo_pago: params[:metodo_pago])
+    end
+
+    if params[:fecha_inicio].present? && params[:fecha_fin].present?
+      @ventas = @ventas.where(fecha_venta: params[:fecha_inicio].to_date.beginning_of_day..params[:fecha_fin].to_date.end_of_day)
+    end
+
+    @ventas = @ventas.order(fecha_venta: :desc)
   end
 
   # GET /facturacion/ventas/:id
@@ -37,20 +57,7 @@ class Facturacion::VentasController < ApplicationController
     @venta = Venta.new(venta_params)
 
     if @venta.save
-      @ventas = Venta.includes(:cliente).order(fecha_venta: :desc)
-      respond_to do |format|
-        format.turbo_stream do
-          render turbo_stream: [
-            turbo_stream.update("ventas_table",
-                                partial: "facturacion/ventas/table",
-                                locals: { ventas: @ventas }),
-            turbo_stream.replace("venta_form",
-                                 partial: "facturacion/ventas/form",
-                                 locals: { venta: Venta.new })
-          ]
-        end
-        format.html { redirect_to facturacion_ventas_path, notice: "Venta creada exitosamente." }
-      end
+      redirect_to facturacion_venta_path(@venta), notice: "Venta iniciada exitosamente. Agregue los productos."
     else
       respond_to do |format|
         format.turbo_stream do
@@ -67,21 +74,13 @@ class Facturacion::VentasController < ApplicationController
 
   # PATCH /facturacion/ventas/:id
   def update
+    if @venta.finalizada?
+      redirect_to facturacion_venta_path(@venta), alert: "No se puede editar una venta finalizada."
+      return
+    end
+
     if @venta.update(venta_params)
-      @ventas = Venta.includes(:cliente).order(fecha_venta: :desc)
-      respond_to do |format|
-        format.turbo_stream do
-          render turbo_stream: [
-            turbo_stream.update("ventas_table",
-                                partial: "facturacion/ventas/table",
-                                locals: { ventas: @ventas }),
-            turbo_stream.replace("venta_form",
-                                 partial: "facturacion/ventas/form",
-                                 locals: { venta: Venta.new })
-          ]
-        end
-        format.html { redirect_to facturacion_ventas_path, notice: "Venta actualizada exitosamente." }
-      end
+      redirect_to facturacion_venta_path(@venta), notice: "Venta actualizada exitosamente."
     else
       respond_to do |format|
         format.turbo_stream do
@@ -98,20 +97,59 @@ class Facturacion::VentasController < ApplicationController
 
   # DELETE /facturacion/ventas/:id
   def destroy
+    if @venta.finalizada?
+      redirect_to facturacion_ventas_path, alert: "No se puede eliminar una venta finalizada."
+      return
+    end
+
     @venta.destroy
-    @ventas = Venta.includes(:cliente).order(fecha_venta: :desc)
-    respond_to do |format|
-      format.turbo_stream do
-        render turbo_stream: [
-          turbo_stream.update("ventas_table",
-                              partial: "facturacion/ventas/table",
-                              locals: { ventas: @ventas }),
-          turbo_stream.replace("venta_form",
-                               partial: "facturacion/ventas/form",
-                               locals: { venta: Venta.new })
-        ]
+    redirect_to facturacion_ventas_path, notice: "Venta eliminada exitosamente."
+  end
+
+  # PATCH /facturacion/ventas/:id/finalizar
+  def finalizar
+    metodo = params[:metodo_pago]
+
+    if @venta.detalle_ventas.empty?
+      respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.replace(
+            "checkout_alert",
+            html: '<div id="checkout_alert" class="alert alert-error text-sm py-2 mb-3"><span>Debe agregar al menos un producto antes de finalizar la venta.</span></div>'
+          )
+        end
+        format.html { redirect_to facturacion_venta_path(@venta), alert: "Debe agregar al menos un producto antes de finalizar la venta." }
       end
-      format.html { redirect_to facturacion_ventas_path, notice: "Venta eliminada exitosamente." }
+      return
+    end
+
+    if metodo.blank? || !Venta::METODOS_PAGO.key?(metodo.strip.upcase)
+      respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.replace(
+            "checkout_alert",
+            html: '<div id="checkout_alert" class="alert alert-error text-sm py-2 mb-3"><span>Debe seleccionar un método de pago válido.</span></div>'
+          )
+        end
+        format.html { redirect_to facturacion_venta_path(@venta), alert: "Método de pago inválido." }
+      end
+      return
+    end
+
+    @venta.metodo_pago = metodo.strip.upcase
+
+    if @venta.save
+      redirect_to facturacion_ventas_path, notice: "Venta ##{@venta.id} finalizada exitosamente."
+    else
+      respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.replace(
+            "checkout_alert",
+            html: "<div id=\"checkout_alert\" class=\"alert alert-error text-sm py-2 mb-3\"><span>#{@venta.errors.full_messages.join(', ')}</span></div>"
+          )
+        end
+        format.html { redirect_to facturacion_venta_path(@venta), alert: @venta.errors.full_messages.join(", ") }
+      end
     end
   end
 
@@ -147,6 +185,6 @@ class Facturacion::VentasController < ApplicationController
   end
 
   def venta_params
-    params.require(:venta).permit(:cliente_id, :fecha_venta, :metodo_pago)
+    params.require(:venta).permit(:cliente_id, :fecha_venta)
   end
 end

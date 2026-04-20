@@ -1,0 +1,59 @@
+<%= turbo_frame_tag "main_content" do %>
+  <%= turbo_refreshes_with method: :morph, scroll: :preserve %>
+
+  <div class="grid grid-rows-[auto_1fr] gap-6 h-[calc(100vh-10rem)] w-full">
+
+    <div class="flex items-center shrink-0">
+      <h1 class="text-3xl font-bold">Historial de Ventas</h1>
+    </div>
+
+    <%# Filtros de Búsqueda %>
+    <div class="card bg-base-100 shadow-md p-4 mb-2 shrink-0">
+      <%= form_with url: historial_facturacion_ventas_path, method: :get, class: "flex flex-wrap items-end gap-4", data: { turbo_frame: "main_content", turbo_action: "advance" } do |f| %>
+        
+        <div class="form-control w-full max-w-xs">
+          <label class="label pt-0 pb-1">
+            <span class="label-text text-xs font-semibold">Buscar (Nº Factura o Cliente)</span>
+          </label>
+          <%= f.text_field :q, value: params[:q], class: "input input-bordered input-sm", placeholder: "Ej. 1024 o Juan..." %>
+        </div>
+
+        <div class="form-control w-full max-w-[150px]">
+          <label class="label pt-0 pb-1">
+            <span class="label-text text-xs font-semibold">Método de Pago</span>
+          </label>
+          <%= f.select :metodo_pago, Venta::METODOS_PAGO.invert, { include_blank: "Todos", selected: params[:metodo_pago] }, class: "select select-bordered select-sm" %>
+        </div>
+
+        <div class="form-control w-full max-w-[130px]">
+          <label class="label pt-0 pb-1">
+            <span class="label-text text-xs font-semibold">Fecha Inicio</span>
+          </label>
+          <%= f.date_field :fecha_inicio, value: params[:fecha_inicio], class: "input input-bordered input-sm" %>
+        </div>
+
+        <div class="form-control w-full max-w-[130px]">
+          <label class="label pt-0 pb-1">
+            <span class="label-text text-xs font-semibold">Fecha Fin</span>
+          </label>
+          <%= f.date_field :fecha_fin, value: params[:fecha_fin], class: "input input-bordered input-sm" %>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <%= f.submit "Filtrar", class: "btn btn-primary btn-sm" %>
+          <%= link_to "Limpiar", historial_facturacion_ventas_path, class: "btn btn-ghost btn-sm" %>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="card bg-base-100 shadow-xl flex flex-col h-full overflow-hidden">
+      <div class="flex-1 overflow-y-auto" id="ventas_table_container">
+        <div id="ventas_table" class="h-full">
+          <%= render "table", ventas: @ventas %>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+<% end %>

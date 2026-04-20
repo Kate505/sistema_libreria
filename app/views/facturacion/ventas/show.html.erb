@@ -1,12 +1,16 @@
 <%= turbo_frame_tag "main_content" do %>
   <%= turbo_refreshes_with method: :morph, scroll: :preserve %>
 
-  <div class="grid grid-rows-[auto_1fr] gap-6 h-[calc(100vh-10rem)] w-full">
+  <div class="grid grid-rows-[auto_1fr] gap-6 h-[calc(100vh-10rem)] w-full"
+       data-controller="checkout"
+       data-checkout-total-value="<%= @venta.cantidad_total.to_d %>"
+       data-checkout-tasa-cambio-value="<%= Venta::TASA_CAMBIO_USD %>">
 
     <%# Encabezado con botón de volver %>
     <div class="flex items-center justify-between shrink-0 flex-wrap gap-3">
       <div class="flex items-center gap-3">
-        <%= link_to facturacion_ventas_path,
+        <% back_path = @venta.finalizada? ? historial_facturacion_ventas_path : facturacion_ventas_path %>
+        <%= link_to back_path,
                     data: { turbo_frame: "main_content", turbo_action: "advance" },
                     class: "btn btn-ghost btn-sm btn-square" do %>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -26,26 +30,43 @@
           </h1>
           <p class="text-sm text-base-content/50">
             <%= @venta.fecha_venta.strftime("%d/%m/%Y %H:%M") %>
-            · Pago:
-            <span class="font-medium">
-              <%= Venta::METODOS_PAGO[@venta.metodo_pago] || @venta.metodo_pago %>
-            </span>
+            <% if @venta.finalizada? %>
+              · Pago:
+              <span class="badge badge-success badge-sm font-medium">
+                <%= Venta::METODOS_PAGO[@venta.metodo_pago] || @venta.metodo_pago %>
+              </span>
+            <% else %>
+              ·
+              <span class="badge badge-warning badge-sm font-medium">Pendiente de pago</span>
+            <% end %>
           </p>
         </div>
       </div>
 
-      <%# Resumen totales %>
-      <%= render "resumen", venta: @venta %>
+      <div class="flex items-center gap-3">
+        <%# Resumen totales %>
+        <%= render "resumen", venta: @venta %>
+      </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 min-h-0">
 
-      <%# Formulario de línea de detalle %>
+      <%# Formulario de línea de detalle (solo si no está finalizada) %>
       <div class="card bg-base-100 shadow-xl overflow-hidden flex flex-col h-full lg:max-h-full">
         <div class="overflow-y-auto flex-1 p-0">
-          <%= render "facturacion/detalle_ventas/form",
-                     venta: @venta,
-                     detalle: @detalle %>
+          <% if @venta.finalizada? %>
+            <div class="card-body items-center text-center py-12">
+              <div class="text-5xl mb-3">✅</div>
+              <h3 class="font-bold text-lg text-success">Venta Finalizada</h3>
+              <p class="text-base-content/50 text-sm">
+                Método de pago: <span class="font-semibold"><%= Venta::METODOS_PAGO[@venta.metodo_pago] %></span>
+              </p>
+            </div>
+          <% else %>
+            <%= render "facturacion/detalle_ventas/form",
+                       venta: @venta,
+                       detalle: @detalle %>
+          <% end %>
         </div>
       </div>
 
@@ -61,6 +82,11 @@
       </div>
 
     </div>
+
+    <%# Modal de checkout %>
+    <% unless @venta.finalizada? %>
+      <%= render "checkout_modal", venta: @venta %>
+    <% end %>
 
   </div>
 

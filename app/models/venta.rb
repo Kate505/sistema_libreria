@@ -10,15 +10,22 @@ class Venta < ApplicationRecord
     "TR" => "Transferencia"
   }.freeze
 
+  TASA_CAMBIO_USD = 36.6243
+
   validates :fecha_venta, presence: true
 
   validates :metodo_pago,
-            presence: true,
             length: { maximum: 2 },
             inclusion: {
               in: METODOS_PAGO.keys,
               message: "%{value} no es un método de pago válido"
-            }
+            },
+            allow_nil: true,
+            allow_blank: true
+
+  def finalizada?
+    metodo_pago.present?
+  end
 
   # cantidad_total es CALCULADO automáticamente por DetalleVenta callbacks.
   # NO debe validarse como presencia porque al crear una nueva venta siempre
@@ -27,7 +34,7 @@ class Venta < ApplicationRecord
             numericality: { greater_than_or_equal_to: 0 },
             allow_nil: true
 
-  normalizes :metodo_pago, with: ->(m) { m.strip.upcase }
+  normalizes :metodo_pago, with: ->(m) { m&.strip&.upcase }
 
   # Garantiza que cantidad_total nunca sea nil en BD al guardar
   before_validation :inicializar_cantidad_total
