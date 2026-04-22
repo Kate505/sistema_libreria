@@ -12,16 +12,19 @@ class Facturacion::VentasControllerTest < ActionDispatch::IntegrationTest
     hoy = Time.current
 
     venta_hoy_finalizada = Venta.create!(
+      user: @user,
       fecha_venta: hoy.beginning_of_day + 10.hours,
       finalizada: true,
       cantidad_total: 10
     )
     venta_hoy_pendiente = Venta.create!(
+      user: @user,
       fecha_venta: hoy.beginning_of_day + 11.hours,
       finalizada: false,
       cantidad_total: 20
     )
     venta_ayer_finalizada = Venta.create!(
+      user: @user,
       fecha_venta: (hoy - 1.day).beginning_of_day + 10.hours,
       finalizada: true,
       cantidad_total: 30
@@ -57,6 +60,7 @@ class Facturacion::VentasControllerTest < ActionDispatch::IntegrationTest
     )
 
     venta = Venta.create!(
+      user: @user,
       fecha_venta: Time.current,
       finalizada: true,
       cantidad_total: 0

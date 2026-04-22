@@ -57,6 +57,7 @@ class Facturacion::VentasController < ApplicationController
   # POST /facturacion/ventas
   def create
     @venta = Venta.new(venta_params)
+    @venta.user ||= Current.user
 
     if @venta.save
       @ventas = Venta.includes(:cliente).order(fecha_venta: :desc)

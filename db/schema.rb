@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_20_033541) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_22_090000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -233,7 +233,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_20_033541) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "finalizada", default: false, null: false
+    t.bigint "user_id"
     t.index ["cliente_id"], name: "index_ventas_on_cliente_id"
+    t.index ["user_id"], name: "index_ventas_on_user_id"
   end
 
   add_foreign_key "detalle_ordenes_de_compra", "ordenes_de_compra"
@@ -254,4 +256,5 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_20_033541) do
   add_foreign_key "sessions", "users"
   add_foreign_key "users", "empleados"
   add_foreign_key "ventas", "clientes"
+  add_foreign_key "ventas", "users"
 end
