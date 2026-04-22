@@ -16,7 +16,17 @@ class Facturacion::VentasController < ApplicationController
                       .order(:created_at)
                       
     respond_to do |format|
-      format.html
+      format.html do
+        # Si el detalle se solicita desde el historial, lo devolvemos como modal
+        # (sin navegar a la pantalla de ventas).
+        if turbo_frame_request? && request.headers["Turbo-Frame"].to_s == "venta_detalle_modal"
+          render partial: "historial_detalle_modal",
+                 locals: { venta: @venta, detalles: @detalles },
+                 layout: false
+        else
+          render :show
+        end
+      end
       format.pdf do
         pdf = Pdf::FacturaVenta.new(@venta)
         send_data pdf.render,

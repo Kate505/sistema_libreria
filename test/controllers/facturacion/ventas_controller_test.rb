@@ -43,6 +43,40 @@ class Facturacion::VentasControllerTest < ActionDispatch::IntegrationTest
     assert_not_includes response.body, "##{venta_ayer_finalizada.id}"
   end
 
+  test "show devuelve modal cuando se solicita desde el turbo-frame venta_detalle_modal" do
+    categoria = Categoria.first || Categoria.create!(nombre: "Categoría Test")
+    producto = Producto.create!(
+      categoria_id: categoria.id,
+      sku: "MOD-001",
+      nombre: "Producto Modal",
+      precio_venta: 25,
+      precio_venta_al_mayor: 20,
+      stock_actual: 50,
+      stock_minimo_limite: 1,
+      stock_maximo_limite: 100
+    )
+
+    venta = Venta.create!(
+      fecha_venta: Time.current,
+      finalizada: true,
+      cantidad_total: 0
+    )
+
+    DetalleVenta.create!(
+      venta: venta,
+      producto: producto,
+      cantidad: 2,
+      precio_unitario_venta: 25
+    )
+
+    get facturacion_venta_path(venta), headers: { "Turbo-Frame" => "venta_detalle_modal" }
+    assert_response :success
+
+    assert_includes response.body, "<turbo-frame id=\"venta_detalle_modal\""
+    assert_includes response.body, "venta_detalle_modal_dialog"
+    assert_includes response.body, "Producto Modal"
+  end
+
   private
 
   def ensure_menu_access_for!(user, menu_code)
