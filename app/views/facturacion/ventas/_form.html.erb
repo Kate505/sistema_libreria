@@ -26,6 +26,7 @@
         <div class="w-full sm:col-span-2 relative"
              data-controller="autocomplete"
              data-autocomplete-url-value="<%= buscar_cliente_facturacion_ventas_path %>"
+             data-autocomplete-create-url-value="<%= crear_cliente_facturacion_ventas_path %>"
              data-action="click@window->autocomplete#hide">
 
           <%= f.label :cliente_id, 'Cliente (opcional)', class: 'label pt-0' %>

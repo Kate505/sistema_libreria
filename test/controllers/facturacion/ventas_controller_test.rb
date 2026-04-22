@@ -77,6 +77,33 @@ class Facturacion::VentasControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Producto Modal"
   end
 
+  test "crear_cliente crea un cliente desde texto libre" do
+    assert_difference("Cliente.count", 1) do
+      post crear_cliente_facturacion_ventas_path,
+           params: { nombre: "Juan Perez" },
+           as: :json
+    end
+
+    assert_response :created
+    body = JSON.parse(response.body)
+    assert body["id"].present?
+    assert_equal "Juan Perez", body["text"]
+  end
+
+  test "crear_cliente no duplica si ya existe el mismo primer nombre y apellido" do
+    Cliente.create!(primer_nombre: "Ana", primer_apellido: "Lopez")
+
+    assert_no_difference("Cliente.count") do
+      post crear_cliente_facturacion_ventas_path,
+           params: { nombre: "Ana Lopez" },
+           as: :json
+    end
+
+    assert_response :created
+    body = JSON.parse(response.body)
+    assert body["id"].present?
+  end
+
   private
 
   def ensure_menu_access_for!(user, menu_code)
