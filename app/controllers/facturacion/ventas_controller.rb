@@ -1,11 +1,13 @@
 class Facturacion::VentasController < ApplicationController
+  TASA_CAMBIO_USD_NIO = BigDecimal("36.70")
+
   before_action :set_venta, only: %i[show edit update destroy finalizar]
   before_action :verificar_venta_abierta, only: %i[update destroy]
 
   # GET /facturacion/ventas
   def index
     @venta = Venta.new
-    @ventas = Venta.includes(:cliente).order(fecha_venta: :desc)
+    @ventas = Venta.pendientes.includes(:cliente, :detalle_ventas).order(fecha_venta: :desc)
   end
 
   # GET /facturacion/ventas/:id
@@ -41,7 +43,7 @@ class Facturacion::VentasController < ApplicationController
   def edit
     respond_to do |format|
       format.html do
-        @ventas = Venta.includes(:cliente).order(fecha_venta: :desc)
+        @ventas = Venta.pendientes.includes(:cliente, :detalle_ventas).order(fecha_venta: :desc)
         render :index
       end
       format.turbo_stream do
@@ -60,7 +62,7 @@ class Facturacion::VentasController < ApplicationController
     @venta.user ||= Current.user
 
     if @venta.save
-      @ventas = Venta.includes(:cliente).order(fecha_venta: :desc)
+      @ventas = Venta.pendientes.includes(:cliente, :detalle_ventas).order(fecha_venta: :desc)
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
@@ -91,7 +93,7 @@ class Facturacion::VentasController < ApplicationController
   # PATCH /facturacion/ventas/:id
   def update
     if @venta.update(venta_params)
-      @ventas = Venta.includes(:cliente).order(fecha_venta: :desc)
+      @ventas = Venta.pendientes.includes(:cliente, :detalle_ventas).order(fecha_venta: :desc)
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
@@ -122,7 +124,7 @@ class Facturacion::VentasController < ApplicationController
   # DELETE /facturacion/ventas/:id
   def destroy
     @venta.destroy
-    @ventas = Venta.includes(:cliente).order(fecha_venta: :desc)
+    @ventas = Venta.pendientes.includes(:cliente, :detalle_ventas).order(fecha_venta: :desc)
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [
@@ -234,7 +236,7 @@ class Facturacion::VentasController < ApplicationController
   def finalizar
     metodo_pago   = params[:metodo_pago].to_s.strip.upcase
     moneda        = params[:moneda].to_s  # "NIO" o "USD"
-    tasa_cambio   = params[:tasa_cambio].to_d
+    tasa_cambio   = moneda == "USD" ? TASA_CAMBIO_USD_NIO : 0.to_d
     monto_recibido = params[:monto_recibido].to_d
 
     unless Venta::METODOS_PAGO.key?(metodo_pago)

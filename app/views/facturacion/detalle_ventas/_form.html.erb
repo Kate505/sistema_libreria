@@ -11,7 +11,7 @@
         <p class="font-bold text-base-content">Venta Finalizada</p>
         <p class="text-sm text-base-content/50 mt-1">
           Esta venta fue cobrada con<br>
-          <span class="font-semibold text-base-content/70"><%= Venta::METODOS_PAGO[venta.metodo_pago] %></span>.
+          <span class="font-semibold text-base-content/70"><%= Venta::METODOS_PAGO[venta.metodo_pago] || venta.metodo_pago %></span>.
           No se pueden agregar más productos.
         </p>
       </div>
