@@ -1,13 +1,11 @@
 class Facturacion::VentasController < ApplicationController
-  TASA_CAMBIO_USD_NIO = BigDecimal("36.70")
-
   before_action :set_venta, only: %i[show edit update destroy finalizar]
   before_action :verificar_venta_abierta, only: %i[update destroy]
 
   # GET /facturacion/ventas
   def index
     @venta = Venta.new
-    @ventas = Venta.pendientes.includes(:cliente, :detalle_ventas).order(fecha_venta: :desc)
+    @ventas = Venta.includes(:cliente).order(fecha_venta: :desc)
   end
 
   # GET /facturacion/ventas/:id
@@ -18,17 +16,7 @@ class Facturacion::VentasController < ApplicationController
                       .order(:created_at)
                       
     respond_to do |format|
-      format.html do
-        # Si el detalle se solicita desde el historial, lo devolvemos como modal
-        # (sin navegar a la pantalla de ventas).
-        if turbo_frame_request? && request.headers["Turbo-Frame"].to_s == "venta_detalle_modal"
-          render partial: "historial_detalle_modal",
-                 locals: { venta: @venta, detalles: @detalles },
-                 layout: false
-        else
-          render :show
-        end
-      end
+      format.html
       format.pdf do
         pdf = Pdf::FacturaVenta.new(@venta)
         send_data pdf.render,
@@ -43,7 +31,7 @@ class Facturacion::VentasController < ApplicationController
   def edit
     respond_to do |format|
       format.html do
-        @ventas = Venta.pendientes.includes(:cliente, :detalle_ventas).order(fecha_venta: :desc)
+        @ventas = Venta.includes(:cliente).order(fecha_venta: :desc)
         render :index
       end
       format.turbo_stream do
@@ -59,10 +47,9 @@ class Facturacion::VentasController < ApplicationController
   # POST /facturacion/ventas
   def create
     @venta = Venta.new(venta_params)
-    @venta.user ||= Current.user
 
     if @venta.save
-      @ventas = Venta.pendientes.includes(:cliente, :detalle_ventas).order(fecha_venta: :desc)
+      @ventas = Venta.includes(:cliente).order(fecha_venta: :desc)
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
@@ -93,7 +80,7 @@ class Facturacion::VentasController < ApplicationController
   # PATCH /facturacion/ventas/:id
   def update
     if @venta.update(venta_params)
-      @ventas = Venta.pendientes.includes(:cliente, :detalle_ventas).order(fecha_venta: :desc)
+      @ventas = Venta.includes(:cliente).order(fecha_venta: :desc)
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
@@ -124,7 +111,7 @@ class Facturacion::VentasController < ApplicationController
   # DELETE /facturacion/ventas/:id
   def destroy
     @venta.destroy
-    @ventas = Venta.pendientes.includes(:cliente, :detalle_ventas).order(fecha_venta: :desc)
+    @ventas = Venta.includes(:cliente).order(fecha_venta: :desc)
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [
@@ -147,26 +134,6 @@ class Facturacion::VentasController < ApplicationController
       q: "%#{params[:q]}%"
     ).order(:primer_apellido, :primer_nombre).limit(10)
     render json: @clientes.map { |c| { id: c.id, text: "#{c.primer_nombre} #{c.primer_apellido}" } }
-  end
-
-  # POST /facturacion/ventas/crear_cliente
-  # Crea un cliente mínimo a partir de un texto libre (p.ej. "Juan Pérez").
-  # Usado por el autocomplete cuando no se encuentran coincidencias.
-  def crear_cliente
-    nombre = params[:nombre].to_s.strip
-    return render json: { error: "Nombre requerido" }, status: :unprocessable_entity if nombre.blank?
-
-    attrs = parse_nombre_cliente(nombre)
-
-    # Evitar duplicados obvios (mismo primer nombre + primer apellido)
-    existente = Cliente.where("lower(primer_nombre) = ? AND lower(primer_apellido) = ?",
-                              attrs[:primer_nombre].downcase,
-                              attrs[:primer_apellido].downcase).first
-    cliente = existente || Cliente.create!(attrs)
-
-    render json: { id: cliente.id, text: "#{cliente.primer_nombre} #{cliente.primer_apellido}" }, status: :created
-  rescue ActiveRecord::RecordInvalid => e
-    render json: { error: e.record.errors.full_messages.to_sentence }, status: :unprocessable_entity
   end
 
   # GET /facturacion/ventas/historial
@@ -236,7 +203,7 @@ class Facturacion::VentasController < ApplicationController
   def finalizar
     metodo_pago   = params[:metodo_pago].to_s.strip.upcase
     moneda        = params[:moneda].to_s  # "NIO" o "USD"
-    tasa_cambio   = moneda == "USD" ? TASA_CAMBIO_USD_NIO : 0.to_d
+    tasa_cambio   = params[:tasa_cambio].to_d
     monto_recibido = params[:monto_recibido].to_d
 
     unless Venta::METODOS_PAGO.key?(metodo_pago)
@@ -313,41 +280,6 @@ class Facturacion::VentasController < ApplicationController
   end
 
   private
-
-  # Heurística simple para separar nombres/apellidos en campos del modelo.
-  # - 1 palabra: primer_nombre=palabra, primer_apellido="Sin apellido"
-  # - 2 palabras: primer_nombre, primer_apellido
-  # - 3 palabras: primer_nombre, primer_apellido, segundo_apellido
-  # - 4+ palabras: primer_nombre, segundo_nombre, primer_apellido, segundo_apellido (resto)
-  def parse_nombre_cliente(nombre)
-    tokens = nombre.split(/\s+/).map(&:strip).reject(&:blank?)
-    primer_nombre = tokens[0].to_s
-    segundo_nombre = nil
-    segundo_apellido = nil
-
-    primer_apellido = case tokens.length
-                     when 0
-                       "Sin apellido"
-                     when 1
-                       "Sin apellido"
-                     when 2
-                       tokens[1]
-                     when 3
-                       segundo_apellido = tokens[2]
-                       tokens[1]
-                     else
-                       segundo_nombre = tokens[1]
-                       segundo_apellido = tokens[3..].join(" ")
-                       tokens[2]
-                     end
-
-    {
-      primer_nombre: primer_nombre.to_s.first(50),
-      segundo_nombre: segundo_nombre.to_s.first(50).presence,
-      primer_apellido: primer_apellido.to_s.first(50),
-      segundo_apellido: segundo_apellido.to_s.first(50).presence
-    }
-  end
 
   def set_venta
     @venta = Venta.find(params[:id])

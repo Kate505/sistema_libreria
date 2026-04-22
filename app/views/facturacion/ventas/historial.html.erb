@@ -1,9 +1,6 @@
 <%= turbo_frame_tag "main_content" do %>
   <%= turbo_refreshes_with method: :morph, scroll: :preserve %>
 
-  <%# Contenedor para cargar el detalle de venta como modal (Turbo Frame) %>
-  <%= turbo_frame_tag "venta_detalle_modal" %>
-
   <div class="flex flex-col gap-6 w-full">
 
     <%# Encabezado %>
@@ -43,7 +40,7 @@
         <%= form_with url: historial_facturacion_ventas_path,
                       method: :get,
                       data: { turbo_frame: "main_content", turbo_action: "advance" },
-                      class: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 items-end" do %>
+                      class: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 items-end" do |f| %>
 
           <%# Fecha desde %>
           <div>
@@ -202,7 +199,7 @@
 
                   <td class="text-right">
                     <%= link_to facturacion_venta_path(venta),
-                                data: { turbo_frame: "venta_detalle_modal" },
+                                data: { turbo_frame: "main_content", turbo_action: "advance" },
                                 class: "btn btn-sm btn-ghost btn-square",
                                 title: "Ver detalle" do %>
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

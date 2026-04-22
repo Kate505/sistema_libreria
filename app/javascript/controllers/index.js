@@ -30,3 +30,6 @@ application.register("nomina-calc", NominaCalcController)
 
 import PageTransitionController from "./page_transition_controller"
 application.register("page-transition", PageTransitionController)
+
+import PagoFinalizarController from "./pago_finalizar_controller"
+application.register("pago-finalizar", PagoFinalizarController)
