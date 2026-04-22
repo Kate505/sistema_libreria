@@ -146,6 +146,26 @@ class Facturacion::VentasController < ApplicationController
     render json: @clientes.map { |c| { id: c.id, text: "#{c.primer_nombre} #{c.primer_apellido}" } }
   end
 
+  # POST /facturacion/ventas/crear_cliente
+  # Crea un cliente mínimo a partir de un texto libre (p.ej. "Juan Pérez").
+  # Usado por el autocomplete cuando no se encuentran coincidencias.
+  def crear_cliente
+    nombre = params[:nombre].to_s.strip
+    return render json: { error: "Nombre requerido" }, status: :unprocessable_entity if nombre.blank?
+
+    attrs = parse_nombre_cliente(nombre)
+
+    # Evitar duplicados obvios (mismo primer nombre + primer apellido)
+    existente = Cliente.where("lower(primer_nombre) = ? AND lower(primer_apellido) = ?",
+                              attrs[:primer_nombre].downcase,
+                              attrs[:primer_apellido].downcase).first
+    cliente = existente || Cliente.create!(attrs)
+
+    render json: { id: cliente.id, text: "#{cliente.primer_nombre} #{cliente.primer_apellido}" }, status: :created
+  rescue ActiveRecord::RecordInvalid => e
+    render json: { error: e.record.errors.full_messages.to_sentence }, status: :unprocessable_entity
+  end
+
   # GET /facturacion/ventas/historial
   def historial
     # Defaults: al entrar sin parámetros, mostrar únicamente ventas finalizadas del día actual.
@@ -290,6 +310,41 @@ class Facturacion::VentasController < ApplicationController
   end
 
   private
+
+  # Heurística simple para separar nombres/apellidos en campos del modelo.
+  # - 1 palabra: primer_nombre=palabra, primer_apellido="Sin apellido"
+  # - 2 palabras: primer_nombre, primer_apellido
+  # - 3 palabras: primer_nombre, primer_apellido, segundo_apellido
+  # - 4+ palabras: primer_nombre, segundo_nombre, primer_apellido, segundo_apellido (resto)
+  def parse_nombre_cliente(nombre)
+    tokens = nombre.split(/\s+/).map(&:strip).reject(&:blank?)
+    primer_nombre = tokens[0].to_s
+    segundo_nombre = nil
+    segundo_apellido = nil
+
+    primer_apellido = case tokens.length
+                     when 0
+                       "Sin apellido"
+                     when 1
+                       "Sin apellido"
+                     when 2
+                       tokens[1]
+                     when 3
+                       segundo_apellido = tokens[2]
+                       tokens[1]
+                     else
+                       segundo_nombre = tokens[1]
+                       segundo_apellido = tokens[3..].join(" ")
+                       tokens[2]
+                     end
+
+    {
+      primer_nombre: primer_nombre.to_s.first(50),
+      segundo_nombre: segundo_nombre.to_s.first(50).presence,
+      primer_apellido: primer_apellido.to_s.first(50),
+      segundo_apellido: segundo_apellido.to_s.first(50).presence
+    }
+  end
 
   def set_venta
     @venta = Venta.find(params[:id])
