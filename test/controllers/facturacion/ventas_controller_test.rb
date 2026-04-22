@@ -8,6 +8,27 @@ class Facturacion::VentasControllerTest < ActionDispatch::IntegrationTest
     ensure_menu_access_for!(@user, "VENTAS")
   end
 
+  test "index muestra solo ventas pendientes" do
+    pendiente = Venta.create!(
+      user: @user,
+      fecha_venta: Time.current,
+      finalizada: false,
+      cantidad_total: 10
+    )
+    finalizada = Venta.create!(
+      user: @user,
+      fecha_venta: Time.current,
+      finalizada: true,
+      cantidad_total: 20
+    )
+
+    get facturacion_ventas_path
+    assert_response :success
+
+    assert_includes response.body, "##{pendiente.id}"
+    assert_not_includes response.body, "##{finalizada.id}"
+  end
+
   test "historial aplica por defecto finalizadas del dia actual" do
     hoy = Time.current
 

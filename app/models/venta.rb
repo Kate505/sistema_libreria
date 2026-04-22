@@ -7,7 +7,6 @@ class Venta < ApplicationRecord
 
   METODOS_PAGO = {
     "E"  => "Efectivo",
-    "T"  => "Tarjeta",
     "TR" => "Transferencia"
   }.freeze
 

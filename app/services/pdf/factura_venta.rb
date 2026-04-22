@@ -41,7 +41,11 @@ module Pdf
           fecha = @venta.fecha_venta ? @venta.fecha_venta.strftime("%d/%m/%Y %H:%M") : Time.current.strftime("%d/%m/%Y %H:%M")
           text "<b>Fecha:</b> #{fecha}", inline_format: true
           
-          metodo = @venta.metodo_pago.present? ? Venta::METODOS_PAGO[@venta.metodo_pago] : "N/A"
+          metodo = if @venta.metodo_pago.present?
+                     Venta::METODOS_PAGO[@venta.metodo_pago] || @venta.metodo_pago
+                   else
+                     "N/A"
+                   end
           text "<b>Método de Pago:</b> #{metodo}", inline_format: true
           
           estado = @venta.finalizada? ? "Finalizada" : "Pendiente"

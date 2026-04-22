@@ -43,6 +43,7 @@ export default class extends Controller {
       this.monedaPrefixTarget.textContent = "C$"
     }
 
+    // Recalcular (incluye equivalente en US$ si aplica)
     this.calcularVuelto()
   }
 
@@ -60,8 +61,6 @@ export default class extends Controller {
 
   // Cálculo de vuelto en tiempo real
   calcularVuelto() {
-    if (this.metodo !== "E") return
-
     const monto    = parseFloat(this.montoRecibidoTarget.value) || 0
     const tasa     = this.hasTasaTarget ? (parseFloat(this.tasaTarget.value) || 0) : 0
     const total    = this.totalNios
@@ -71,6 +70,9 @@ export default class extends Controller {
       const totalUsd = total / tasa
       this.totalUsdTarget.textContent = `US$ ${totalUsd.toFixed(2)}`
     }
+
+    // El vuelto solo aplica para efectivo
+    if (this.metodo !== "E") return
 
     // Convertir monto recibido a NIO si es USD
     let montoNios = monto

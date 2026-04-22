@@ -1,5 +1,7 @@
 <%# Resultado mostrado en el modal tras finalizar la venta %>
-<div id="modal_finalizar">
+<div id="modal_finalizar"
+     data-controller="auto-print"
+     data-auto-print-url-value="<%= facturacion_venta_path(venta, format: :pdf) %>">
   <dialog id="dialog_finalizar" class="modal modal-bottom sm:modal-middle" open>
     <div class="modal-box w-full max-w-lg p-0 overflow-hidden">
 
@@ -21,7 +23,7 @@
 
         <div class="flex justify-between items-center py-2 border-b border-base-200">
           <span class="text-sm text-base-content/60">Método de pago</span>
-          <span class="font-semibold"><%= Venta::METODOS_PAGO[venta.metodo_pago] %></span>
+          <span class="font-semibold"><%= Venta::METODOS_PAGO[venta.metodo_pago] || venta.metodo_pago %></span>
         </div>
 
         <div class="flex justify-between items-center py-2 border-b border-base-200">

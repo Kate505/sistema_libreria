@@ -68,22 +68,23 @@
         <%# Tasa de cambio (solo si USD) %>
         <div data-pago-finalizar-target="tasaContainer" class="hidden">
           <label class="label pt-0 pb-1">
-            <span class="label-text font-semibold">Tasa de cambio del día</span>
+            <span class="label-text font-semibold">Tasa de cambio fija</span>
             <span class="label-text-alt text-base-content/50">C$ por 1 US$</span>
           </label>
-          <label class="input input-bordered flex items-center gap-2 w-full">
-            <span class="text-base-content/60 text-sm font-semibold">C$ / US$</span>
-            <input type="number"
-                   name="tasa_cambio"
-                   id="tasa_cambio"
-                   step="0.01"
-                   min="1"
-                   placeholder="36.90"
-                   class="grow"
-                   data-pago-finalizar-target="tasa"
-                   data-action="input->pago-finalizar#calcularVuelto">
-          </label>
-          <p class="text-xs text-base-content/40 mt-1">Ingresa la tasa oficial del Banco Central del día.</p>
+
+          <%# La tasa es fija por requerimiento: C$ 36.70 por US$ 1 %>
+          <div class="rounded-box p-3 bg-base-200/60 border border-base-300 flex items-center justify-between">
+            <span class="text-sm text-base-content/60 font-medium">C$ / US$</span>
+            <span class="text-sm font-semibold tabular-nums text-base-content">36.70</span>
+          </div>
+
+          <input type="hidden"
+                 name="tasa_cambio"
+                 id="tasa_cambio"
+                 value="36.70"
+                 data-pago-finalizar-target="tasa">
+
+          <p class="text-xs text-base-content/40 mt-1">Tasa fija configurada por el sistema.</p>
         </div>
 
         <%# Método de pago %>
@@ -91,7 +92,7 @@
           <label class="label pt-0 pb-1">
             <span class="label-text font-semibold">Método de pago</span>
           </label>
-          <div class="grid grid-cols-3 gap-2">
+          <div class="grid grid-cols-2 gap-2">
             <% Venta::METODOS_PAGO.each do |clave, nombre| %>
               <label class="cursor-pointer">
                 <input type="radio" name="metodo_pago" value="<%= clave %>"
@@ -103,10 +104,6 @@
                   <% if clave == "E" %>
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-auto mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
-                    </svg>
-                  <% elsif clave == "T" %>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-auto mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
                     </svg>
                   <% else %>
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-auto mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -163,8 +160,8 @@
         <div data-pago-finalizar-target="totalUsdContainer" class="hidden">
           <div class="rounded-box p-3 bg-info/10 border border-info/20">
             <div class="flex items-center justify-between">
-              <span class="text-xs text-info font-medium">Total equivalente en US$</span>
-              <span class="font-semibold tabular-nums text-info"
+              <span class="text-xs text-base-content/70 font-medium">Total equivalente en US$</span>
+              <span class="font-semibold tabular-nums text-base-content"
                     data-pago-finalizar-target="totalUsd">US$ —</span>
             </div>
           </div>
