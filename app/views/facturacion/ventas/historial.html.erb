@@ -1,0 +1,244 @@
+<%= turbo_frame_tag "main_content" do %>
+  <%= turbo_refreshes_with method: :morph, scroll: :preserve %>
+
+  <div class="flex flex-col gap-6 w-full">
+
+    <%# Encabezado %>
+    <div class="flex items-center justify-between flex-wrap gap-3 shrink-0">
+      <div class="flex items-center gap-3">
+        <%= link_to facturacion_ventas_path,
+                    data: { turbo_frame: "main_content", turbo_action: "advance" },
+                    class: "btn btn-ghost btn-sm btn-square" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+        <% end %>
+        <div>
+          <h1 class="text-3xl font-bold">Historial de Ventas</h1>
+          <p class="text-sm text-base-content/50">Consulta y filtra todas las transacciones registradas</p>
+        </div>
+      </div>
+
+      <%# Totales resumen %>
+      <div class="stats stats-horizontal shadow">
+        <div class="stat py-2 px-4">
+          <div class="stat-title text-xs">Ventas encontradas</div>
+          <div class="stat-value text-lg"><%= @total_ventas %></div>
+        </div>
+        <div class="stat py-2 px-4 bg-primary/10 rounded-box">
+          <div class="stat-title text-xs font-bold text-primary">Total</div>
+          <div class="stat-value text-lg tabular-nums text-primary">
+            C$ <%= number_with_precision(@total_general, precision: 2, delimiter: ',') %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%# Panel de filtros %>
+    <div class="card bg-base-100 shadow-xl">
+      <div class="card-body p-4">
+        <%= form_with url: historial_facturacion_ventas_path,
+                      method: :get,
+                      data: { turbo_frame: "main_content", turbo_action: "advance" },
+                      class: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 items-end" do |f| %>
+
+          <%# Fecha desde %>
+          <div>
+            <label class="label pt-0 pb-1">
+              <span class="label-text text-xs font-semibold">Fecha desde</span>
+            </label>
+            <input type="date"
+                   name="fecha_desde"
+                   value="<%= params[:fecha_desde] %>"
+                   class="input input-bordered input-sm w-full">
+          </div>
+
+          <%# Fecha hasta %>
+          <div>
+            <label class="label pt-0 pb-1">
+              <span class="label-text text-xs font-semibold">Fecha hasta</span>
+            </label>
+            <input type="date"
+                   name="fecha_hasta"
+                   value="<%= params[:fecha_hasta] %>"
+                   class="input input-bordered input-sm w-full">
+          </div>
+
+          <%# Nombre del cliente %>
+          <div>
+            <label class="label pt-0 pb-1">
+              <span class="label-text text-xs font-semibold">Cliente</span>
+            </label>
+            <input type="text"
+                   name="cliente_nombre"
+                   value="<%= params[:cliente_nombre] %>"
+                   placeholder="Nombre o apellido..."
+                   class="input input-bordered input-sm w-full">
+          </div>
+
+          <%# Método de pago %>
+          <div>
+            <label class="label pt-0 pb-1">
+              <span class="label-text text-xs font-semibold">Método de pago</span>
+            </label>
+            <select name="metodo_pago" class="select select-bordered select-sm w-full">
+              <option value="">Todos</option>
+              <% Venta::METODOS_PAGO.each do |k, v| %>
+                <option value="<%= k %>" <%= 'selected' if params[:metodo_pago] == k %>><%= v %></option>
+              <% end %>
+            </select>
+          </div>
+
+          <%# Estado %>
+          <div>
+            <label class="label pt-0 pb-1">
+              <span class="label-text text-xs font-semibold">Estado</span>
+            </label>
+            <select name="estado" class="select select-bordered select-sm w-full">
+              <option value="">Todos</option>
+              <option value="finalizada" <%= 'selected' if params[:estado] == 'finalizada' %>>Finalizadas</option>
+              <option value="pendiente"  <%= 'selected' if params[:estado] == 'pendiente'  %>>Pendientes</option>
+            </select>
+          </div>
+
+          <%# Botones %>
+          <div class="flex flex-col sm:flex-row gap-2 sm:col-span-2 lg:col-span-1 lg:flex-col lg:justify-end">
+            <button type="submit" class="btn btn-primary btn-sm gap-2 flex-1 lg:flex-none">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
+              Filtrar
+            </button>
+            <%= link_to historial_facturacion_ventas_path,
+                        data: { turbo_frame: "main_content", turbo_action: "advance" },
+                        class: "btn btn-ghost btn-sm flex-1 lg:flex-none" do %>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+              Limpiar
+            <% end %>
+          </div>
+
+        <% end %>
+      </div>
+    </div>
+
+    <%# Tabla de resultados %>
+    <div class="card bg-base-100 shadow-xl overflow-hidden flex flex-col">
+      <div class="overflow-x-auto">
+        <% if @ventas.any? %>
+          <table class="table table-pin-rows">
+            <thead>
+              <tr class="bg-base-100 z-10">
+                <th class="w-16">#</th>
+                <th>Cliente</th>
+                <th>Fecha</th>
+                <th class="text-center">Productos</th>
+                <th>Método</th>
+                <th>Estado</th>
+                <th class="text-right">Total</th>
+                <th class="text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @ventas.each do |venta| %>
+                <tr class="hover:bg-base-200">
+
+                  <td class="text-base-content/50 text-sm font-mono">#<%= venta.id %></td>
+
+                  <td class="font-medium">
+                    <% if venta.cliente.present? %>
+                      <span class="truncate block max-w-[180px]">
+                        <%= venta.cliente.primer_nombre %> <%= venta.cliente.primer_apellido %>
+                      </span>
+                    <% else %>
+                      <span class="text-base-content/30 italic text-xs">Consumidor final</span>
+                    <% end %>
+                  </td>
+
+                  <td class="text-sm whitespace-nowrap">
+                    <div><%= venta.fecha_venta.strftime("%d/%m/%Y") %></div>
+                    <div class="text-xs text-base-content/40"><%= venta.fecha_venta.strftime("%H:%M") %></div>
+                  </td>
+
+                  <td class="text-center">
+                    <span class="badge badge-neutral badge-sm"><%= venta.detalle_ventas.size %></span>
+                  </td>
+
+                  <td>
+                    <% if venta.metodo_pago.present? %>
+                      <span class="badge badge-ghost badge-sm font-mono">
+                        <%= Venta::METODOS_PAGO[venta.metodo_pago] || venta.metodo_pago %>
+                      </span>
+                    <% else %>
+                      <span class="text-base-content/30 text-xs">—</span>
+                    <% end %>
+                  </td>
+
+                  <td>
+                    <% if venta.finalizada? %>
+                      <span class="badge badge-success badge-sm gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Finalizada
+                      </span>
+                    <% else %>
+                      <span class="badge badge-warning badge-sm gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Pendiente
+                      </span>
+                    <% end %>
+                  </td>
+
+                  <td class="text-right tabular-nums font-semibold">
+                    C$ <%= number_with_precision(venta.cantidad_total, precision: 2, delimiter: ',') %>
+                  </td>
+
+                  <td class="text-right">
+                    <%= link_to facturacion_venta_path(venta),
+                                data: { turbo_frame: "main_content", turbo_action: "advance" },
+                                class: "btn btn-sm btn-ghost btn-square",
+                                title: "Ver detalle" do %>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                      </svg>
+                    <% end %>
+                  </td>
+
+                </tr>
+              <% end %>
+            </tbody>
+            <tfoot>
+              <tr class="bg-base-200/50 font-semibold">
+                <td colspan="6" class="text-right text-sm">
+                  Total (<%= @total_ventas %> ventas):
+                </td>
+                <td class="text-right tabular-nums">
+                  C$ <%= number_with_precision(@total_general, precision: 2, delimiter: ',') %>
+                </td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        <% else %>
+          <div class="flex flex-col items-center justify-center py-20 text-base-content/40">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mb-4 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+            </svg>
+            <p class="text-lg font-medium">Sin resultados</p>
+            <p class="text-sm mt-1">No se encontraron ventas con los filtros aplicados.</p>
+            <%= link_to "Limpiar filtros", historial_facturacion_ventas_path,
+                        data: { turbo_frame: "main_content", turbo_action: "advance" },
+                        class: "btn btn-ghost btn-sm mt-4" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+  </div>
+
+<% end %>

@@ -1,5 +1,6 @@
 require 'roo'
 
+# Limpiar tablas para que el seed sea re-ejecutable sin conflictos
 Session.delete_all
 RolesUser.delete_all
 RolesMenu.delete_all
@@ -8,6 +9,16 @@ Modulo.delete_all
 Rol.delete_all
 User.delete_all
 Empleado.delete_all
+
+# Limpiar inventario y catálogos relacionados (en orden correcto por FK)
+DetalleVenta.delete_all
+Venta.delete_all
+DetalleOrdenDeCompra.delete_all
+OrdenDeCompra.delete_all
+Producto.delete_all
+Marca.delete_all
+Categoria.delete_all
+Proveedor.delete_all
 
 
 # -------------  Módulos  ------------- #
@@ -24,6 +35,7 @@ modulo_configuraciones = Modulo.create!(nombre: "Configuraciones", icono: "segur
 
 # # Módulo Facturación
 menu_ventas = Menu.create!(codigo: "VENTAS", nombre: "Ventas", modulo: modulo_facturacion, link_to: "/facturacion/ventas")
+menu_ventas = Menu.create!(codigo: "HISTORIAL", nombre: "Historial de Ventas", modulo: modulo_facturacion, link_to: "	/facturacion/ventas/historial")
 
 # # Módulo Inventario
 Menu.create!(codigo: "PRODUCTOS", nombre: "Inventario de Productos", modulo: modulo_inventario, link_to: "/inventario/productos")
@@ -87,7 +99,6 @@ RolesUser.create!(user: user_normal, rol: seller_role)
 
 # -----------------------------
 
-=begin
 puts "Cargando inventario desde Excel..."
 
 file = Rails.root.join('db', 'inventario.csv')
@@ -103,7 +114,7 @@ headers = sheet.row(1).map { |h| h.to_s.strip }
 # Proveedor genérico para inventario inicial
 
 proveedor = Proveedor.find_or_create_by!(nombre: "Proveedor Inicial Inventario") do |p|
-  p.telefono = "8888-8888"     # Example field
+  p.telefono = "88888888"     # 8 caracteres sin guion (límite del modelo)
   p.direccion = "Ciudad"       # Example field
 end
 
@@ -264,4 +275,3 @@ puts "Inventario cargado correctamente"
 puts "Productos creados: #{Producto.count}"
 puts "Marcas creadas: #{Marca.count}"
 puts "Categorías creadas: #{Categoria.count}"
-=end

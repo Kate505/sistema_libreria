@@ -1,100 +1,125 @@
 <turbo-frame id="detalle_venta_form">
-  <%= form_with(model: [venta, detalle],
-                url: facturacion_venta_detalle_ventas_path(venta),
-                method: :post,
-                class: 'contents') do |f| %>
-
-    <div class="card-body">
-      <h2 class="card-title text-lg">Agregar Producto</h2>
-
-      <%# Errores %>
-      <% if detalle.errors.any? %>
-        <div class="alert alert-error text-sm py-2">
-          <ul class="list-disc list-inside">
-            <% detalle.errors.full_messages.each do |msg| %>
-              <li><%= msg %></li>
-            <% end %>
-          </ul>
-        </div>
-      <% end %>
-
-      <div class="grid grid-cols-1 gap-4">
-
-        <%# Producto - Autocomplete %>
-        <div class="w-full relative"
-             data-controller="autocomplete"
-             data-autocomplete-url-value="<%= buscar_producto_facturacion_ventas_path %>"
-             data-action="click@window->autocomplete#hide"
-             data-autocomplete-extra-fields-value='{"precio_unitario_venta": "precio", "stock_info": "stock"}'>
-
-          <%= f.label :producto_id, 'Producto', class: 'label pt-0' %>
-          <%= f.hidden_field :producto_id, data: { autocomplete_target: "hidden" } %>
-
-          <div class="relative">
-            <% nombre_producto = detalle.producto_id.present? ? detalle.producto&.nombre : "" %>
-            <input type="text"
-                   class="input input-bordered w-full pr-10"
-                   placeholder="Buscar por nombre o SKU..."
-                   value="<%= nombre_producto %>"
-                   data-autocomplete-target="input"
-                   data-action="input->autocomplete#search"
-                   autocomplete="off">
-
-            <div data-autocomplete-target="loading" class="absolute right-3 top-3 hidden">
-              <span class="loading loading-spinner loading-sm text-primary"></span>
-            </div>
-          </div>
-
-          <ul data-autocomplete-target="results"
-              class="menu dropdown-content bg-base-100 rounded-box z-[50] w-full p-2 shadow-lg absolute top-full mt-1 border border-base-200 hidden max-h-60 overflow-y-auto">
-          </ul>
-        </div>
-
-        <%# Stock disponible (informativo) %>
-        <div id="stock_info" class="text-xs text-base-content/40 -mt-2 hidden">
-          Stock disponible: <span id="stock_value"></span> unidades
-        </div>
-
-        <%# Cantidad %>
-        <div class="w-full">
-          <%= f.label :cantidad, 'Cantidad', class: 'label pt-0' %>
-          <%= f.number_field :cantidad,
-                             min: 1,
-                             step: 1,
-                             class: 'input input-bordered w-full',
-                             placeholder: '1',
-                             required: true %>
-        </div>
-
-        <%# Precio de Venta Unitario %>
-        <div class="w-full">
-          <%= f.label :precio_unitario_venta, 'Precio Unitario Venta', class: 'label pt-0' %>
-          <label class="input input-bordered flex items-center gap-2 w-full">
-            <span class="text-base-content/60 text-sm font-semibold">C$</span>
-            <%= f.number_field :precio_unitario_venta,
-                               id: "precio_unitario_venta",
-                               step: '0.01', min: 0,
-                               class: 'grow',
-                               placeholder: '0.00',
-                               required: true %>
-          </label>
-          <p class="text-xs text-base-content/40 mt-1">
-            Se pre-llena con el precio de venta del producto.
-          </p>
-        </div>
-
-        <%# Acción %>
-        <div class="card-actions justify-end mt-2 pt-4 border-t border-base-200">
-          <button type="submit" class="btn btn-primary gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-            </svg>
-            Agregar Producto
-          </button>
-        </div>
-
+  <% if venta.finalizada? %>
+    <%# Venta cerrada: mostrar mensaje bloqueante %>
+    <div class="card-body flex flex-col items-center justify-center h-full text-center gap-4 py-12">
+      <div class="bg-success/10 rounded-full p-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+      <div>
+        <p class="font-bold text-base-content">Venta Finalizada</p>
+        <p class="text-sm text-base-content/50 mt-1">
+          Esta venta fue cobrada con<br>
+          <span class="font-semibold text-base-content/70"><%= Venta::METODOS_PAGO[venta.metodo_pago] %></span>.
+          No se pueden agregar más productos.
+        </p>
       </div>
     </div>
+  <% else %>
+    <%# Venta abierta: formulario normal para agregar productos %>
+    <%= form_with(model: [venta, detalle],
+                  url: facturacion_venta_detalle_ventas_path(venta),
+                  method: :post,
+                  class: 'contents') do |f| %>
+
+      <div class="card-body">
+        <h2 class="card-title text-lg">Agregar Producto</h2>
+
+        <%# Errores %>
+        <% if detalle.errors.any? %>
+          <div class="alert alert-error text-sm py-2">
+            <ul class="list-disc list-inside">
+              <% detalle.errors.full_messages.each do |msg| %>
+                <li><%= msg %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <div class="grid grid-cols-1 gap-4">
+
+          <%# Producto - Autocomplete %>
+          <div class="w-full relative"
+               data-controller="autocomplete"
+               data-autocomplete-url-value="<%= buscar_producto_facturacion_ventas_path %>"
+               data-action="click@window->autocomplete#hide"
+               data-autocomplete-extra-fields-value='{"precio_unitario_venta": "precio", "stock_info": "stock"}'>
+
+            <%= f.label :producto_id, 'Producto', class: 'label pt-0' %>
+            <%= f.hidden_field :producto_id, data: { autocomplete_target: "hidden" } %>
+
+            <div class="relative">
+              <% nombre_producto = detalle.producto_id.present? ? detalle.producto&.nombre : "" %>
+              <input type="text"
+                     class="input input-bordered w-full pr-10"
+                     placeholder="Buscar por nombre o SKU..."
+                     value="<%= nombre_producto %>"
+                     data-autocomplete-target="input"
+                     data-action="input->autocomplete#search"
+                     autocomplete="off">
+
+              <div data-autocomplete-target="loading" class="absolute right-3 top-3 hidden">
+                <span class="loading loading-spinner loading-sm text-primary"></span>
+              </div>
+            </div>
+
+            <ul data-autocomplete-target="results"
+                class="menu dropdown-content bg-base-100 rounded-box z-[50] w-full p-2 shadow-lg absolute top-full mt-1 border border-base-200 hidden max-h-60 overflow-y-auto">
+            </ul>
+          </div>
+
+          <%# Stock disponible (informativo) %>
+          <div id="stock_info" class="text-xs text-base-content/40 -mt-2 hidden">
+            Stock disponible: <span id="stock_value"></span> unidades
+          </div>
+
+          <%# Cantidad %>
+          <div class="w-full">
+            <%= f.label :cantidad, 'Cantidad', class: 'label pt-0' %>
+            <%= f.number_field :cantidad,
+                               min: 1,
+                               step: 1,
+                               class: 'input input-bordered w-full',
+                               placeholder: '1',
+                               required: true %>
+          </div>
+
+          <%# Precio de Venta Unitario — solo lectura, se llena al seleccionar producto %>
+          <div class="w-full">
+            <%= f.label :precio_unitario_venta, 'Precio Unitario Venta', class: 'label pt-0' %>
+            <label class="input input-bordered flex items-center gap-2 w-full bg-base-200/60">
+              <span class="text-base-content/60 text-sm font-semibold">C$</span>
+              <%= f.number_field :precio_unitario_venta,
+                                 id: "precio_unitario_venta",
+                                 step: '0.01', min: 0,
+                                 class: 'grow cursor-not-allowed',
+                                 placeholder: '0.00',
+                                 required: true,
+                                 readonly: true,
+                                 tabindex: -1 %>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-base-content/30 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+              </svg>
+            </label>
+            <p class="text-xs text-base-content/40 mt-1">
+              Se llena automáticamente al seleccionar el producto.
+            </p>
+          </div>
+
+          <%# Acción %>
+          <div class="card-actions justify-end mt-2 pt-4 border-t border-base-200">
+            <button type="submit" class="btn btn-primary gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+              </svg>
+              Agregar Producto
+            </button>
+          </div>
+
+        </div>
+      </div>
+    <% end %>
   <% end %>
 </turbo-frame>
 
@@ -104,7 +129,7 @@
     const item = event.detail;
     if (item && item.precio !== undefined) {
       const precioField = document.getElementById("precio_unitario_venta");
-      if (precioField && !precioField.value) {
+      if (precioField) {
         precioField.value = parseFloat(item.precio).toFixed(2);
       }
       const stockInfo  = document.getElementById("stock_info");

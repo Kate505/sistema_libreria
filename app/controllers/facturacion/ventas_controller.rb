@@ -1,5 +1,6 @@
 class Facturacion::VentasController < ApplicationController
-  before_action :set_venta, only: %i[show edit update destroy]
+  before_action :set_venta, only: %i[show edit update destroy finalizar]
+  before_action :verificar_venta_abierta, only: %i[update destroy]
 
   # GET /facturacion/ventas
   def index
@@ -13,6 +14,17 @@ class Facturacion::VentasController < ApplicationController
     @detalles = @venta.detalle_ventas
                       .includes(:producto)
                       .order(:created_at)
+                      
+    respond_to do |format|
+      format.html
+      format.pdf do
+        pdf = Pdf::FacturaVenta.new(@venta)
+        send_data pdf.render,
+                  filename: "factura_venta_#{@venta.id}.pdf",
+                  type: "application/pdf",
+                  disposition: "inline" # 'inline' abre en el navegador, 'attachment' descarga
+      end
+    end
   end
 
   # GET /facturacion/ventas/:id/edit
@@ -124,6 +136,53 @@ class Facturacion::VentasController < ApplicationController
     render json: @clientes.map { |c| { id: c.id, text: "#{c.primer_nombre} #{c.primer_apellido}" } }
   end
 
+  # GET /facturacion/ventas/historial
+  def historial
+    # Defaults: al entrar sin parámetros, mostrar únicamente ventas finalizadas del día actual.
+    # Se hace vía redirect para que los inputs del formulario queden precargados con los valores.
+    if request.get? && request.query_parameters.blank?
+      hoy = Date.current
+      return redirect_to historial_facturacion_ventas_path(
+        fecha_desde: hoy.iso8601,
+        fecha_hasta: hoy.iso8601,
+        estado: "finalizada"
+      )
+    end
+
+    @ventas = Venta.includes(:cliente, :detalle_ventas)
+                   .order(fecha_venta: :desc)
+
+    # Filtro por fecha desde
+    if params[:fecha_desde].present?
+      @ventas = @ventas.where("fecha_venta >= ?", params[:fecha_desde].to_date.beginning_of_day)
+    end
+
+    # Filtro por fecha hasta
+    if params[:fecha_hasta].present?
+      @ventas = @ventas.where("fecha_venta <= ?", params[:fecha_hasta].to_date.end_of_day)
+    end
+
+    # Filtro por nombre del cliente
+    if params[:cliente_nombre].present?
+      q = "%#{params[:cliente_nombre]}%"
+      @ventas = @ventas.joins(:cliente)
+                       .where("clientes.primer_nombre ILIKE :q OR clientes.primer_apellido ILIKE :q OR clientes.segundo_nombre ILIKE :q", q: q)
+    end
+
+    # Filtro por método de pago
+    if params[:metodo_pago].present?
+      @ventas = @ventas.where(metodo_pago: params[:metodo_pago])
+    end
+
+    # Filtro por estado
+    if params[:estado].present?
+      @ventas = params[:estado] == "finalizada" ? @ventas.finalizadas : @ventas.pendientes
+    end
+
+    @total_general = @ventas.sum(:cantidad_total)
+    @total_ventas  = @ventas.count
+  end
+
   # GET /facturacion/ventas/buscar_producto?q=término
   def buscar_producto
     @productos = Producto.where("nombre ILIKE :q OR sku ILIKE :q", q: "%#{params[:q]}%")
@@ -140,6 +199,86 @@ class Facturacion::VentasController < ApplicationController
     }
   end
 
+  # PATCH /facturacion/ventas/:id/finalizar
+  def finalizar
+    metodo_pago   = params[:metodo_pago].to_s.strip.upcase
+    moneda        = params[:moneda].to_s  # "NIO" o "USD"
+    tasa_cambio   = params[:tasa_cambio].to_d
+    monto_recibido = params[:monto_recibido].to_d
+
+    unless Venta::METODOS_PAGO.key?(metodo_pago)
+      return respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.replace(
+            "modal_finalizar",
+            partial: "facturacion/ventas/modal_finalizar",
+            locals: { venta: @venta, error: "Selecciona un método de pago válido." }
+          )
+        end
+      end
+    end
+
+    # Calcular vuelto si es efectivo
+    vuelto = nil
+    if metodo_pago == "E"
+      total_nios = @venta.cantidad_total.to_d
+      if moneda == "USD" && tasa_cambio > 0
+        monto_recibido_nios = monto_recibido * tasa_cambio
+      else
+        monto_recibido_nios = monto_recibido
+      end
+      vuelto = monto_recibido_nios - total_nios
+    end
+
+    if @venta.update(metodo_pago: metodo_pago, finalizada: true)
+      @detalles = @venta.detalle_ventas.includes(:producto).order(:created_at)
+      respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: [
+            turbo_stream.replace(
+              "modal_finalizar",
+              partial: "facturacion/ventas/modal_resultado",
+              locals: {
+                venta: @venta,
+                vuelto: vuelto,
+                moneda: moneda,
+                tasa_cambio: tasa_cambio,
+                monto_recibido: monto_recibido
+              }
+            ),
+            turbo_stream.replace(
+              "venta_resumen",
+              partial: "facturacion/ventas/resumen",
+              locals: { venta: @venta.reload }
+            ),
+            turbo_stream.replace(
+              "detalle_venta_form",
+              partial: "facturacion/detalle_ventas/form",
+              locals: { venta: @venta, detalle: DetalleVenta.new }
+            ),
+            turbo_stream.update(
+              "detalle_ventas_table",
+              partial: "facturacion/detalle_ventas/table",
+              locals: { venta: @venta, detalles: @detalles }
+            )
+          ]
+        end
+        format.html { redirect_to facturacion_venta_path(@venta), notice: "Venta finalizada exitosamente." }
+      end
+    else
+      respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.replace(
+            "modal_finalizar",
+            partial: "facturacion/ventas/modal_finalizar",
+            locals: { venta: @venta, error: @venta.errors.full_messages.to_sentence }
+          )
+        end
+        format.html { redirect_to facturacion_venta_path(@venta), alert: @venta.errors.full_messages.to_sentence }
+      end
+    end
+  end
+
   private
 
   def set_venta
@@ -147,6 +286,24 @@ class Facturacion::VentasController < ApplicationController
   end
 
   def venta_params
-    params.require(:venta).permit(:cliente_id, :fecha_venta, :metodo_pago)
+    params.require(:venta).permit(:cliente_id, :fecha_venta)
+  end
+
+  def verificar_venta_abierta
+    return unless @venta.finalizada?
+
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.replace(
+          "venta_form",
+          partial: "facturacion/ventas/form",
+          locals: { venta: @venta }
+        ), status: :unprocessable_entity
+      end
+      format.html do
+        redirect_to facturacion_ventas_path,
+                    alert: "La Venta ##{@venta.id} ya fue finalizada y no se puede modificar."
+      end
+    end
   end
 end
