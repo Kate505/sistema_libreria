@@ -2,6 +2,8 @@ class User < ApplicationRecord
   has_secure_password
   has_many :sessions, dependent: :destroy
 
+  has_many :ventas, dependent: :nullify
+
   has_many :roles_users, dependent: :destroy
   has_many :roles, through: :roles_users, source: :rol
 
