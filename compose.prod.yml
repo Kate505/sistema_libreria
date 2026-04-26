@@ -1,0 +1,28 @@
+# compose.prod.yml
+services:
+  db:
+    image: postgres:18
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql
+    env_file:
+      - .env.production
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    command: bash -c "rm -f tmp/pids/server.pid && rails db:prepare && bundle exec puma -C config/puma.rb"
+
+    ports:
+      - "80:3000"
+    depends_on:
+      - db
+    env_file:
+      - .env.production
+    environment:
+      DATABASE_HOST: db
+      RAILS_ENV: production
+      RAILS_SERVE_STATIC_FILES: "true"
+
+volumes:
+  postgres_prod_data:

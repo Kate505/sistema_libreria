@@ -1,0 +1,43 @@
+# Dockerfile.prod
+FROM ruby:3.4.4
+
+WORKDIR /app
+
+# Configura variables de entorno para producción
+ENV RAILS_ENV="production" \
+    RACK_ENV="production" \
+    NODE_ENV="production" \
+    BUNDLE_WITHOUT="development test"
+
+# Dependencias del sistema
+RUN apt-get update -qq && \
+    apt-get install -y build-essential libpq-dev curl gnupg watchman
+
+# Node.js y Yarn
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x -o nodesource_setup.sh && \
+    bash nodesource_setup.sh && \
+    apt-get install -y nodejs
+RUN corepack enable && corepack prepare yarn@stable --activate
+
+# Instala Gemas (solo producción)
+COPY Gemfile Gemfile.lock ./
+RUN bundle install
+
+# Instala dependencias de Node
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile
+
+# Copia el código de la aplicación
+COPY . .
+
+# Precompila los assets (Requiere una clave secreta falsa temporal solo para construir la imagen)
+RUN SECRET_KEY_BASE_DUMMY=1 rails assets:precompile
+
+COPY entrypoint.sh /usr/bin/
+RUN chmod +x /usr/bin/entrypoint.sh
+ENTRYPOINT ["entrypoint.sh"]
+
+EXPOSE 3000
+
+# En producción, usamos Puma o el server normal, pero listos para tráfico real
+CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
