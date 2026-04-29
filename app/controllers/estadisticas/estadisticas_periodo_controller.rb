@@ -188,12 +188,11 @@ class Estadisticas::EstadisticasPeriodoController < ApplicationController
     else
       GastoOperativo.none
     end
-    @gastos_desglose_labels = [ "Alquiler", "Utilidades", "Mantenimiento", "Salarios" ]
+    @gastos_desglose_labels = [ "Alquiler", "Utilidades", "Mantenimiento" ]
     @gastos_desglose_data   = [
       gastos_records.sum(:costos_alquiler).to_f,
       gastos_records.sum(:costo_utilidades).to_f,
-      gastos_records.sum(:costo_mantenimiento).to_f,
-      gastos_records.sum(:costo_salario_total).to_f
+      gastos_records.sum(:costo_mantenimiento).to_f
     ]
 
     # ── Gráfico 5: Top 10 productos por ingreso (horizontal bar) ─────────────

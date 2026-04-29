@@ -7,11 +7,6 @@ class User < ApplicationRecord
   has_many :roles_users, dependent: :destroy
   has_many :roles, through: :roles_users, source: :rol
 
-  belongs_to :empleado
-
-  delegate :nombre_completo,
-           :nombre_corto,
-           :cargo, to: :empleado, allow_nil: true
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
 

@@ -5,7 +5,6 @@
       <th class="text-right">Alquiler</th>
       <th class="text-right">Utilidades</th>
       <th class="text-right">Mantenimiento</th>
-      <th class="text-right">Nómina</th>
       <th class="text-right font-bold">Total</th>
       <th class="text-right">Acciones</th>
     </tr>
@@ -35,23 +34,10 @@
       </td>
 
       <td class="text-right tabular-nums">
-        C$ <%= number_with_precision(gasto.costo_salario_total, precision: 2, delimiter: ',') %>
-      </td>
-
-      <td class="text-right tabular-nums font-bold text-primary">
         C$ <%= number_with_precision(gasto.gran_total_gastos, precision: 2, delimiter: ',') %>
       </td>
 
       <td class="flex gap-2 justify-end">
-        <%# Ver Nómina %>
-        <%= link_to finanzas_gasto_operativo_path(gasto),
-                    data: { turbo_frame: "main_content", turbo_action: "advance" },
-                    class: "btn btn-sm btn-ghost btn-square text-info",
-                    title: "Ver Nómina" do %>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-            <path fill="currentColor" d="M10 12.796V3.204L4.519 8zm-.659.753-5.48-4.796a1 1 0 0 1 0-1.506l5.48-4.796A1 1 0 0 1 11 3.204v9.592a1 1 0 0 1-1.659.753"/>
-          </svg>
-        <% end %>
 
         <%# Editar %>
         <%= link_to edit_finanzas_gasto_operativo_path(gasto),

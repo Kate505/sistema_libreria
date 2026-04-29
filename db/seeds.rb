@@ -8,7 +8,6 @@ Menu.delete_all
 Modulo.delete_all
 Rol.delete_all
 User.delete_all
-Empleado.delete_all
 
 # Limpiar inventario y catálogos relacionados (en orden correcto por FK)
 DetalleVenta.delete_all
@@ -52,7 +51,6 @@ Menu.create!(codigo: "ESTADISTICAS", nombre: "Estadísticas por período", modul
 
 # # Módulo Finanzas
 Menu.create!(codigo: "GASTOS_OPERATIVOS", nombre: "Gastos Operativos", modulo: modulo_finanzas, link_to: "/finanzas/gastos_operativos")
-Menu.create!(codigo: "DETALLE_PAGOS_EMPLEADOS", nombre: "Nómina Empleados", modulo: modulo_finanzas, link_to: "/finanzas/nomina_empleados")
 
 # # Módulo Configuraciones
 Menu.create!(codigo: "NEGOCIO", nombre: "Configuración de Negocio", modulo: modulo_configuraciones, link_to: "/configuraciones/negocio/edit")
@@ -61,20 +59,14 @@ Menu.create!(codigo: "NEGOCIO", nombre: "Configuración de Negocio", modulo: mod
 Menu.create!(codigo: "MODULOS", nombre: "Módulos", modulo: modulo_seguridad, link_to: "/seguridad/modulos")
 Menu.create!(codigo: "MENUS", nombre: "Menús", modulo: modulo_seguridad, link_to: "/seguridad/menus")
 Menu.create!(codigo: "USUARIOS", nombre: "Usuarios", modulo: modulo_seguridad, link_to: "/seguridad/usuarios")
-Menu.create!(codigo: "EMPLEADOS", nombre: "Empleados", modulo: modulo_seguridad, link_to: "/seguridad/empleados")
 
 menu_padre_gestion_roles = Menu.create!(codigo: "SM001", nombre: "Gestión de Roles", modulo: modulo_seguridad, link_to: "/seguridad/roles")
 Menu.create!(codigo: "ROLES", nombre: "Roles", modulo: modulo_seguridad, parent: menu_padre_gestion_roles, link_to: "/seguridad/roles")
 
 # -------------  Roles y Usuarios  ------------- #
-# Empleados
-
-empleado_admin = Empleado.create!(primer_nombre: "Administrador", primer_apellido: "Sistema", cargo: "Administrador", salario_base: 7000, viatico_transporte: 0)
-empleado_usuario = Empleado.create!(primer_nombre: "Usuario", primer_apellido: "Sistema", cargo: "Usuario", salario_base: 5000, viatico_transporte: 0)
-
 # Usuarios
-user_admin = User.create!(email_address: "admin@gmail.com", password: "123456", password_confirmation: "123456", empleado: empleado_admin)
-user_normal = User.create!(email_address: "user@gmail.com", password: "123456", password_confirmation: "123456", empleado: empleado_usuario)
+user_admin = User.create!(email_address: "admin@gmail.com", password: "123456", password_confirmation: "123456")
+user_normal = User.create!(email_address: "user@gmail.com", password: "123456", password_confirmation: "123456")
 
 # Roles
 admin_role = Rol.create!(nombre: "Administrador")

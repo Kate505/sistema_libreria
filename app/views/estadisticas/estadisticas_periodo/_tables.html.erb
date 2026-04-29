@@ -73,7 +73,6 @@
               <th class="text-right">Alquiler</th>
               <th class="text-right">Utilidades</th>
               <th class="text-right">Mantenimiento</th>
-              <th class="text-right">Salarios</th>
               <th class="text-right font-bold">Total</th>
             </tr>
           </thead>
@@ -84,7 +83,6 @@
                 <td class="text-right tabular-nums text-sm"><%= number_with_precision(g.costos_alquiler, precision: 2, delimiter: ',') %></td>
                 <td class="text-right tabular-nums text-sm"><%= number_with_precision(g.costo_utilidades, precision: 2, delimiter: ',') %></td>
                 <td class="text-right tabular-nums text-sm"><%= number_with_precision(g.costo_mantenimiento, precision: 2, delimiter: ',') %></td>
-                <td class="text-right tabular-nums text-sm"><%= number_with_precision(g.costo_salario_total, precision: 2, delimiter: ',') %></td>
                 <td class="text-right font-bold tabular-nums text-error">
                   C$ <%= number_with_precision(g.gran_total_gastos, precision: 2, delimiter: ',') %>
                 </td>
@@ -93,7 +91,7 @@
           </tbody>
           <tfoot>
             <tr class="font-bold">
-              <td class="text-right text-sm text-base-content/60" colspan="5">TOTAL GASTOS:</td>
+              <td class="text-right text-sm text-base-content/60" colspan="4">TOTAL GASTOS:</td>
               <td class="text-right tabular-nums text-error">
                 C$ <%= number_with_precision(@gastos_operativos_total, precision: 2, delimiter: ',') %>
               </td>

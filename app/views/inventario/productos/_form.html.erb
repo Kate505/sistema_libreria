@@ -99,35 +99,12 @@
           </ul>
         </div>
 
-        <%# Precio de Venta %>
-        <div class="w-full">
-          <%= f.label :precio_venta, 'Precio de Venta', class: 'label pt-0' %>
-          <label class="input input-bordered flex items-center gap-2 w-full">
-            <span class="text-base-content/60 text-sm font-semibold">C$</span>
-            <%= f.number_field :precio_venta, step: '0.01', min: 0, class: 'grow', placeholder: '0.00', required: true %>
-          </label>
-        </div>
-
-        <%# Precio de Venta al Mayor %>
-        <div class="w-full">
-          <%= f.label :precio_venta_al_mayor, 'Precio al Mayor', class: 'label pt-0' %>
-          <label class="input input-bordered flex items-center gap-2 w-full">
-            <span class="text-base-content/60 text-sm font-semibold">C$</span>
-            <%= f.number_field :precio_venta_al_mayor, step: '0.01', min: 0, class: 'grow', placeholder: '0.00', required: true %>
-          </label>
-        </div>
 
         <%# === SECCIÓN: STOCK === %>
         <div class="sm:col-span-2">
           <div class="divider divider-start text-xs font-semibold text-base-content/50 uppercase tracking-wider my-1">
             Control de Stock
           </div>
-        </div>
-
-        <%# Stock Actual %>
-        <div class="w-full">
-          <%= f.label :stock_actual, 'Stock Actual', class: 'label pt-0' %>
-          <%= f.number_field :stock_actual, min: 0, class: 'input input-bordered w-full', placeholder: '0' %>
         </div>
 
         <%# Stock Mínimo %>

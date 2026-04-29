@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_22_090000) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_29_035800) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -51,24 +51,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_22_090000) do
     t.index ["producto_id"], name: "index_detalle_ordenes_de_compra_on_producto_id"
   end
 
-  create_table "detalle_pagos_empleados", force: :cascade do |t|
-    t.bigint "gasto_operativo_id", null: false
-    t.bigint "empleado_id", null: false
-    t.decimal "salario_base", precision: 10, scale: 2
-    t.decimal "pago_transporte", precision: 10, scale: 2
-    t.decimal "comisiones_ventas", precision: 10, scale: 2
-    t.decimal "horas_extra", precision: 10, scale: 2, default: "0.0"
-    t.decimal "salario_bruto", precision: 10, scale: 2
-    t.decimal "deduccion_inss", precision: 10, scale: 2
-    t.decimal "deduccion_impuestos", precision: 10, scale: 2
-    t.decimal "otras_deducciones", precision: 10, scale: 2, default: "0.0"
-    t.decimal "salario_neto", precision: 10, scale: 2
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["empleado_id"], name: "index_detalle_pagos_empleados_on_empleado_id"
-    t.index ["gasto_operativo_id"], name: "index_detalle_pagos_empleados_on_gasto_operativo_id"
-  end
-
   create_table "detalle_venta", force: :cascade do |t|
     t.bigint "venta_id", null: false
     t.bigint "producto_id", null: false
@@ -81,27 +63,12 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_22_090000) do
     t.index ["venta_id"], name: "index_detalle_venta_on_venta_id"
   end
 
-  create_table "empleados", force: :cascade do |t|
-    t.string "primer_nombre", limit: 50, null: false
-    t.string "segundo_nombre", limit: 50
-    t.string "primer_apellido", limit: 50, null: false
-    t.string "segundo_apellido", limit: 50
-    t.string "cargo", limit: 100
-    t.decimal "salario_base", precision: 10, scale: 2, null: false
-    t.decimal "viatico_transporte", precision: 10, scale: 2, default: "0.0"
-    t.date "fecha_contratacion"
-    t.boolean "pasivo", default: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
   create_table "gastos_operativos", force: :cascade do |t|
     t.integer "periodo_mes", null: false
     t.integer "periodo_year", null: false
     t.decimal "costos_alquiler", precision: 10, scale: 2, default: "0.0"
     t.decimal "costo_utilidades", precision: 10, scale: 2, default: "0.0"
     t.decimal "costo_mantenimiento", precision: 10, scale: 2, default: "0.0"
-    t.decimal "costo_salario_total", precision: 10, scale: 2, default: "0.0"
     t.decimal "gran_total_gastos", precision: 10, scale: 2
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -220,9 +187,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_22_090000) do
     t.boolean "pasivo", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "empleado_id", null: false
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
-    t.index ["empleado_id"], name: "index_users_on_empleado_id", unique: true
   end
 
   create_table "ventas", force: :cascade do |t|
@@ -240,8 +205,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_22_090000) do
 
   add_foreign_key "detalle_ordenes_de_compra", "ordenes_de_compra"
   add_foreign_key "detalle_ordenes_de_compra", "productos"
-  add_foreign_key "detalle_pagos_empleados", "empleados"
-  add_foreign_key "detalle_pagos_empleados", "gastos_operativos"
   add_foreign_key "detalle_venta", "productos"
   add_foreign_key "detalle_venta", "ventas"
   add_foreign_key "menus", "menus"
@@ -254,7 +217,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_22_090000) do
   add_foreign_key "roles_users", "roles", column: "rol_id"
   add_foreign_key "roles_users", "users"
   add_foreign_key "sessions", "users"
-  add_foreign_key "users", "empleados"
   add_foreign_key "ventas", "clientes"
   add_foreign_key "ventas", "users"
 end

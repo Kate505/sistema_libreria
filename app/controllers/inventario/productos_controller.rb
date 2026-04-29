@@ -126,11 +126,8 @@ class Inventario::ProductosController < ApplicationController
       :nombre,
       :descuento,
       :descuento_maximo,
-      :stock_actual,
       :stock_minimo_limite,
-      :stock_maximo_limite,
-      :precio_venta,
-      :precio_venta_al_mayor
+      :stock_maximo_limite
     )
   end
 end
