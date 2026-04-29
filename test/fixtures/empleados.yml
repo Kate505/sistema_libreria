@@ -1,9 +1,0 @@
-one:
-  primer_nombre: Juan
-  primer_apellido: Pérez
-  pasivo: false
-
-two:
-  primer_nombre: María
-  primer_apellido: López
-  pasivo: false

@@ -22,11 +22,12 @@ class Producto < ApplicationRecord
             numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100 },
             if: :descuento
 
-  validates :stock_actual,
-            :precio_venta,
+  validates :precio_venta,
             :precio_venta_al_mayor,
-            presence: true,
-            numericality: { greater_than_or_equal_to: 0 }
+            numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
+
+  validates :stock_actual,
+            numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
 
   validates :stock_minimo_limite,
             :stock_maximo_limite,
