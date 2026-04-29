@@ -10,5 +10,25 @@
 @source "../../../app/views/**/*";
 
 @plugin "daisyui" {
-  themes: winter --default, night;
+  themes:
+    winter --default,
+    night;
 }
+
+/* ─── Page transition: fade-in ─── */
+@keyframes contentFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.content-fade-in {
+  animation: contentFadeIn 0.28s ease-out both;
+}
+
+

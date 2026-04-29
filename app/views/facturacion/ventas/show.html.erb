@@ -27,9 +27,13 @@
           <p class="text-sm text-base-content/50">
             <%= @venta.fecha_venta.strftime("%d/%m/%Y %H:%M") %>
             · Pago:
-            <span class="font-medium">
-              <%= Venta::METODOS_PAGO[@venta.metodo_pago] || @venta.metodo_pago %>
-            </span>
+            <% if @venta.metodo_pago.present? %>
+              <span class="font-medium">
+                <%= Venta::METODOS_PAGO[@venta.metodo_pago] || @venta.metodo_pago %>
+              </span>
+            <% else %>
+              <span class="font-medium text-warning">Pendiente de pago</span>
+            <% end %>
           </p>
         </div>
       </div>

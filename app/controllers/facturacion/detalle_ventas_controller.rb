@@ -1,6 +1,7 @@
 class Facturacion::DetalleVentasController < ApplicationController
   before_action :set_venta
   before_action :set_detalle, only: %i[destroy]
+  before_action :verificar_venta_abierta, only: %i[create destroy]
 
   # POST /facturacion/ventas/:venta_id/detalle_ventas
   def create
@@ -95,5 +96,23 @@ class Facturacion::DetalleVentasController < ApplicationController
       :cantidad,
       :precio_unitario_venta
     )
+  end
+
+  def verificar_venta_abierta
+    return unless @venta.finalizada?
+
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.replace(
+          "detalle_venta_form",
+          partial: "facturacion/detalle_ventas/form",
+          locals: { venta: @venta, detalle: DetalleVenta.new }
+        ), status: :unprocessable_entity
+      end
+      format.html do
+        redirect_to facturacion_venta_path(@venta),
+                    alert: "Esta venta ya fue finalizada y no admite cambios."
+      end
+    end
   end
 end

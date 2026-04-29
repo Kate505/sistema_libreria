@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_04_005831) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_29_035800) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -30,6 +30,15 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_04_005831) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "configuracion_negocio", force: :cascade do |t|
+    t.decimal "margen_ganancia_meta", precision: 5, scale: 4, default: "0.4", null: false
+    t.decimal "porcentaje_opex", precision: 5, scale: 4, default: "0.2", null: false
+    t.decimal "ventas_proyectadas_mes", precision: 12, scale: 2, default: "0.0", null: false
+    t.decimal "margen_alerta_minimo", precision: 5, scale: 4, default: "0.35", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "detalle_ordenes_de_compra", force: :cascade do |t|
     t.bigint "orden_de_compra_id", null: false
     t.bigint "producto_id", null: false
@@ -40,24 +49,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_04_005831) do
     t.datetime "updated_at", null: false
     t.index ["orden_de_compra_id"], name: "index_detalle_ordenes_de_compra_on_orden_de_compra_id"
     t.index ["producto_id"], name: "index_detalle_ordenes_de_compra_on_producto_id"
-  end
-
-  create_table "detalle_pagos_empleados", force: :cascade do |t|
-    t.bigint "gasto_operativo_id", null: false
-    t.bigint "empleado_id", null: false
-    t.decimal "salario_base", precision: 10, scale: 2
-    t.decimal "pago_transporte", precision: 10, scale: 2
-    t.decimal "comisiones_ventas", precision: 10, scale: 2
-    t.decimal "horas_extra", precision: 10, scale: 2, default: "0.0"
-    t.decimal "salario_bruto", precision: 10, scale: 2
-    t.decimal "deduccion_inss", precision: 10, scale: 2
-    t.decimal "deduccion_impuestos", precision: 10, scale: 2
-    t.decimal "otras_deducciones", precision: 10, scale: 2, default: "0.0"
-    t.decimal "salario_neto", precision: 10, scale: 2
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["empleado_id"], name: "index_detalle_pagos_empleados_on_empleado_id"
-    t.index ["gasto_operativo_id"], name: "index_detalle_pagos_empleados_on_gasto_operativo_id"
   end
 
   create_table "detalle_venta", force: :cascade do |t|
@@ -72,31 +63,22 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_04_005831) do
     t.index ["venta_id"], name: "index_detalle_venta_on_venta_id"
   end
 
-  create_table "empleados", force: :cascade do |t|
-    t.string "primer_nombre", limit: 50, null: false
-    t.string "segundo_nombre", limit: 50
-    t.string "primer_apellido", limit: 50, null: false
-    t.string "segundo_apellido", limit: 50
-    t.string "cargo", limit: 100
-    t.decimal "salario_base", precision: 10, scale: 2, null: false
-    t.decimal "viatico_transporte", precision: 10, scale: 2, default: "0.0"
-    t.date "fecha_contratacion"
-    t.boolean "pasivo", default: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
   create_table "gastos_operativos", force: :cascade do |t|
     t.integer "periodo_mes", null: false
     t.integer "periodo_year", null: false
     t.decimal "costos_alquiler", precision: 10, scale: 2, default: "0.0"
     t.decimal "costo_utilidades", precision: 10, scale: 2, default: "0.0"
     t.decimal "costo_mantenimiento", precision: 10, scale: 2, default: "0.0"
-    t.decimal "costo_salario_total", precision: 10, scale: 2, default: "0.0"
     t.decimal "gran_total_gastos", precision: 10, scale: 2
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["periodo_mes", "periodo_year"], name: "index_gastos_operativos_on_periodo_mes_and_periodo_year", unique: true
+  end
+
+  create_table "marcas", force: :cascade do |t|
+    t.string "nombre", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "menus", force: :cascade do |t|
@@ -149,7 +131,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_04_005831) do
     t.decimal "precio_venta_al_mayor", precision: 10, scale: 2, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "marca_id"
     t.index ["categoria_id"], name: "index_productos_on_categoria_id"
+    t.index ["marca_id"], name: "index_productos_on_marca_id"
     t.index ["sku"], name: "index_productos_on_sku", unique: true
   end
 
@@ -203,9 +187,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_04_005831) do
     t.boolean "pasivo", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "empleado_id", null: false
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
-    t.index ["empleado_id"], name: "index_users_on_empleado_id", unique: true
   end
 
   create_table "ventas", force: :cascade do |t|
@@ -215,24 +197,26 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_04_005831) do
     t.decimal "cantidad_total", precision: 10, scale: 2
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "finalizada", default: false, null: false
+    t.bigint "user_id"
     t.index ["cliente_id"], name: "index_ventas_on_cliente_id"
+    t.index ["user_id"], name: "index_ventas_on_user_id"
   end
 
   add_foreign_key "detalle_ordenes_de_compra", "ordenes_de_compra"
   add_foreign_key "detalle_ordenes_de_compra", "productos"
-  add_foreign_key "detalle_pagos_empleados", "empleados"
-  add_foreign_key "detalle_pagos_empleados", "gastos_operativos"
   add_foreign_key "detalle_venta", "productos"
   add_foreign_key "detalle_venta", "ventas"
   add_foreign_key "menus", "menus"
   add_foreign_key "menus", "modulos"
   add_foreign_key "ordenes_de_compra", "proveedores"
   add_foreign_key "productos", "categorias"
+  add_foreign_key "productos", "marcas"
   add_foreign_key "roles_menus", "menus"
   add_foreign_key "roles_menus", "roles", column: "rol_id"
   add_foreign_key "roles_users", "roles", column: "rol_id"
   add_foreign_key "roles_users", "users"
   add_foreign_key "sessions", "users"
-  add_foreign_key "users", "empleados"
   add_foreign_key "ventas", "clientes"
+  add_foreign_key "ventas", "users"
 end

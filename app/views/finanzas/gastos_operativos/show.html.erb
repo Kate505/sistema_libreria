@@ -1,7 +1,7 @@
 <%= turbo_frame_tag "main_content" do %>
   <%= turbo_refreshes_with method: :morph, scroll: :preserve %>
 
-  <div class="grid grid-rows-[auto_1fr] gap-6 h-[calc(100vh-10rem)] w-full">
+  <div class="flex flex-col gap-6 w-full">
 
     <%# Encabezado %>
     <div class="flex items-center justify-between shrink-0">
@@ -14,37 +14,13 @@
           </svg>
         <% end %>
         <div>
-          <h1 class="text-3xl font-bold">Nómina: <%= @gasto_operativo.periodo_legible %></h1>
-          <p class="text-sm text-base-content/50">Detalle de pagos por empleado</p>
+          <h1 class="text-3xl font-bold">Gasto Operativo: <%= @gasto_operativo.periodo_legible %></h1>
+          <p class="text-sm text-base-content/50">Detalle del período</p>
         </div>
       </div>
 
       <%# Resumen del gasto %>
       <%= render "finanzas/gastos_operativos/resumen", gasto_operativo: @gasto_operativo %>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 min-h-0">
-
-      <%# Formulario %>
-      <div class="card bg-base-100 shadow-xl overflow-hidden flex flex-col h-full lg:max-h-full">
-        <div class="overflow-y-auto flex-1 p-0">
-          <%= render "finanzas/detalle_pagos_empleados/form",
-                     gasto_operativo: @gasto_operativo,
-                     detalle_pago_empleado: @detalle_pago_empleado %>
-        </div>
-      </div>
-
-      <%# Tabla de detalles %>
-      <div class="card bg-base-100 shadow-xl col-span-2 flex flex-col h-full overflow-hidden">
-        <div class="flex-1 overflow-y-auto">
-          <div id="detalle_pagos_empleados_table" class="h-full">
-            <%= render "finanzas/detalle_pagos_empleados/table",
-                       gasto_operativo: @gasto_operativo,
-                       detalle_pagos_empleados: @detalle_pagos_empleados %>
-          </div>
-        </div>
-      </div>
-
     </div>
 
   </div>

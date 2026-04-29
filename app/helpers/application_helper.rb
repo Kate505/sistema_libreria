@@ -61,7 +61,7 @@ module ApplicationHelper
 
     content_tag(:div, class: "breadcrumbs text-md mx-auto gap-9 px-10 pt-2 md:gap-20 md:pt-4 backdrop-blur-lg") do
       content_tag(:ul) do
-        concat(content_tag(:li, "Home"))
+        concat(content_tag(:li, "Inicio"))
         parts.each_with_index do |part, i|
           name = part.titleize
           path = "/" + parts[0..i].join("/")
@@ -90,7 +90,7 @@ module ApplicationHelper
 
     home_active_class = active_class_for(root_path)
 
-    items << content_tag(:li, class: "py-4") do
+    items << content_tag(:li, class: "pt-2") do
       # -------- versión compacta --------
       concat(
         link_to(
@@ -98,7 +98,7 @@ module ApplicationHelper
           class: "is-drawer-close:tooltip is-drawer-close:tooltip-right
                 is-drawer-close:flex is-drawer-open:hidden
                 items-center justify-center w-full #{home_active_class}",
-          data: { tip: "Home",
+          data: { tip: "Inicio",
                   turbo_action: "advance" }
         ) do
           inline_svg("home.svg", class_name: "w-6 h-6 inline-block")
@@ -117,7 +117,7 @@ module ApplicationHelper
             inline_svg("home.svg", class_name: "w-6 h-6 inline-block")
           )
 
-          concat content_tag(:span, "Home")
+          concat content_tag(:span, "Inicio")
         end
       )
     end
@@ -125,7 +125,7 @@ module ApplicationHelper
     items.concat(
       modulos.map do |modulo|
         unique_details_id = "details-modulo-#{modulo.id}"
-        content_tag(:li, class: "py-4") do
+        content_tag(:li, class: "pt-2") do
           # --------------------
           # VERSION COMPACTA
           # --------------------

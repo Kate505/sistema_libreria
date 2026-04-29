@@ -15,9 +15,8 @@
     <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
     <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
 
-    <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/icon.png">
+    <link rel="icon" href="/libreria.png" type="image/png">
+    <link rel="apple-touch-icon" href="/libreria.png">
     <meta name="turbo-refresh-method" content="morph">
     <meta name="turbo-refresh-scroll" content="preserve">
 
@@ -27,7 +26,7 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="font-display bg-base-300 h-full flex flex-col" data-controller="sidebar">
+  <body class="font-display bg-base-300 h-full flex flex-col" data-controller="sidebar page-transition">
   <% if authenticated? %>
     <div class="drawer lg:drawer-open flex-1">
       <input id="my-drawer-4" type="checkbox" class="drawer-toggle" data-sidebar-target="toggle"/>
@@ -91,7 +90,7 @@
             <div class="p-8">
               <%#= render "shared/flash" %>
 
-              <%= turbo_frame_tag "main_content" do %>
+              <%= turbo_frame_tag "main_content", class: "content-fade-in" do %>
                 <%= yield %>
               <% end %>
             </div>
@@ -104,7 +103,9 @@
         <div class="flex min-h-full flex-col items-start bg-base-200 is-drawer-close:w-14 is-drawer-open:w-64">
           <!--             Sidebar content here-->
           <ul class="menu w-full grow">
-            <%= menu_for_drawer %>
+            <% cache ["sidebar_drawer", Current.user] do %>
+              <%= menu_for_drawer %>
+            <% end %>
           </ul>
         </div>
       </div>

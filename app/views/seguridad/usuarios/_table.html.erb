@@ -3,7 +3,6 @@
   <tr class="bg-base-100 z-10">
     <th>ID</th>
     <th>Email</th>
-    <th>Empleado Vinculado</th>
     <th>Estado</th>
     <th class="text-right">Acciones</th>
   </tr>
@@ -15,9 +14,6 @@
       <td><%= usuario.id %></td>
       <td>
         <%= usuario.email_address %>
-      </td>
-      <td>
-        <%= usuario.nombre_corto %>
       </td>
       <td>
         <%= status_badge(pasivo: usuario.pasivo) %>

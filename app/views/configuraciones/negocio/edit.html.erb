@@ -1,0 +1,196 @@
+<%= turbo_frame_tag "main_content" do %>
+  <div class="container mx-auto max-w-3xl p-6">
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold">Configuración de Negocio</h1>
+      <p class="text-base-content/60 text-sm mt-1">
+        Define los parámetros globales para el cálculo de precios sugeridos.
+      </p>
+    </div>
+
+    <%# Fórmula informativa %>
+    <div class="alert alert-info mb-6">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 1 1 0 20A10 10 0 0 1 12 2z"/>
+      </svg>
+      <div>
+        <p class="font-semibold">Fórmula del Precio Sugerido</p>
+        <p class="text-sm mt-1">
+          <strong>Precio Venta = Costo Promedio Ponderado ÷ (1 − (% Ganancia + % OpEx))</strong>
+        </p>
+        <p class="text-xs mt-1 opacity-80">
+          Ejemplo con 40% ganancia y 20% OpEx: costo de C$11 → precio sugerido de <strong>C$27.50</strong>
+          (40% = C$11 de ganancia neta, 20% = C$5.50 para gastos, 40% = C$11 costo)
+        </p>
+      </div>
+    </div>
+
+    <div class="card bg-base-100 shadow-md">
+      <div class="card-body">
+
+        <% if flash[:notice] %>
+          <div class="alert alert-success mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+            </svg>
+            <%= flash[:notice] %>
+          </div>
+        <% end %>
+        <% if flash[:alert] %>
+          <div class="alert alert-error mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+            <%= flash[:alert] %>
+          </div>
+        <% end %>
+
+        <%= form_with model: @configuracion,
+                      url: configuraciones_negocio_path,
+                      method: :patch,
+                      class: "space-y-6" do |f| %>
+
+          <% if @configuracion.errors.any? %>
+            <div class="alert alert-error text-sm py-2">
+              <ul class="list-disc list-inside">
+                <% @configuracion.errors.full_messages.each do |msg| %>
+                  <li><%= msg %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+
+          <%# Margen de Ganancia Meta %>
+          <div>
+            <label class="label font-semibold">
+              % Ganancia Neta Meta
+            </label>
+            <label class="input input-bordered flex items-center gap-2">
+              <%= f.number_field :margen_ganancia_meta,
+                                 step: "0.01", min: 0.01, max: 0.99,
+                                 class: "grow",
+                                 placeholder: "0.40",
+                                 id: "configuracion_negocio_margen_ganancia_meta",
+                                 value: (@configuracion.margen_ganancia_meta.to_d * 100).round(2) %>
+              <span class="text-base-content/60 font-semibold">%</span>
+            </label>
+            <p class="text-xs text-base-content/50 mt-1">
+              Porcentaje de la ganancia neta deseada. Recomendado: 40%.
+            </p>
+          </div>
+
+          <%# % Gastos Operativos (OpEx) %>
+          <div>
+            <label class="label font-semibold">
+              % Gastos Operativos (OpEx)
+            </label>
+            <label class="input input-bordered flex items-center gap-2">
+              <%= f.number_field :porcentaje_opex,
+                                 step: "0.01", min: 0, max: 0.99,
+                                 class: "grow",
+                                 placeholder: "0.20",
+                                 id: "configuracion_negocio_porcentaje_opex",
+                                 value: (@configuracion.porcentaje_opex.to_d * 100).round(2) %>
+              <span class="text-base-content/60 font-semibold">%</span>
+            </label>
+            <p class="text-xs text-base-content/50 mt-1">
+              Qué porcentaje del precio de venta se destina a cubrir alquiler y salarios.
+              Se puede calcular automáticamente desde el historial.
+            </p>
+          </div>
+
+          <%# Ventas Proyectadas %>
+          <div>
+            <label class="label font-semibold">
+              Ventas Proyectadas por Mes
+            </label>
+            <label class="input input-bordered flex items-center gap-2">
+              <span class="text-base-content/60 text-sm font-semibold">C$</span>
+              <%= f.number_field :ventas_proyectadas_mes,
+                                 step: "0.01", min: 0,
+                                 class: "grow",
+                                 placeholder: "0.00",
+                                 id: "configuracion_negocio_ventas_proyectadas_mes" %>
+            </label>
+            <p class="text-xs text-base-content/50 mt-1">
+              Referencia de cuánto esperas vender mensualmente (informativo).
+            </p>
+          </div>
+
+          <%# Umbral de alerta %>
+          <div>
+            <label class="label font-semibold">
+              Umbral de Alerta de Margen Mínimo
+            </label>
+            <label class="input input-bordered flex items-center gap-2">
+              <%= f.number_field :margen_alerta_minimo,
+                                 step: "0.01", min: 0.01, max: 0.99,
+                                 class: "grow",
+                                 placeholder: "0.35",
+                                 id: "configuracion_negocio_margen_alerta_minimo",
+                                 value: (@configuracion.margen_alerta_minimo.to_d * 100).round(2) %>
+              <span class="text-base-content/60 font-semibold">%</span>
+            </label>
+            <p class="text-xs text-base-content/50 mt-1">
+              Si el margen estimado de un producto cae debajo de este valor, se muestra una alerta.
+            </p>
+          </div>
+
+          <div class="card-actions justify-end border-t border-base-200 pt-4">
+            <%= f.submit "Guardar Configuración", class: "btn btn-primary" %>
+          </div>
+
+        <% end %>
+      </div>
+    </div>
+
+    <%# Botón Auto-calcular desde historial %>
+    <div class="card bg-base-200 mt-6">
+      <div class="card-body">
+        <h2 class="card-title text-base">Auto-completar desde historial real</h2>
+        <p class="text-sm text-base-content/70">
+          Calcula el % de Gastos Operativos real y las ventas promedio usando los datos
+          de los últimos <strong>6 meses</strong> (o menos si no hay suficiente historial).
+        </p>
+        <div class="card-actions justify-end mt-2">
+          <%= button_to "Calcular desde historial",
+                        sugerir_valores_configuraciones_negocio_path,
+                        method: :post,
+                        data: { turbo_confirm: "¿Calcular % OpEx y ventas promedio desde los últimos 6 meses de datos reales?" },
+                        class: "btn btn-secondary btn-sm" %>
+        </div>
+      </div>
+    </div>
+
+    <%# Preview de precio sugerido %>
+    <div class="card bg-base-100 shadow-md mt-6">
+      <div class="card-body">
+        <h2 class="card-title text-base">Vista previa con la configuración actual</h2>
+        <div class="overflow-x-auto">
+          <table class="table table-sm">
+            <thead>
+            <tr>
+              <th>Costo (CPP)</th>
+              <th>Precio Sugerido</th>
+              <th>Verificación: ganancia / 40%</th>
+            </tr>
+            </thead>
+            <tbody>
+            <% [5, 10, 11, 25, 50, 100].each do |costo| %>
+              <% ps = @configuracion.precio_sugerido(costo) %>
+              <% ganancia = ps ? (ps - costo - ps * @configuracion.porcentaje_opex).round(2) : 0 %>
+              <tr>
+                <td>C$ <%= number_with_precision(costo, precision: 2) %></td>
+                <td class="font-semibold">C$ <%= ps ? number_with_precision(ps, precision: 2) : "—" %></td>
+                <td class="text-success text-sm">
+                  C$ <%= number_with_precision(ganancia, precision: 2) %>
+                  (<%= ps&.positive? ? number_with_precision((ganancia / ps * 100), precision: 1) : "—" %>%)
+                </td>
+              </tr>
+            <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

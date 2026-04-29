@@ -1,8 +1,6 @@
 class GastoOperativo < ApplicationRecord
   self.table_name = "gastos_operativos"
 
-  has_many :detalle_pagos_empleados,
-           dependent: :destroy
 
   validates :periodo_mes,
             presence: true,
@@ -18,10 +16,15 @@ class GastoOperativo < ApplicationRecord
               message: "ya ha sido registrado para este año"
             }
 
-  validates :costos_alquiler, :costo_utilidades, :costo_mantenimiento, :costo_salario_total,
+  validates :costos_alquiler, :costo_utilidades, :costo_mantenimiento,
             numericality: { greater_than_or_equal_to: 0 }
 
   before_save :calcular_total_gastos
+
+  scope :ultimos_n_meses, ->(n) {
+    fecha_inicio = n.months.ago.beginning_of_month
+    where("MAKE_DATE(periodo_year, periodo_mes, 1) >= ?", fecha_inicio)
+  }
 
   NOMBRES_MESES = {
     1 => "Enero", 2 => "Febrero", 3 => "Marzo", 4 => "Abril",
@@ -38,13 +41,6 @@ class GastoOperativo < ApplicationRecord
     "#{nombre_mes} #{periodo_year}"
   end
 
-  def importar_costo_nomina!
-    total_nomina = Empleado.activos.sum(:salario_base)
-    total_viaticos = Empleado.activos.sum(:viatico_transporte)
-
-    self.costo_salario_total = total_nomina + total_viaticos
-    save
-  end
 
   private
 
@@ -52,8 +48,7 @@ class GastoOperativo < ApplicationRecord
     self.gran_total_gastos = [
       costos_alquiler,
       costo_utilidades,
-      costo_mantenimiento,
-      costo_salario_total
+      costo_mantenimiento
     ].sum
   end
 end

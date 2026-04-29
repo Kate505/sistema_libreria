@@ -73,7 +73,6 @@
               <th class="text-right">Alquiler</th>
               <th class="text-right">Utilidades</th>
               <th class="text-right">Mantenimiento</th>
-              <th class="text-right">Salarios</th>
               <th class="text-right font-bold">Total</th>
             </tr>
           </thead>
@@ -84,7 +83,6 @@
                 <td class="text-right tabular-nums text-sm"><%= number_with_precision(g.costos_alquiler, precision: 2, delimiter: ',') %></td>
                 <td class="text-right tabular-nums text-sm"><%= number_with_precision(g.costo_utilidades, precision: 2, delimiter: ',') %></td>
                 <td class="text-right tabular-nums text-sm"><%= number_with_precision(g.costo_mantenimiento, precision: 2, delimiter: ',') %></td>
-                <td class="text-right tabular-nums text-sm"><%= number_with_precision(g.costo_salario_total, precision: 2, delimiter: ',') %></td>
                 <td class="text-right font-bold tabular-nums text-error">
                   C$ <%= number_with_precision(g.gran_total_gastos, precision: 2, delimiter: ',') %>
                 </td>
@@ -93,7 +91,7 @@
           </tbody>
           <tfoot>
             <tr class="font-bold">
-              <td class="text-right text-sm text-base-content/60" colspan="5">TOTAL GASTOS:</td>
+              <td class="text-right text-sm text-base-content/60" colspan="4">TOTAL GASTOS:</td>
               <td class="text-right tabular-nums text-error">
                 C$ <%= number_with_precision(@gastos_operativos_total, precision: 2, delimiter: ',') %>
               </td>
@@ -107,14 +105,14 @@
   </div>
 </div>
 
-<%# ── Tabla: Órdenes de Compra ────────────────────────────────────────── %>
+<%# ── Tabla: Órdenes de Abastecimiento ────────────────────────────────────────── %>
 <div class="card bg-base-100 shadow-sm border border-base-200 mb-4">
   <div class="card-body p-4">
     <h2 class="card-title text-base">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
       </svg>
-      Órdenes de Compra del Período
+      Órdenes de Abastecimiento del Período
       <span class="badge badge-secondary badge-sm font-normal"><%= @compras_detalle.size %> registros</span>
     </h2>
 
