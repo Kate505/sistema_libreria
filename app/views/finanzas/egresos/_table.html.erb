@@ -1,0 +1,179 @@
+<%
+  semana_actual_inicio = Time.current.beginning_of_week.to_date
+
+  # Agrupar egresos por inicio de semana (lunes)
+  por_semana = egresos.group_by { |e| e.fecha.beginning_of_week.to_date }
+                      .sort.reverse
+%>
+
+<%# Resumen semanal mobile %>
+<div class="stats stats-vertical lg:hidden shadow bg-base-200 w-full mb-4">
+  <div class="stat py-2">
+    <div class="stat-title text-xs">Ventas Semana</div>
+    <div class="stat-value text-base text-primary tabular-nums">
+      C$ <%= number_with_precision(total_ventas, precision: 2, delimiter: ',') %>
+    </div>
+  </div>
+  <div class="stat py-2">
+    <div class="stat-title text-xs">Total Egresos</div>
+    <div class="stat-value text-base text-error tabular-nums">
+      C$ <%= number_with_precision(total_egresos, precision: 2, delimiter: ',') %>
+    </div>
+  </div>
+  <div class="stat py-2">
+    <div class="stat-title text-xs">Utilidad Neta</div>
+    <div class="stat-value text-base <%= utilidad_neta >= 0 ? 'text-success' : 'text-error' %> tabular-nums">
+      C$ <%= number_with_precision(utilidad_neta, precision: 2, delimiter: ',') %>
+    </div>
+  </div>
+</div>
+
+<% if por_semana.empty? %>
+  <div class="flex flex-col items-center justify-center py-16 text-base-content/40">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-14 w-14 mb-3 opacity-30" fill="none"
+         viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+            d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M12 7h.01M3 5a2 2 0 012-2h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5z"/>
+    </svg>
+    <p class="text-sm">No hay gastos registrados</p>
+  </div>
+<% else %>
+  <div class="divide-y divide-base-200">
+
+    <% por_semana.each do |semana_inicio, gastos_semana| %>
+      <%
+        es_actual    = semana_inicio == semana_actual_inicio
+        semana_fin   = semana_inicio + 6.days
+        total_semana = gastos_semana.sum(&:monto)
+        label_semana = if es_actual
+          "Esta semana"
+        elsif semana_inicio == semana_actual_inicio - 7
+          "Semana pasada"
+        else
+          "Semana del #{semana_inicio.strftime('%d/%m')} al #{semana_fin.strftime('%d/%m/%Y')}"
+        end
+      %>
+
+      <details <%= "open" if es_actual %> class="group">
+
+        <%# Cabecera de la semana (siempre visible) %>
+        <summary class="flex items-center justify-between px-4 py-3 cursor-pointer
+                        hover:bg-base-200 transition-colors select-none
+                        <%= es_actual ? 'bg-primary/5' : '' %>">
+
+          <div class="flex items-center gap-3">
+            <%# Indicador de colapso %>
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 class="h-4 w-4 text-base-content/40 transition-transform group-open:rotate-90"
+                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+
+            <div>
+              <span class="font-semibold text-sm <%= es_actual ? 'text-primary' : '' %>">
+                <%= label_semana %>
+              </span>
+              <% unless es_actual %>
+                <span class="text-xs text-base-content/40 ml-2">
+                  <%= semana_inicio.strftime('%d/%m') %> – <%= semana_fin.strftime('%d/%m/%Y') %>
+                </span>
+              <% end %>
+              <span class="badge badge-sm badge-ghost ml-2">
+                <%= gastos_semana.size %> <%= gastos_semana.size == 1 ? "egreso" : "egresos" %>
+              </span>
+              <% if es_actual %>
+                <span class="badge badge-primary badge-sm ml-1">Semana actual</span>
+              <% end %>
+            </div>
+          </div>
+
+          <%# Total de la semana %>
+          <div class="text-right">
+            <span class="font-bold tabular-nums text-error text-sm">
+              C$ <%= number_with_precision(total_semana, precision: 2, delimiter: ',') %>
+            </span>
+          </div>
+        </summary>
+
+        <%# Tabla de egresos de la semana %>
+        <div class="overflow-x-auto">
+          <table class="table table-sm">
+            <thead class="bg-base-200/50">
+              <tr class="text-xs text-base-content/60">
+                <th class="font-medium">Fecha / Hora</th>
+                <th class="font-medium">Categoría</th>
+                <th class="font-medium">Descripción</th>
+                <th class="font-medium">Comprobante</th>
+                <th class="text-right font-medium">Monto</th>
+                <th class="text-right font-medium">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% gastos_semana.each do |egreso| %>
+                <tr class="hover:bg-base-200">
+                  <td class="text-sm text-base-content/70 whitespace-nowrap">
+                    <%= egreso.fecha.strftime("%d/%m/%Y") %>
+                    <span class="block text-xs text-base-content/40">
+                      <%= egreso.fecha.strftime("%H:%M") %>
+                    </span>
+                  </td>
+
+                  <td>
+                    <span class="badge badge-outline badge-sm">
+                      <%= egreso.categoria_egreso&.nombre %>
+                    </span>
+                  </td>
+
+                  <td class="text-sm max-w-[200px]">
+                    <span class="truncate block"><%= egreso.descripcion.presence || "—" %></span>
+                  </td>
+
+                  <td class="text-sm font-mono text-base-content/60">
+                    <%= egreso.comprobante.presence || "—" %>
+                  </td>
+
+                  <td class="text-right font-semibold tabular-nums text-error">
+                    C$ <%= number_with_precision(egreso.monto, precision: 2, delimiter: ',') %>
+                  </td>
+
+                  <td class="flex gap-2 justify-end">
+                    <%= link_to edit_finanzas_egreso_path(egreso),
+                                data: { turbo_frame: "egreso_form" },
+                                class: "btn btn-sm btn-ghost btn-square",
+                                title: "Editar" do %>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 16 16">
+                        <path fill="currentColor" d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                        <path fill="currentColor" fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+                      </svg>
+                    <% end %>
+
+                    <%= link_to finanzas_egreso_path(egreso),
+                                data: { turbo_method: :delete,
+                                        turbo_confirm: "¿Eliminar este gasto de C$ #{number_with_precision(egreso.monto, precision: 2)}?" },
+                                class: "btn btn-sm btn-ghost btn-square text-error",
+                                title: "Eliminar" do %>
+                      <% inline_svg "remove.svg" %>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+            <tfoot>
+              <tr class="text-xs font-bold bg-base-200/40">
+                <td colspan="4" class="text-right text-base-content/60">
+                  Total <%= label_semana.downcase %>:
+                </td>
+                <td class="text-right tabular-nums text-error">
+                  C$ <%= number_with_precision(total_semana, precision: 2, delimiter: ',') %>
+                </td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+      </details>
+    <% end %>
+
+  </div>
+<% end %>

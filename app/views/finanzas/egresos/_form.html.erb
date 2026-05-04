@@ -1,0 +1,85 @@
+<turbo-frame id="egreso_form">
+  <%= form_with(model: egreso,
+                url: egreso.new_record? ? finanzas_egresos_path : finanzas_egreso_path(egreso),
+                method: egreso.new_record? ? :post : :patch,
+                class: 'contents') do |f| %>
+
+    <div class="card-body pt-0">
+      <h2 class="card-title text-lg">
+        <%= egreso.new_record? ? "Registrar Gasto" : "Editar Gasto" %>
+      </h2>
+
+      <%# Errores %>
+      <% if egreso.errors.any? %>
+        <div class="alert alert-error text-sm py-2">
+          <ul class="list-disc list-inside">
+            <% egreso.errors.full_messages.each do |msg| %>
+              <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="flex flex-col gap-4">
+
+        <%# Categoría %>
+        <div>
+          <%= f.label :categoria_egreso_id, 'Categoría', class: 'label pt-0 font-semibold' %>
+          <div id="egreso_categoria_select">
+            <%= render "categoria_select", categorias: categorias, selected_id: egreso.categoria_egreso_id %>
+          </div>
+        </div>
+
+        <%# Monto %>
+        <div>
+          <%= f.label :monto, 'Monto', class: 'label pt-0 font-semibold' %>
+          <label class="input input-bordered flex items-center gap-2 w-full">
+            <span class="text-base-content/60 text-sm font-bold">C$</span>
+            <%= f.number_field :monto, step: '0.01', min: 0.01, class: 'grow',
+                               placeholder: '0.00', required: true,
+                               id: "egreso_monto" %>
+          </label>
+        </div>
+
+        <%# Descripción %>
+        <div>
+          <%= f.label :descripcion, 'Descripción', class: 'label pt-0 font-semibold' %>
+          <%= f.text_field :descripcion, class: 'input input-bordered w-full',
+                           placeholder: 'Breve detalle del gasto...',
+                           id: "egreso_descripcion" %>
+        </div>
+
+        <%# Comprobante %>
+        <div>
+          <%= f.label :comprobante, 'N° Comprobante / Factura', class: 'label pt-0 font-semibold' %>
+          <%= f.text_field :comprobante, class: 'input input-bordered w-full',
+                           placeholder: 'Ej: REC-001, FAC-2024-123',
+                           id: "egreso_comprobante" %>
+          <p class="text-xs text-base-content/40 mt-1">Número de factura o recibo físico para respaldo</p>
+        </div>
+
+        <%# Fecha automática — solo informativa %>
+        <div class="alert alert-info py-2 text-xs">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none"
+               viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <span>La fecha y hora se registran automáticamente al guardar.</span>
+        </div>
+
+        <%# Botones %>
+        <div class="flex gap-2 pt-2 border-t border-base-200">
+          <%= f.submit egreso.new_record? ? "Registrar Gasto" : "Actualizar",
+                       class: "btn btn-primary flex-1",
+                       id: "egreso_submit_btn" %>
+          <% unless egreso.new_record? %>
+            <%= cancel_button(finanzas_egresos_path, frame_id: "egreso_form",
+                              style_class: 'btn btn-ghost') %>
+          <% end %>
+        </div>
+
+      </div>
+    </div>
+  <% end %>
+</turbo-frame>
