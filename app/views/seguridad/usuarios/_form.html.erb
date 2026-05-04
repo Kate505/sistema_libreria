@@ -34,6 +34,28 @@
         </div>
 
 
+        <div class="w-full">
+          <%= f.label :password, 'Contraseña', class: 'label pt-0' %>
+          <label class="input input-bordered flex items-center gap-2 w-full">
+            <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none" stroke="currentColor"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1h1a1 1 0 0 0 1-1v-1h1a1 1 0 0 0 .707-1.707l-1.414-1.414a2 2 0 0 0-2.828 0l-4.879 4.879z"></path><circle cx="16.5" cy="7.5" r="3.5"></circle></g></svg>
+            <%= f.password_field :password,
+              class: 'w-full',
+              placeholder: usuario.new_record? ? 'Contraseña' : 'Dejar en blanco para no cambiar',
+              required: usuario.new_record? %>
+          </label>
+        </div>
+
+        <div class="w-full">
+          <%= f.label :password_confirmation, 'Confirmar Contraseña', class: 'label pt-0' %>
+          <label class="input input-bordered flex items-center gap-2 w-full">
+            <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none" stroke="currentColor"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1h1a1 1 0 0 0 1-1v-1h1a1 1 0 0 0 .707-1.707l-1.414-1.414a2 2 0 0 0-2.828 0l-4.879 4.879z"></path><circle cx="16.5" cy="7.5" r="3.5"></circle></g></svg>
+            <%= f.password_field :password_confirmation,
+              class: 'w-full',
+              placeholder: usuario.new_record? ? 'Confirmar Contraseña' : 'Dejar en blanco para no cambiar',
+              required: usuario.new_record? %>
+          </label>
+        </div>
+
         <div class="w-full flex items-end pb-3">
           <%= f.label :pasivo, class: 'cursor-pointer label flex items-center gap-3' do %>
             <%= f.check_box :pasivo, class: 'checkbox' %>

@@ -34,7 +34,7 @@ modulo_configuraciones = Modulo.create!(nombre: "Configuraciones", icono: "segur
 
 # # Módulo Facturación
 menu_ventas = Menu.create!(codigo: "VENTAS", nombre: "Ventas", modulo: modulo_facturacion, link_to: "/facturacion/ventas")
-menu_ventas = Menu.create!(codigo: "HISTORIAL", nombre: "Historial de Ventas", modulo: modulo_facturacion, link_to: "	/facturacion/ventas/historial")
+menu_historial_ventas = Menu.create!(codigo: "HISTORIAL", nombre: "Historial de Ventas", modulo: modulo_facturacion, link_to: "	/facturacion/ventas/historial")
 
 # # Módulo Inventario
 Menu.create!(codigo: "PRODUCTOS", nombre: "Inventario de Productos", modulo: modulo_inventario, link_to: "/inventario/productos")

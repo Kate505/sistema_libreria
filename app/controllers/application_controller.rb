@@ -15,11 +15,12 @@ class ApplicationController < ActionController::Base
   def authorize_menu_access_globally
     return unless Current.user
     current_controller = controller_name
-    puts("Controlador actual: #{current_controller}")
+    current_action = action_name
+    puts("Controlador actual: #{current_controller}##{current_action}")
     puts("permisos: #{PermissionRegistry.requires_menu_check?(current_controller)}")
     return unless PermissionRegistry.requires_menu_check?(current_controller)
 
-    required_menu = PermissionRegistry.menu_code_for(current_controller)
+    required_menu = PermissionRegistry.menu_code_for(current_controller, current_action)
 
     puts("Mapeo de menú: #{required_menu}")
     if required_menu.present?

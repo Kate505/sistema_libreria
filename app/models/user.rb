@@ -10,6 +10,10 @@ class User < ApplicationRecord
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
 
+  def nombre_corto
+    email_address.present? ? email_address.split('@').first : 'Nuevo Usuario'
+  end
+
   # Un usuario solo debe poder autenticarse si tiene al menos un rol activo.
   # Se considera "activo" cuando el rol tiene `pasivo: false`.
   def has_active_roles?
