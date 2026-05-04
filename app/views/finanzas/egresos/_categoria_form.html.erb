@@ -1,0 +1,50 @@
+<turbo-frame id="categoria_egreso_form">
+  <%= form_with(model: categoria_egreso,
+                url: categoria_egreso.new_record? ? finanzas_categoria_egresos_path
+                                                  : finanzas_categoria_egreso_path(categoria_egreso),
+                method: categoria_egreso.new_record? ? :post : :patch,
+                class: 'contents') do |f| %>
+
+    <div class="card-body pt-0">
+      <h2 class="card-title text-base">
+        <%= categoria_egreso.new_record? ? "Nueva Categoría" : "Editar Categoría" %>
+      </h2>
+
+      <% if categoria_egreso.errors.any? %>
+        <div class="alert alert-error text-sm py-2">
+          <ul class="list-disc list-inside">
+            <% categoria_egreso.errors.full_messages.each do |msg| %>
+              <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="flex flex-col gap-3">
+        <div>
+          <%= f.label :nombre, 'Nombre', class: 'label pt-0 font-semibold' %>
+          <%= f.text_field :nombre, class: 'input input-bordered w-full',
+                           placeholder: 'Ej: Servicios, Limpieza...',
+                           required: true, id: "categoria_egreso_nombre" %>
+        </div>
+
+        <div>
+          <%= f.label :descripcion, 'Descripción (opcional)', class: 'label pt-0 font-semibold' %>
+          <%= f.text_field :descripcion, class: 'input input-bordered w-full',
+                           placeholder: 'Descripción de la categoría',
+                           id: "categoria_egreso_descripcion" %>
+        </div>
+
+        <div class="flex gap-2 pt-2 border-t border-base-200">
+          <%= f.submit categoria_egreso.new_record? ? "Agregar" : "Guardar",
+                       class: "btn btn-secondary btn-sm flex-1",
+                       id: "categoria_submit_btn" %>
+          <% unless categoria_egreso.new_record? %>
+            <%= cancel_button(finanzas_egresos_path, frame_id: "categoria_egreso_form",
+                              style_class: 'btn btn-ghost btn-sm') %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</turbo-frame>

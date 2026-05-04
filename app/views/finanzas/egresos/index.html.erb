@@ -1,0 +1,79 @@
+<%= turbo_frame_tag "main_content" do %>
+  <%= turbo_refreshes_with method: :morph, scroll: :preserve %>
+
+  <div class="grid grid-rows-[auto_1fr] gap-6 h-[calc(100vh-10rem)] w-full">
+
+    <%# Encabezado %>
+    <div class="flex items-center justify-between shrink-0">
+      <div>
+        <h1 class="text-3xl font-bold">Registro de Egresos</h1>
+        <p class="text-sm text-base-content/50 mt-1">
+          Registra cada gasto a medida que ocurre — semana actual
+        </p>
+      </div>
+
+      <%# KPIs de la semana %>
+      <div class="stats shadow bg-base-200 text-sm hidden lg:flex">
+        <div class="stat py-2 px-4">
+          <div class="stat-title text-xs">Ventas Semana</div>
+          <div class="stat-value text-base text-primary tabular-nums">
+            C$ <%= number_with_precision(@total_ventas, precision: 2, delimiter: ',') %>
+          </div>
+        </div>
+        <div class="stat py-2 px-4">
+          <div class="stat-title text-xs">Egresos Semana</div>
+          <div class="stat-value text-base text-error tabular-nums">
+            C$ <%= number_with_precision(@total_egresos, precision: 2, delimiter: ',') %>
+          </div>
+        </div>
+        <div class="stat py-2 px-4">
+          <div class="stat-title text-xs">Utilidad Neta</div>
+          <div class="stat-value text-base <%= @utilidad_neta >= 0 ? 'text-success' : 'text-error' %> tabular-nums">
+            C$ <%= number_with_precision(@utilidad_neta, precision: 2, delimiter: ',') %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 min-h-0">
+
+      <%# Panel izquierdo: formulario + categorías en tabs %>
+      <div class="card bg-base-100 shadow-xl overflow-hidden flex flex-col h-full lg:max-h-full">
+        <div class="overflow-y-auto flex-1">
+
+          <div role="tablist" class="tabs tabs-border w-full px-4 pt-4">
+
+            <%# Tab 1: Registrar Gasto %>
+            <input type="radio" name="tabs_egresos" id="tab_registrar" role="tab"
+                   class="tab font-semibold" aria-label="Registrar Gasto" checked>
+            <div role="tabpanel" class="tab-content pt-4 pb-2">
+              <%= render "form", egreso: @egreso, categorias: @categorias %>
+            </div>
+
+            <%# Tab 2: Categorías %>
+            <input type="radio" name="tabs_egresos" id="tab_categorias" role="tab"
+                   class="tab font-semibold" aria-label="Categorías">
+            <div role="tabpanel" class="tab-content pt-4 pb-2">
+              <%= render "categoria_form", categoria_egreso: @categoria_egreso %>
+              <div id="categorias_list" class="mt-4">
+                <%= render "categorias_list", categorias: @categorias %>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <%# Panel derecho: tabla de egresos %>
+      <div class="card bg-base-100 shadow-xl col-span-2 flex flex-col h-full overflow-hidden">
+        <div class="flex-1 overflow-y-auto">
+          <div id="egresos_table" class="h-full">
+            <%= render "table", egresos: @egresos, total_egresos: @total_egresos,
+                                total_ventas: @total_ventas, utilidad_neta: @utilidad_neta %>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+<% end %>
