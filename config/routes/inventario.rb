@@ -10,6 +10,7 @@ namespace :inventario do
   resources :productos do
     collection do
       get :buscar_categoria
+      get :buscar_marca
       get :consulta_precios
     end
   end

@@ -78,20 +78,38 @@
           </label>
         </div>
 
-        <%# Costo Unitario Calculado (con flete) %>
+        <%# Costo Unitario Calculado - SOLO LECTURA (calculado automáticamente con flete) %>
+        <%
+          flete_total = orden_de_compra.costo_total_flete.to_d
+          tiene_flete = flete_total > 0
+        %>
         <div class="w-full">
-          <%= f.label :costo_unitario_compra_calculado, 'Costo Unitario Calculado', class: 'label pt-0' %>
-          <label class="input input-bordered flex items-center gap-2 w-full">
-            <span class="text-base-content/60 text-sm font-semibold">C$</span>
-            <%= f.number_field :costo_unitario_compra_calculado,
-                               step: '0.01', min: 0,
-                               class: 'grow',
-                               placeholder: '0.00 (incluye flete si aplica)',
-                               required: true %>
+          <label class="label pt-0">
+            Costo Unitario Calculado
+            <% if tiene_flete %>
+              <span class="label-text-alt text-warning font-semibold">Incluye flete prorrateado</span>
+            <% else %>
+              <span class="label-text-alt text-base-content/40">Sin flete en esta orden</span>
+            <% end %>
           </label>
-          <p class="text-xs text-base-content/40 mt-1">
-            Debe ser ≥ precio de compra. Incluye flete prorrateado si aplica.
-          </p>
+          <label class="input input-bordered flex items-center gap-2 w-full bg-base-200 cursor-not-allowed">
+            <span class="text-base-content/60 text-sm font-semibold">C$</span>
+            <%# Campo oculto para enviar el valor calculado %>
+            <%= f.hidden_field :costo_unitario_compra_calculado,
+                               value: detalle.costo_unitario_compra_calculado %>
+            <span class="grow text-base-content/60 text-sm">
+              Se calcula automáticamente al guardar
+            </span>
+          </label>
+          <% if tiene_flete %>
+            <p class="text-xs text-warning/80 mt-1">
+              ⚠️ El flete total de C$<%= number_with_precision(flete_total, precision: 2) %> se distribuirá automáticamente entre todos los productos según su valor proporcional.
+            </p>
+          <% else %>
+            <p class="text-xs text-base-content/40 mt-1">
+              Para incluir flete, editá el campo "Costo Total Flete" en el encabezado de la orden.
+            </p>
+          <% end %>
         </div>
 
         <%# Acción %>

@@ -15,12 +15,10 @@ ActiveSupport::Inflector.inflections(:en) do |inflect|
   inflect.irregular "venta", "ventas"
   inflect.irregular "detalle_venta", "detalle_ventas"
   inflect.irregular "gasto_operativo", "gastos_operativos"
-  inflect.irregular "detalle_pago", "detalle_pagos"
-  inflect.irregular "detalle_pago_empleado", "detalle_pagos_empleados"
   inflect.irregular "empleado", "empleados"
   inflect.irregular "proveedor", "proveedores"
   inflect.irregular "orden_de_compra", "ordenes_de_compra"
   inflect.irregular "detalle_orden_de_compra", "detalle_ordenes_de_compra"
   inflect.irregular "categoria", "categorias"
-  inflect.irregular "detalle_pago_empleado", "detalle_pagos_empleados"
+  inflect.irregular "configuracion_negocio", "configuraciones_negocio"
 end

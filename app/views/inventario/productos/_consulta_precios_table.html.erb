@@ -4,6 +4,9 @@
       <th class="w-8">SKU</th>
       <th>Nombre</th>
       <th>Categoría</th>
+      <th class="text-right">CPP</th>
+      <th class="text-right">P. Sugerido</th>
+      <th class="text-right">Margen Est.</th>
       <th class="text-right">P. Venta</th>
       <th class="text-right">P. Mayor</th>
       <th class="text-center">Descuento</th>
@@ -36,6 +39,32 @@
         <% else %>
           <span class="text-base-content/30 text-sm italic">—</span>
         <% end %>
+      </td>
+
+      <%# CPP %>
+      <td class="text-right tabular-nums text-sm text-base-content/60 whitespace-nowrap">
+        C$ <%= number_with_precision(producto.costo_promedio_ponderado, precision: 2, delimiter: ",") %>
+      </td>
+
+      <%# Precio Sugerido %>
+      <td class="text-right tabular-nums text-sm font-medium whitespace-nowrap">
+        <% ps = producto.precio_sugerido %>
+        <% if ps&.positive? %>
+          C$ <%= number_with_precision(ps, precision: 2, delimiter: ",") %>
+        <% else %>
+          <span class="text-base-content/30 italic">—</span>
+        <% end %>
+      </td>
+
+      <%# Margen Estimado con alerta %>
+      <td class="text-right tabular-nums whitespace-nowrap">
+        <% margen = producto.margen_estimado %>
+        <% bajo = producto.margen_bajo? %>
+        <% pct = (margen * 100).round(1) %>
+        <span class="badge badge-sm <%= bajo ? 'badge-warning' : 'badge-success' %>"
+              title="<%= bajo ? 'Margen por debajo del umbral de alerta' : 'Margen dentro del rango aceptable' %>">
+          <% if bajo %>⚠️ <% end %><%= pct %>%
+        </span>
       </td>
 
       <%# Precio de venta %>
@@ -103,7 +132,7 @@
 
   <% if productos.empty? %>
     <tr>
-      <td colspan="9" class="text-center py-16 text-base-content/40">
+      <td colspan="12" class="text-center py-16 text-base-content/40">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-3 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/>
         </svg>

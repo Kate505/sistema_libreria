@@ -32,6 +32,12 @@
 
       <div class="divider divider-horizontal mx-0 hidden lg:flex"></div>
 
+      <%# Filtro por Marca %>
+      <div>
+        <%= f.label :marca_id, "Marca", class: "label py-0 text-xs text-base-content/60" %>
+        <%= f.collection_select :marca_id, Marca.order(:nombre), :id, :nombre, { include_blank: "Todas" }, { class: "select select-sm select-bordered w-36", value: @marca_id } %>
+      </div>
+
       <%# Rango personalizado %>
       <div class="flex items-end gap-2 flex-wrap">
         <div>

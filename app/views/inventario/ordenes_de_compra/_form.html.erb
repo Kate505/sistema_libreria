@@ -6,7 +6,7 @@
 
     <div class="card-body">
       <h2 class="card-title text-lg">
-        <%= orden_de_compra.new_record? ? "Nueva Orden de Compra" : "Editar Orden ##{orden_de_compra.id}" %>
+        <%= orden_de_compra.new_record? ? "Nueva Orden de Abastecimiento" : "Editar Orden ##{orden_de_compra.id}" %>
       </h2>
 
       <%# Errores %>
@@ -77,8 +77,9 @@
         </div>
 
         <%# Botones de acción %>
-        <div class="card-actions justify-end sm:col-span-2 mt-4 pt-4 border-t border-base-200">
+        <div class="card-actions justify-end sm:col-span-2 mt-4 pt-4 border-t border-base-200 gap-2">
           <%= save_button(f) %>
+          <%= cancel_button(inventario_ordenes_de_compra_path, frame_id: "orden_de_compra_form", style_class: 'btn btn-soft btn-error w-full sm:w-auto') %>
         </div>
 
       </div>

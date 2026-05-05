@@ -30,6 +30,16 @@ class Inventario::ProductosController < ApplicationController
     render json: @categorias.map { |c| { id: c.id, text: c.nombre } }
   end
 
+  def buscar_marca
+    term = params[:q].to_s.strip
+
+    @marcas = Marca.order(:nombre)
+    @marcas = @marcas.where("nombre ILIKE ?", "%#{term}%") unless term.blank?
+    @marcas = @marcas.limit(10)
+
+    render json: @marcas.map { |m| { id: m.id, text: m.nombre } }
+  end
+
   def consulta_precios
     @q = params[:q].to_s.strip
     @productos = Producto.includes(:categoria)
@@ -111,15 +121,13 @@ class Inventario::ProductosController < ApplicationController
   def producto_params
     params.require(:producto).permit(
       :categoria_id,
+      :nombre_marca,
       :sku,
       :nombre,
       :descuento,
       :descuento_maximo,
-      :stock_actual,
       :stock_minimo_limite,
-      :stock_maximo_limite,
-      :precio_venta,
-      :precio_venta_al_mayor
+      :stock_maximo_limite
     )
   end
 end

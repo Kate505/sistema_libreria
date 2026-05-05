@@ -24,4 +24,5 @@ Rails.application.routes.draw do
   draw :finanzas
   draw :facturacion
   draw :estadisticas
+  draw :configuraciones
 end

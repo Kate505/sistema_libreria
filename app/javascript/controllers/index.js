@@ -7,6 +7,9 @@ import { application } from "./application"
 import AutocompleteController from "./autocomplete_controller"
 application.register("autocomplete", AutocompleteController)
 
+import AutoPrintController from "./auto_print_controller"
+application.register("auto-print", AutoPrintController)
+
 import Helpers__Components__ArbolNavegacionController from "./helpers/components/arbol_navegacion_controller"
 application.register("helpers--components--arbol-navegacion", Helpers__Components__ArbolNavegacionController)
 
@@ -27,3 +30,9 @@ application.register("sidebar", SidebarController)
 
 import NominaCalcController from "./nomina_calc_controller"
 application.register("nomina-calc", NominaCalcController)
+
+import PageTransitionController from "./page_transition_controller"
+application.register("page-transition", PageTransitionController)
+
+import PagoFinalizarController from "./pago_finalizar_controller"
+application.register("pago-finalizar", PagoFinalizarController)

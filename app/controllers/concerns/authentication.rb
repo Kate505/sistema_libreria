@@ -16,10 +16,26 @@ module Authentication
 
   def authenticated?
     resume_session
+
+    # Si existe una sesión pero el usuario no tiene roles activos, se invalida
+    # inmediatamente para que el sistema lo trate como no autenticado.
+    if Current.session && !Current.user&.has_active_roles?
+      terminate_session
+      return false
+    end
+
+    Current.session.present?
   end
 
   def require_authentication
-    resume_session || request_authentication
+    if resume_session
+      return if Current.user&.has_active_roles?
+
+      terminate_session if Current.session
+      redirect_to new_session_path, alert: "Tu usuario no tiene roles activos asignados. Contacta al administrador."
+    else
+      request_authentication
+    end
   end
 
   def resume_session
@@ -47,7 +63,9 @@ module Authentication
   end
 
   def terminate_session
+    return unless Current.session
     Current.session.destroy
+    Current.session = nil
     cookies.delete(:session_id)
   end
 
