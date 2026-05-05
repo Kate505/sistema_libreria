@@ -16,7 +16,7 @@
 
         <div class="w-full">
           <%= f.label :email_address, 'Email', class: 'label pt-0' %>
-          <%#= f.text_field :email_address, class: 'input input-bordered w-full validator', placeholder: 'Email', required: true %>
+
           <label class="input input-bordered validator flex items-center gap-2 w-full">
             <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
               <g stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none" stroke="currentColor">
@@ -26,43 +26,35 @@
             </svg>
 
             <%= f.email_field :email_address,
-                              class: 'w-full',
-                              placeholder: 'mail@site.com',
-                              required: true %>
+              class: 'w-full',
+              placeholder: 'mail@site.com',
+              required: true %>
           </label>
           <div class="validator-hint hidden">Ingrese un correo válido</div>
         </div>
 
-        <div class="w-full relative"
-             data-controller="autocomplete"
-             data-autocomplete-url-value="<%= buscar_empleado_seguridad_usuarios_path %>"
-             data-action="click@window->autocomplete#hide">
 
-          <%= f.label :empleado_id, 'Empleado', class: 'label pt-0' %>
-
-          <%= f.hidden_field :empleado_id, data: { autocomplete_target: "hidden" } %>
-
-          <div class="relative">
-            <% nombre_actual = usuario.empleado_id.present? ? usuario&.nombre_completo : "" %>
-
-            <input type="text"
-                   class="input input-bordered w-full validator pr-10"
-                   placeholder="Buscar empleado..."
-                   value="<%= nombre_actual %>"
-                   data-autocomplete-target="input"
-                   data-action="input->autocomplete#search"
-                   autocomplete="off">
-
-            <div data-autocomplete-target="loading" class="absolute right-3 top-3 hidden">
-              <span class="loading loading-spinner loading-sm text-primary"></span>
-            </div>
-          </div>
-
-          <ul data-autocomplete-target="results"
-              class="menu dropdown-content bg-base-100 rounded-box z-[50] w-full p-2 shadow-lg absolute top-full mt-1 border border-base-200 hidden max-h-60 overflow-y-auto">
-          </ul>
+        <div class="w-full">
+          <%= f.label :password, 'Contraseña', class: 'label pt-0' %>
+          <label class="input input-bordered flex items-center gap-2 w-full">
+            <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none" stroke="currentColor"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1h1a1 1 0 0 0 1-1v-1h1a1 1 0 0 0 .707-1.707l-1.414-1.414a2 2 0 0 0-2.828 0l-4.879 4.879z"></path><circle cx="16.5" cy="7.5" r="3.5"></circle></g></svg>
+            <%= f.password_field :password,
+              class: 'w-full',
+              placeholder: usuario.new_record? ? 'Contraseña' : 'Dejar en blanco para no cambiar',
+              required: usuario.new_record? %>
+          </label>
         </div>
 
+        <div class="w-full">
+          <%= f.label :password_confirmation, 'Confirmar Contraseña', class: 'label pt-0' %>
+          <label class="input input-bordered flex items-center gap-2 w-full">
+            <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none" stroke="currentColor"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1h1a1 1 0 0 0 1-1v-1h1a1 1 0 0 0 .707-1.707l-1.414-1.414a2 2 0 0 0-2.828 0l-4.879 4.879z"></path><circle cx="16.5" cy="7.5" r="3.5"></circle></g></svg>
+            <%= f.password_field :password_confirmation,
+              class: 'w-full',
+              placeholder: usuario.new_record? ? 'Confirmar Contraseña' : 'Dejar en blanco para no cambiar',
+              required: usuario.new_record? %>
+          </label>
+        </div>
 
         <div class="w-full flex items-end pb-3">
           <%= f.label :pasivo, class: 'cursor-pointer label flex items-center gap-3' do %>

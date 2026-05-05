@@ -12,9 +12,6 @@ namespace :seguridad do
       post :add_rol
       delete :remove_rol
     end
-    collection do
-      get :buscar_empleado
-    end
   end
 
   resources :roles, except: [ :show ] do
@@ -23,6 +20,4 @@ namespace :seguridad do
       delete :remove_menu
     end
   end
-
-  resources :empleados, except: [ :show ]
 end

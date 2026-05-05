@@ -7,13 +7,12 @@ class User < ApplicationRecord
   has_many :roles_users, dependent: :destroy
   has_many :roles, through: :roles_users, source: :rol
 
-  belongs_to :empleado
-
-  delegate :nombre_completo,
-           :nombre_corto,
-           :cargo, to: :empleado, allow_nil: true
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
+
+  def nombre_corto
+    email_address.present? ? email_address.split('@').first : 'Nuevo Usuario'
+  end
 
   # Un usuario solo debe poder autenticarse si tiene al menos un rol activo.
   # Se considera "activo" cuando el rol tiene `pasivo: false`.

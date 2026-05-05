@@ -25,21 +25,9 @@ class Seguridad::UsuariosController < ApplicationController
     end
   end
 
-  def buscar_empleado
-    @empleados = Empleado.empleados_sin_usuario
-                         .empleados_activos
-                         .por_nombre_completo(params[:q])
-                         .limit(5)
-
-    render json: @empleados.map { |e| { id: e.id, text: e.nombre_completo } }
-  end
 
   def create
     @usuario = User.new(usuario_params)
-    password_temporal = "Temporal123"
-
-    @usuario.password = password_temporal
-    @usuario.password_confirmation = password_temporal
 
     refresh_lists_for_view
 
@@ -64,7 +52,13 @@ class Seguridad::UsuariosController < ApplicationController
   end
 
   def update
-    if @usuario.update(usuario_params)
+    upd_params = usuario_params
+    if upd_params[:password].blank? && upd_params[:password_confirmation].blank?
+      upd_params.delete(:password)
+      upd_params.delete(:password_confirmation)
+    end
+
+    if @usuario.update(upd_params)
       @usuarios = User.all.order(:email_address)
       refresh_lists_for_view
 
@@ -141,7 +135,7 @@ class Seguridad::UsuariosController < ApplicationController
   end
 
   def usuario_params
-    params.require(:user).permit(:email_address, :empleado_id, :pasivo)
+    params.require(:user).permit(:email_address, :pasivo, :password, :password_confirmation)
   end
 
   def refresh_lists_for_view
