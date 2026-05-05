@@ -29,6 +29,8 @@ RUN bundle install
 
 COPY . .
 
+RUN yarn install
+
 COPY entrypoint.sh /usr/bin/
 RUN chmod +x /usr/bin/entrypoint.sh
 ENTRYPOINT ["entrypoint.sh"]

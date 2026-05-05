@@ -4,8 +4,7 @@
     <th>ID</th>
     <th>Nombre</th>
     <th>Cargo</th>
-    <th>Salario Base</th>
-    <th>Viático Transporte</th>
+    <th>Fecha de contratación</th>
     <th>Estado</th>
     <th class="text-right">Acciones</th>
   </tr>
@@ -17,8 +16,7 @@
       <td><%= empleado.id %></td>
       <td class="font-bold"><%= empleado.nombre_completo %></td>
       <td class="font-bold"><%= empleado.cargo %></td>
-      <td class="font-bold"><%= empleado.salario_base %></td>
-      <td class="font-bold"><%= empleado.viatico_transporte %></td>
+      <td class="font-bold"><%= empleado.fecha_contratacion %></td>
 
       <td>
         <%= status_badge(pasivo: empleado.pasivo) %>

@@ -1,11 +1,9 @@
 one:
   primer_nombre: Juan
   primer_apellido: Pérez
-  salario_base: 15000.00
   pasivo: false
 
 two:
   primer_nombre: María
   primer_apellido: López
-  salario_base: 12000.00
   pasivo: false

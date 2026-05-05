@@ -7,10 +7,6 @@ class CreateEmpleados < ActiveRecord::Migration[8.0]
       t.string :segundo_apellido, limit: 50
 
       t.string :cargo, limit: 100
-
-      t.decimal :salario_base, precision: 10, scale: 2, null: false
-      t.decimal :viatico_transporte, precision: 10, scale: 2, default: 0.00
-
       t.date :fecha_contratacion
       t.boolean :pasivo, default: false
 

@@ -1,0 +1,124 @@
+<turbo-frame id="venta_detalle_modal">
+  <%# Modal (DaisyUI) para ver el detalle de una venta desde el Historial %>
+  <dialog id="venta_detalle_modal_dialog"
+          class="modal modal-middle"
+          onclose="document.getElementById('venta_detalle_modal').innerHTML = ''">
+
+    <div class="modal-box w-11/12 max-w-4xl overflow-hidden flex flex-col max-h-[90vh]">
+
+    <div class="flex items-start justify-between gap-4 shrink-0">
+      <div class="min-w-0">
+        <h3 class="text-lg font-bold truncate">
+          Venta #<%= venta.id %>
+          <% if venta.cliente.present? %>
+            <span class="text-base-content/50 font-normal">— <%= venta.cliente.primer_nombre %> <%= venta.cliente.primer_apellido %></span>
+          <% else %>
+            <span class="text-base-content/50 font-normal">— Consumidor final</span>
+          <% end %>
+        </h3>
+
+        <p class="text-sm text-base-content/50">
+          <%= venta.fecha_venta ? venta.fecha_venta.strftime("%d/%m/%Y %H:%M") : "—" %>
+          <% if venta.metodo_pago.present? %>
+            · <span class="font-medium"><%= Venta::METODOS_PAGO[venta.metodo_pago] || venta.metodo_pago %></span>
+          <% else %>
+            · <span class="font-medium text-warning">Pendiente de pago</span>
+          <% end %>
+        </p>
+
+        <p class="text-sm text-base-content/50 mt-1">
+          Vendedor:
+          <span class="font-medium text-base-content/80">
+            <%= venta.user&.nombre_completo.presence || venta.user&.email_address.presence || "—" %>
+          </span>
+        </p>
+      </div>
+
+      <div class="text-right shrink-0">
+        <% if venta.finalizada? %>
+          <span class="badge badge-success badge-sm">Finalizada</span>
+        <% else %>
+          <span class="badge badge-warning badge-sm">Pendiente</span>
+        <% end %>
+        <div class="mt-2 text-sm text-base-content/50">Total</div>
+        <div class="text-lg font-bold tabular-nums">C$ <%= number_with_precision(venta.cantidad_total, precision: 2, delimiter: ',') %></div>
+      </div>
+    </div>
+
+    <div class="divider my-3"></div>
+
+    <div class="overflow-y-auto min-h-0">
+      <% if detalles.any? %>
+        <table class="table table-pin-rows table-sm">
+          <thead>
+            <tr class="bg-base-100 z-10">
+              <th>Producto</th>
+              <th class="text-center">Cant.</th>
+              <th class="text-right">Precio</th>
+              <th class="text-right">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% detalles.each do |detalle| %>
+              <tr>
+                <td class="min-w-0">
+                  <div class="font-medium truncate">
+                    <%= detalle.producto&.nombre || "Producto eliminado" %>
+                  </div>
+                  <% if detalle.producto&.sku.present? %>
+                    <div class="text-xs text-base-content/40 font-mono">
+                      SKU: <%= detalle.producto.sku %>
+                    </div>
+                  <% end %>
+                </td>
+
+                <td class="text-center tabular-nums font-semibold">
+                  <%= detalle.cantidad %>
+                </td>
+
+                <td class="text-right tabular-nums">
+                  C$ <%= number_with_precision(detalle.precio_unitario_venta, precision: 2, delimiter: ',') %>
+                </td>
+
+                <td class="text-right tabular-nums font-semibold">
+                  C$ <%= number_with_precision(detalle.subtotal, precision: 2, delimiter: ',') %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+          <tfoot>
+            <tr class="bg-base-200/50 font-semibold">
+              <td colspan="3" class="text-right">Total</td>
+              <td class="text-right tabular-nums">C$ <%= number_with_precision(venta.cantidad_total, precision: 2, delimiter: ',') %></td>
+            </tr>
+          </tfoot>
+        </table>
+      <% else %>
+        <div class="py-10 text-center text-base-content/50">
+          Esta venta no tiene productos registrados.
+        </div>
+      <% end %>
+    </div>
+
+    <div class="modal-action shrink-0 pt-4 mt-0 bg-base-100 border-t border-base-200">
+      <form method="dialog">
+        <button class="btn">Cerrar</button>
+      </form>
+    </div>
+
+    </div>
+
+    <form method="dialog" class="modal-backdrop">
+      <button>Cerrar</button>
+    </form>
+  </dialog>
+
+  <script>
+    (function () {
+      var dialog = document.getElementById("venta_detalle_modal_dialog")
+      if (dialog && !dialog.open) dialog.showModal()
+    })()
+  </script>
+</turbo-frame>
+
+

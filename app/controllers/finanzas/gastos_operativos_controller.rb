@@ -1,11 +1,7 @@
 class Finanzas::GastosOperativosController < ApplicationController
-  before_action :set_gasto_operativo, only: %i[show edit update destroy importar_nomina]
+  before_action :set_gasto_operativo, only: %i[show edit update destroy]
 
   def show
-    @detalle_pago_empleado = DetallePagoEmpleado.new
-    @detalle_pagos_empleados = @gasto_operativo.detalle_pagos_empleados
-                                               .includes(:empleado)
-                                               .order(:created_at)
   end
 
   def index
@@ -109,35 +105,6 @@ class Finanzas::GastosOperativosController < ApplicationController
     end
   end
 
-  def importar_nomina
-    if @gasto_operativo.importar_costo_nomina!
-      @gastos_operativos = GastoOperativo.all.order(periodo_year: :desc, periodo_mes: :desc)
-      respond_to do |format|
-        format.turbo_stream do
-          render turbo_stream: [
-            turbo_stream.update("gastos_operativos_table",
-                                partial: "finanzas/gastos_operativos/table",
-                                locals: { gastos_operativos: @gastos_operativos }),
-            turbo_stream.replace("gasto_operativo_form",
-                                 partial: "finanzas/gastos_operativos/form",
-                                 locals: { gasto_operativo: GastoOperativo.new })
-          ]
-        end
-        format.html { redirect_to finanzas_gastos_operativos_path, notice: "Costo de nómina importado exitosamente." }
-      end
-    else
-      respond_to do |format|
-        format.turbo_stream do
-          render turbo_stream: turbo_stream.replace(
-            "gasto_operativo_form",
-            partial: "finanzas/gastos_operativos/form",
-            locals: { gasto_operativo: @gasto_operativo }
-          )
-        end
-        format.html { redirect_to finanzas_gastos_operativos_path, alert: "No se pudo importar la nómina." }
-      end
-    end
-  end
 
   private
 
@@ -151,8 +118,7 @@ class Finanzas::GastosOperativosController < ApplicationController
       :periodo_year,
       :costos_alquiler,
       :costo_utilidades,
-      :costo_mantenimiento,
-      :costo_salario_total
+      :costo_mantenimiento
     )
   end
 end

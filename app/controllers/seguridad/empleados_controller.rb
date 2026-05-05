@@ -75,6 +75,6 @@ class Seguridad::EmpleadosController < ApplicationController
 
   def empleado_params
     params.require(:empleado).permit(:primer_nombre, :segundo_nombre, :primer_apellido, :segundo_apellido,
-                                     :cargo, :salario_base, :viatico_transporte, :fecha_contratacion, :pasivo)
+                                     :cargo, :fecha_contratacion, :pasivo)
   end
 end

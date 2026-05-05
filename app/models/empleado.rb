@@ -18,13 +18,6 @@ class Empleado < ApplicationRecord
             length: { maximum: 100 },
             allow_blank: true
 
-  validates :salario_base,
-            presence: true,
-            numericality: { greater_than: 0 }
-
-  validates :viatico_transporte,
-            numericality: { greater_than_or_equal_to: 0 }
-
   scope :activos, -> { where(pasivo: false) }
   scope :pasivos, -> { where(pasivo: true) }
 

@@ -35,7 +35,7 @@
         </div>
 
         <%# Categoría - Autocomplete %>
-        <div class="w-full sm:col-span-2 relative"
+        <div class="w-full"
              data-controller="autocomplete"
              data-autocomplete-url-value="<%= buscar_categoria_inventario_productos_path %>"
              data-action="click@window->autocomplete#hide">
@@ -65,35 +65,46 @@
           </ul>
         </div>
 
-        <%# Precio de Venta %>
-        <div class="w-full">
-          <%= f.label :precio_venta, 'Precio de Venta', class: 'label pt-0' %>
-          <label class="input input-bordered flex items-center gap-2 w-full">
-            <span class="text-base-content/60 text-sm font-semibold">C$</span>
-            <%= f.number_field :precio_venta, step: '0.01', min: 0, class: 'grow', placeholder: '0.00', required: true %>
-          </label>
+        <%# Marca - Autocomplete (con opción Crear) %>
+        <div class="w-full"
+             data-controller="autocomplete"
+             data-autocomplete-url-value="<%= buscar_marca_inventario_productos_path %>"
+             data-action="click@window->autocomplete#hide">
+
+          <%= f.label :nombre_marca, 'Marca', class: 'label pt-0' %>
+
+          <%# No lo usamos para guardar (se guarda con nombre_marca), pero mantenemos el target hidden para compatibilidad del controller %>
+          <%= f.hidden_field :marca_id, data: { autocomplete_target: "hidden" } %>
+
+          <div class="relative">
+            <% nombre_marca = producto.marca_id.present? ? producto.marca&.nombre : (producto.respond_to?(:nombre_marca) ? producto.nombre_marca.to_s : "") %>
+
+            <input type="text"
+                   class="input input-bordered w-full pr-10"
+                   placeholder="Buscar marca..."
+                   value="<%= nombre_marca %>"
+                   data-autocomplete-target="input"
+                   data-action="input->autocomplete#search"
+                   autocomplete="off"
+                   name="producto[nombre_marca]"
+                   id="producto_nombre_marca">
+
+            <div data-autocomplete-target="loading" class="absolute right-3 top-3 hidden">
+              <span class="loading loading-spinner loading-sm text-primary"></span>
+            </div>
+          </div>
+
+          <ul data-autocomplete-target="results"
+              class="menu dropdown-content bg-base-100 rounded-box z-[50] w-full p-2 shadow-lg absolute top-full mt-1 border border-base-200 hidden max-h-60 overflow-y-auto">
+          </ul>
         </div>
 
-        <%# Precio de Venta al Mayor %>
-        <div class="w-full">
-          <%= f.label :precio_venta_al_mayor, 'Precio al Mayor', class: 'label pt-0' %>
-          <label class="input input-bordered flex items-center gap-2 w-full">
-            <span class="text-base-content/60 text-sm font-semibold">C$</span>
-            <%= f.number_field :precio_venta_al_mayor, step: '0.01', min: 0, class: 'grow', placeholder: '0.00', required: true %>
-          </label>
-        </div>
 
         <%# === SECCIÓN: STOCK === %>
         <div class="sm:col-span-2">
           <div class="divider divider-start text-xs font-semibold text-base-content/50 uppercase tracking-wider my-1">
             Control de Stock
           </div>
-        </div>
-
-        <%# Stock Actual %>
-        <div class="w-full">
-          <%= f.label :stock_actual, 'Stock Actual', class: 'label pt-0' %>
-          <%= f.number_field :stock_actual, min: 0, class: 'input input-bordered w-full', placeholder: '0' %>
         </div>
 
         <%# Stock Mínimo %>
