@@ -36,3 +36,6 @@ application.register("page-transition", PageTransitionController)
 
 import PagoFinalizarController from "./pago_finalizar_controller"
 application.register("pago-finalizar", PagoFinalizarController)
+
+import PasswordVerificationController from "./password_verification_controller"
+application.register("password-verification", PasswordVerificationController)

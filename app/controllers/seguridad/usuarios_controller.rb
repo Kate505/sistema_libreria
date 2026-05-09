@@ -36,10 +36,6 @@ class Seguridad::UsuariosController < ApplicationController
 
   def create
     @usuario = User.new(usuario_params)
-    password_temporal = "Temporal123"
-
-    @usuario.password = password_temporal
-    @usuario.password_confirmation = password_temporal
 
     refresh_lists_for_view
 
@@ -64,9 +60,10 @@ class Seguridad::UsuariosController < ApplicationController
   end
 
   def update
+    refresh_lists_for_view
+    
     if @usuario.update(usuario_params)
       @usuarios = User.all.order(:email_address)
-      refresh_lists_for_view
 
       respond_to do |format|
         format.turbo_stream do
@@ -141,7 +138,12 @@ class Seguridad::UsuariosController < ApplicationController
   end
 
   def usuario_params
-    params.require(:user).permit(:email_address, :empleado_id, :pasivo)
+    p = params.require(:user).permit(:email_address, :empleado_id, :pasivo, :password, :password_confirmation)
+    if p[:password].blank? && p[:password_confirmation].blank?
+      p.delete(:password)
+      p.delete(:password_confirmation)
+    end
+    p
   end
 
   def refresh_lists_for_view
