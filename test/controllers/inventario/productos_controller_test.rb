@@ -59,6 +59,25 @@ class Inventario::ProductosControllerTest < ActionDispatch::IntegrationTest
     assert_equal marca.id, producto.marca_id
   end
 
+  test "consulta precios paginates results and preserves the search term in links" do
+    create_productos_for_consulta_precios!(11)
+
+    get consulta_precios_inventario_productos_path, params: { q: "Producto" }
+
+    assert_response :success
+    assert_includes response.body, "Producto 01"
+    assert_includes response.body, "Producto 10"
+    refute_includes response.body, "Producto 11"
+    assert_includes response.body, "q=Producto"
+    assert_includes response.body, "page=2"
+
+    get consulta_precios_inventario_productos_path, params: { q: "Producto", page: 2 }
+
+    assert_response :success
+    assert_includes response.body, "Producto 11"
+    refute_includes response.body, "Producto 01"
+  end
+
   private
 
   def ensure_menu_access_for!(user, menu_code)
@@ -80,5 +99,24 @@ class Inventario::ProductosControllerTest < ActionDispatch::IntegrationTest
 
     RolesMenu.find_or_create_by!(rol_id: rol.id, menu_id: menu.id)
     RolesUser.find_or_create_by!(rol_id: rol.id, user_id: user.id)
+  end
+
+  def create_productos_for_consulta_precios!(total)
+    categoria = Categoria.create!(nombre: "Categoría Consulta Precios #{rand(100_000)}")
+    sku_prefix = "TST-#{rand(100_000)}"
+
+    total.times do |index|
+      Producto.create!(
+        sku: "#{sku_prefix}-#{index + 1}",
+        nombre: format("Producto %02d", index + 1),
+        categoria: categoria,
+        descuento: false,
+        precio_venta: 10 + index,
+        precio_venta_al_mayor: 9 + index,
+        stock_actual: index,
+        stock_minimo_limite: 1,
+        stock_maximo_limite: 5
+      )
+    end
   end
 end

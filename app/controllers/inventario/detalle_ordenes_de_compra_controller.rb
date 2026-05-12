@@ -1,5 +1,6 @@
 class Inventario::DetalleOrdenesDeCompraController < ApplicationController
   before_action :set_orden
+  before_action :verificar_orden_abierta
   before_action :set_detalle, only: %i[destroy]
 
   # POST /inventario/ordenes_de_compra/:orden_de_compra_id/detalle_ordenes_de_compra
@@ -71,7 +72,7 @@ class Inventario::DetalleOrdenesDeCompraController < ApplicationController
           )
         ]
       end
-      format.html { redirect_to inventario_orden_de_compra_path(@orden_de_compra), notice: "Línea eliminada y stock revertido." }
+      format.html { redirect_to inventario_orden_de_compra_path(@orden_de_compra), notice: "Línea eliminada." }
     end
   end
 
@@ -86,7 +87,7 @@ class Inventario::DetalleOrdenesDeCompraController < ApplicationController
   end
 
   def detalles_recargados
-    @orden_de_compra.detalle_ordenes_de_compra.includes(:producto).order(:created_at)
+    @orden_de_compra.detalle_ordenes_de_compra.includes(:producto).order(:created_at).page(1).per(20)
   end
 
   def detalle_params
@@ -96,5 +97,23 @@ class Inventario::DetalleOrdenesDeCompraController < ApplicationController
       :precio_unitario_compra,
       :costo_unitario_compra_calculado
     )
+  end
+
+  def verificar_orden_abierta
+    return unless @orden_de_compra.finalizada?
+
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.replace(
+          "detalle_orden_form",
+          partial: "inventario/detalle_ordenes_de_compra/form",
+          locals: { orden_de_compra: @orden_de_compra, detalle: DetalleOrdenDeCompra.new }
+        ), status: :unprocessable_entity
+      end
+      format.html do
+        redirect_to inventario_orden_de_compra_path(@orden_de_compra),
+                    alert: "Esta orden ya fue finalizada. No se pueden modificar sus productos."
+      end
+    end
   end
 end

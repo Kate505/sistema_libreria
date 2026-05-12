@@ -56,12 +56,14 @@
             <%= f.label :fecha_desde, "Desde", class: "label py-0 text-xs text-base-content/60" %>
             <%= f.date_field :fecha_desde,
                              value: @fecha_desde.to_date.strftime("%Y-%m-%d"),
+                             max: Date.current.iso8601,
                              class: "input input-sm input-bordered w-36" %>
           </div>
           <div>
             <%= f.label :fecha_hasta, "Hasta", class: "label py-0 text-xs text-base-content/60" %>
             <%= f.date_field :fecha_hasta,
                              value: @fecha_hasta.to_date.strftime("%Y-%m-%d"),
+                             max: Date.current.iso8601,
                              class: "input input-sm input-bordered w-36" %>
           </div>
           <button type="submit" class="btn btn-sm btn-primary gap-1">

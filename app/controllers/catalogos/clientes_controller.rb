@@ -74,6 +74,6 @@ class Catalogos::ClientesController < ApplicationController
   end
 
   def cliente_params
-    params.require(:cliente).permit(:primer_nombre, :segundo_nombre, :primer_apellido, :segundo_apellido, :email)
+    params.require(:cliente).permit(:primer_nombre, :segundo_nombre, :primer_apellido, :segundo_apellido, :email, :cedula, :telefono)
   end
 end

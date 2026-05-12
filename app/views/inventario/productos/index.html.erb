@@ -5,7 +5,7 @@
   <div class="grid grid-rows-[auto_1fr] gap-6 h-[calc(100vh-10rem)] w-full">
 
     <div class="flex items-center shrink-0">
-      <h1 class="text-3xl font-bold">Gestión de Productos</h1>
+      <h1 class="text-3xl font-bold">Inventario de Productos</h1>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 min-h-0">
@@ -18,10 +18,8 @@
 
       <div class="card bg-base-100 shadow-xl col-span-2 flex flex-col h-full overflow-hidden">
 
-        <div class="flex-1 overflow-y-auto" id="productos_table_container">
-          <div id="productos_table" class="h-full">
-            <%= render "table", productos: @productos %>
-          </div>
+        <div id="productos_table" class="flex flex-col h-full overflow-hidden">
+          <%= render "table", productos: @productos %>
         </div>
 
       </div>

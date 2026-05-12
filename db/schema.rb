@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_22_090000) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_11_500002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -28,6 +28,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_22_090000) do
     t.string "email", limit: 100
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "cedula", limit: 16
+    t.string "telefono", limit: 8
   end
 
   create_table "configuracion_negocio", force: :cascade do |t|
@@ -59,6 +61,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_22_090000) do
     t.decimal "precio_historico_al_momento_de_venta", precision: 10, scale: 2
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "descuento_porcentaje", default: 0, null: false
+    t.decimal "total_linea", precision: 10, scale: 2
     t.index ["producto_id"], name: "index_detalle_venta_on_producto_id"
     t.index ["venta_id"], name: "index_detalle_venta_on_venta_id"
   end
@@ -73,6 +77,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_22_090000) do
     t.boolean "pasivo", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "cedula", limit: 16
+    t.string "telefono", limit: 8
   end
 
   create_table "gastos_operativos", force: :cascade do |t|
@@ -126,6 +132,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_22_090000) do
     t.decimal "costo_total_flete", precision: 10, scale: 2, default: "0.0"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "finalizada", default: false, null: false
     t.index ["proveedor_id"], name: "index_ordenes_de_compra_on_proveedor_id"
   end
 

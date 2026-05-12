@@ -1,3 +1,5 @@
+require "ostruct"
+
 class DetalleOrdenDeCompra < ApplicationRecord
   self.table_name = "detalle_ordenes_de_compra"
 
@@ -28,7 +30,7 @@ class DetalleOrdenDeCompra < ApplicationRecord
   before_validation :calcular_flete_prorrateado
 
   # Actualiza stock, CPP y precio_venta del producto al registrar la línea
-  after_create :aplicar_en_producto
+  # after_create :aplicar_en_producto
   # Después de crear esta línea, recalcula el flete de los OTROS detalles de la misma orden
   after_create :recalcular_flete_otros_detalles
 
@@ -36,7 +38,7 @@ class DetalleOrdenDeCompra < ApplicationRecord
   before_destroy :capturar_atributos_para_reversion
 
   # Revierte el stock del producto al eliminar la línea
-  after_destroy :revertir_en_producto
+  # after_destroy :revertir_en_producto
   # Después de eliminar esta línea, recalcula el flete de los detalles restantes
   after_destroy :recalcular_flete_otros_detalles
 
@@ -50,6 +52,11 @@ class DetalleOrdenDeCompra < ApplicationRecord
   # Flete unitario asignado a esta línea (diferencia entre costo calculado y precio compra)
   def flete_unitario_asignado
     costo_unitario_compra_calculado.to_d - precio_unitario_compra.to_d
+  end
+
+  # Aplica el impacto en inventario cuando la orden se finaliza.
+  def aplicar_en_producto!
+    producto.actualizar_por_compra!(self)
   end
 
   private
@@ -103,24 +110,19 @@ class DetalleOrdenDeCompra < ApplicationRecord
     valor_total = detalles.sum { |d| d.precio_unitario_compra.to_d * d.cantidad.to_i }
     return if valor_total <= 0
 
-    updates = detalles.map do |d|
+    detalles.each do |d|
       valor_linea    = d.precio_unitario_compra.to_d * d.cantidad.to_i
       flete_asignado = (valor_linea / valor_total) * flete_total
       flete_unit     = flete_asignado / d.cantidad.to_i
       nuevo_costo    = (d.precio_unitario_compra.to_d + flete_unit).round(4)
 
-      {
-        id: d.id,
-        costo_unitario_compra_calculado: nuevo_costo
-      }
+      d.update_columns(
+        costo_unitario_compra_calculado: nuevo_costo,
+        updated_at: Time.current
+      )
     end
-
-    DetalleOrdenDeCompra.upsert_all(updates, unique_by: :id) if updates.any?
   end
 
-  def aplicar_en_producto
-    producto.actualizar_por_compra!(self)
-  end
 
   def capturar_atributos_para_reversion
     @atributos_compra = {

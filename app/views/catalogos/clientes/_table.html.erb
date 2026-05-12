@@ -6,6 +6,8 @@
     <th>Segundo Nombre</th>
     <th>Primer Apellido</th>
     <th>Segundo Apellido</th>
+    <th>Cédula</th>
+    <th>Teléfono</th>
     <th>Email</th>
     <th class="text-right">Acciones</th>
   </tr>
@@ -19,6 +21,8 @@
       <td><%= cliente.segundo_nombre %></td>
       <td><%= cliente.primer_apellido %></td>
       <td><%= cliente.segundo_apellido %></td>
+      <td class="font-mono text-sm"><%= cliente.cedula.presence || "—" %></td>
+      <td class="font-mono text-sm"><%= cliente.telefono.presence || "—" %></td>
       <td><%= cliente.email %></td>
 
       <td class="flex gap-2 justify-end">

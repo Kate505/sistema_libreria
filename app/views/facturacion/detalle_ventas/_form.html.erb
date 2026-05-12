@@ -44,7 +44,7 @@
                data-controller="autocomplete"
                data-autocomplete-url-value="<%= buscar_producto_facturacion_ventas_path %>"
                data-action="click@window->autocomplete#hide"
-               data-autocomplete-extra-fields-value='{"precio_unitario_venta": "precio", "stock_info": "stock"}'>
+               data-autocomplete-extra-fields-value='{"precio_unitario_venta": "precio", "stock_info": "stock", "descuento_porcentaje": "descuento_maximo"}'>
 
             <%= f.label :producto_id, 'Producto', class: 'label pt-0' %>
             <%= f.hidden_field :producto_id, data: { autocomplete_target: "hidden" } %>
@@ -107,6 +107,23 @@
             </p>
           </div>
 
+          <%# Descuento %>
+          <div class="w-full">
+            <%= f.label :descuento_porcentaje, 'Descuento (%)', class: 'label pt-0' %>
+            <label class="input input-bordered flex items-center gap-2 w-full">
+              <%= f.number_field :descuento_porcentaje,
+                                 id: "descuento_porcentaje",
+                                 step: 1, min: 0, max: 100,
+                                 class: 'grow',
+                                 placeholder: '0',
+                                 value: detalle.descuento_porcentaje.to_i %>
+              <span class="text-base-content/60 text-sm font-semibold">%</span>
+            </label>
+            <p id="descuento_info" class="text-xs text-base-content/40 mt-1 hidden">
+              Descuento máximo del producto: <span id="descuento_max_value"></span>%
+            </p>
+          </div>
+
           <%# Acción %>
           <div class="card-actions justify-end mt-2 pt-4 border-t border-base-200">
             <button type="submit" class="btn btn-primary gap-2">
@@ -124,7 +141,7 @@
 </turbo-frame>
 
 <script>
-  // Al seleccionar un producto del autocomplete, rellena el precio unitario y muestra el stock.
+  // Al seleccionar un producto del autocomplete, rellena el precio unitario, stock y descuento.
   document.addEventListener("autocomplete:select", function(event) {
     const item = event.detail;
     if (item && item.precio !== undefined) {
@@ -137,6 +154,25 @@
       if (stockInfo && stockValue) {
         stockValue.textContent = item.stock;
         stockInfo.classList.remove("hidden");
+      }
+
+      // Auto-llenar descuento si el producto tiene descuento activo
+      const descuentoField = document.getElementById("descuento_porcentaje");
+      const descuentoInfo  = document.getElementById("descuento_info");
+      const descuentoMax   = document.getElementById("descuento_max_value");
+      if (descuentoField) {
+        if (item.descuento && item.descuento_maximo > 0) {
+          descuentoField.value = item.descuento_maximo;
+          descuentoField.max = item.descuento_maximo;
+          if (descuentoInfo && descuentoMax) {
+            descuentoMax.textContent = item.descuento_maximo;
+            descuentoInfo.classList.remove("hidden");
+          }
+        } else {
+          descuentoField.value = 0;
+          descuentoField.max = 100;
+          if (descuentoInfo) descuentoInfo.classList.add("hidden");
+        }
       }
     }
   });

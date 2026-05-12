@@ -3,12 +3,12 @@ class Inventario::ProductosController < ApplicationController
 
   def index
     @producto = Producto.new
-    @productos = Producto.includes(:categoria).all.order(:nombre)
+    @productos = Producto.includes(:categoria, :marca).all.order(:nombre).page(params[:page]).per(10)
   end
 
   def edit
     @producto = Producto.find_by(id: params[:id])
-    @productos = Producto.includes(:categoria).all.order(:nombre)
+    @productos = Producto.includes(:categoria, :marca).all.order(:nombre).page(params[:page]).per(10)
 
     respond_to do |format|
       format.html { render :index }
@@ -42,21 +42,23 @@ class Inventario::ProductosController < ApplicationController
 
   def consulta_precios
     @q = params[:q].to_s.strip
-    @productos = Producto.includes(:categoria)
-                         .order(:nombre)
+    @productos = Producto.preload(:categoria)
+                         .order(:nombre, :id)
     unless @q.blank?
-      @productos = @productos.where(
+      @productos = @productos.left_joins(:categoria).where(
         "productos.nombre ILIKE :term OR productos.sku ILIKE :term OR categorias.nombre ILIKE :term",
         term: "%#{@q}%"
-      ).joins(:categoria)
+      )
     end
+
+    @productos = @productos.page(params[:page]).per(10)
   end
 
   def create
     @producto = Producto.new(producto_params)
 
     if @producto.save
-      @productos = Producto.includes(:categoria).all.order(:nombre)
+      @productos = Producto.includes(:categoria, :marca).all.order(:nombre).page(1).per(10)
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
@@ -78,7 +80,7 @@ class Inventario::ProductosController < ApplicationController
 
   def update
     if @producto.update(producto_params)
-      @productos = Producto.includes(:categoria).all.order(:nombre)
+      @productos = Producto.includes(:categoria, :marca).all.order(:nombre).page(1).per(10)
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
@@ -100,7 +102,7 @@ class Inventario::ProductosController < ApplicationController
 
   def destroy
     @producto.destroy
-    @productos = Producto.includes(:categoria).all.order(:nombre)
+    @productos = Producto.includes(:categoria, :marca).all.order(:nombre).page(1).per(10)
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [

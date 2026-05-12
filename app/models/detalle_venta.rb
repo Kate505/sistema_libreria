@@ -18,6 +18,10 @@ class DetalleVenta < ApplicationRecord
             numericality: { greater_than_or_equal_to: 0 },
             allow_blank: true
 
+  validates :descuento_porcentaje,
+            numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100, only_integer: true },
+            allow_nil: true
+
   validates :producto_id,
             uniqueness: { scope: :venta_id, message: "ya está agregado a la venta. Edite la cantidad." }
 
@@ -26,6 +30,9 @@ class DetalleVenta < ApplicationRecord
 
   # Pre-llenar precio y precio histórico desde el producto
   before_validation :asignar_datos_producto, on: :create
+
+  # Calcular total_linea antes de guardar
+  before_save :calcular_total_linea
 
   # Recalcular cantidad_total de la venta padre al guardar o eliminar una línea
   after_save    :actualizar_total_venta
@@ -42,8 +49,14 @@ class DetalleVenta < ApplicationRecord
 
   # ── Helpers públicos ──────────────────────────────────────────────────────
 
-  def subtotal
+  def subtotal_sin_descuento
     (cantidad || 0) * (precio_unitario_venta || 0)
+  end
+
+  def subtotal
+    bruto = subtotal_sin_descuento
+    desc  = descuento_porcentaje.to_i
+    desc > 0 ? (bruto * (1 - desc / 100.0)).round(2) : bruto
   end
 
   private
@@ -55,6 +68,19 @@ class DetalleVenta < ApplicationRecord
 
     self.precio_unitario_venta                ||= producto.precio_venta
     self.precio_historico_al_momento_de_venta ||= producto.precio_venta
+
+    # Aplicar descuento del producto si tiene descuento activo
+    if self.descuento_porcentaje.blank? || self.descuento_porcentaje == 0
+      if producto.descuento? && producto.descuento_maximo.to_i > 0
+        self.descuento_porcentaje = producto.descuento_maximo
+      else
+        self.descuento_porcentaje ||= 0
+      end
+    end
+  end
+
+  def calcular_total_linea
+    self.total_linea = subtotal
   end
 
   def stock_suficiente
@@ -66,7 +92,7 @@ class DetalleVenta < ApplicationRecord
   end
 
   def actualizar_total_venta
-    total = venta.detalle_ventas.sum("cantidad * precio_unitario_venta")
+    total = venta.detalle_ventas.sum(:total_linea)
     venta.update_column(:cantidad_total, total)
   end
 

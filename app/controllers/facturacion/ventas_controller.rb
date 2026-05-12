@@ -227,7 +227,9 @@ class Facturacion::VentasController < ApplicationController
         id: p.id,
         text: "#{p.sku.presence || '—'} · #{p.nombre}",
         precio: p.precio_venta.to_s,
-        stock: p.stock_actual
+        stock: p.stock_actual,
+        descuento: p.descuento?,
+        descuento_maximo: p.descuento_maximo.to_i
       }
     }
   end

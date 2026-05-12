@@ -53,6 +53,7 @@
             <input type="date"
                    name="fecha_desde"
                    value="<%= params[:fecha_desde] %>"
+                   max="<%= Date.current.iso8601 %>"
                    class="input input-bordered input-sm w-full">
           </div>
 
@@ -64,6 +65,7 @@
             <input type="date"
                    name="fecha_hasta"
                    value="<%= params[:fecha_hasta] %>"
+                   max="<%= Date.current.iso8601 %>"
                    class="input input-bordered input-sm w-full">
           </div>
 

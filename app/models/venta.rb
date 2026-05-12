@@ -11,6 +11,7 @@ class Venta < ApplicationRecord
   }.freeze
 
   validates :fecha_venta, presence: true
+  validate :fecha_venta_no_futura
 
   # Auditoría: usuario que registró la venta.
   # Se setea automáticamente desde `Current.user` al crear.
@@ -59,5 +60,13 @@ class Venta < ApplicationRecord
 
   def inicializar_cantidad_total
     self.cantidad_total ||= 0
+  end
+
+  def fecha_venta_no_futura
+    return if fecha_venta.blank?
+
+    if fecha_venta > Time.current
+      errors.add(:fecha_venta, "no puede ser una fecha futura")
+    end
   end
 end

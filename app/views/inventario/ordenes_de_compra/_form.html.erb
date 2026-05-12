@@ -26,6 +26,7 @@
         <div class="w-full sm:col-span-2 relative"
              data-controller="autocomplete"
              data-autocomplete-url-value="<%= buscar_proveedor_inventario_ordenes_de_compra_path %>"
+             data-autocomplete-create-url-value="<%= crear_proveedor_inventario_ordenes_de_compra_path %>"
              data-action="click@window->autocomplete#hide">
 
           <%= f.label :proveedor_id, 'Proveedor', class: 'label pt-0' %>
@@ -56,6 +57,7 @@
           <%= f.label :fecha_compra, 'Fecha de Compra', class: 'label pt-0' %>
           <%= f.date_field :fecha_compra,
                            class: 'input input-bordered w-full',
+                           max: Date.current.iso8601,
                            required: true %>
         </div>
 

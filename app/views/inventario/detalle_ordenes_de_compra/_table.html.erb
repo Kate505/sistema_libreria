@@ -45,17 +45,21 @@
       </td>
 
       <td class="text-right">
-        <%= link_to inventario_orden_de_compra_detalle_ordenes_de_compra_path(orden_de_compra, detalle),
-                    data: { turbo_method: :delete,
-                            turbo_confirm: "¿Eliminar #{detalle.producto.nombre} de esta orden? Se revertirán #{detalle.cantidad} unidades del stock." },
-                    class: "btn btn-sm btn-ghost btn-square text-error",
-                    title: "Eliminar línea" do %>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="3 6 5 6 21 6"/>
-            <path d="M19 6l-1 14H6L5 6"/>
-            <path d="M10 11v6M14 11v6"/>
-            <path d="M9 6V4h6v2"/>
-          </svg>
+        <% if orden_de_compra.pendiente? %>
+          <%= link_to inventario_orden_de_compra_detalle_orden_de_compra_path(orden_de_compra, detalle),
+                      data: { turbo_method: :delete,
+                              turbo_confirm: "¿Eliminar #{detalle.producto.nombre} de esta orden? Se revertirán #{detalle.cantidad} unidades del stock." },
+                      class: "btn btn-sm btn-ghost btn-square text-error",
+                      title: "Eliminar línea" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6l-1 14H6L5 6"/>
+              <path d="M10 11v6M14 11v6"/>
+              <path d="M9 6V4h6v2"/>
+            </svg>
+          <% end %>
+        <% else %>
+          <span class="text-base-content/20 text-xs italic">—</span>
         <% end %>
       </td>
 
@@ -88,3 +92,9 @@
     </tfoot>
   <% end %>
 </table>
+
+<% if detalles.respond_to?(:total_pages) && detalles.total_pages > 1 %>
+  <div class="flex justify-center py-4 border-t border-base-200">
+    <%= paginate detalles, param_name: :page %>
+  </div>
+<% end %>

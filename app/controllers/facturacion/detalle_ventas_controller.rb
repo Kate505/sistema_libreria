@@ -94,7 +94,8 @@ class Facturacion::DetalleVentasController < ApplicationController
     params.require(:detalle_venta).permit(
       :producto_id,
       :cantidad,
-      :precio_unitario_venta
+      :precio_unitario_venta,
+      :descuento_porcentaje
     )
   end
 

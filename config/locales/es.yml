@@ -96,3 +96,16 @@ es:
     attributes:
       empleado:
         fecha_contratacion: "Fecha de Contratación"
+      orden_de_compra:
+        proveedor: "Proveedor"
+        fecha_compra: "Fecha de Compra"
+        numero_factura: "N° Factura"
+        costo_total_flete: "Costo de Flete"
+      detalle_orden_de_compra:
+        producto: "Producto"
+        cantidad: "Cantidad"
+        precio_unitario_compra: "Precio Unitario de Compra"
+    errors:
+      messages:
+        required: "es requerido"
+        blank: "no puede estar vacío"

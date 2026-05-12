@@ -4,7 +4,8 @@
       <th>Producto</th>
       <th class="text-center">Cantidad</th>
       <th class="text-right">P. Venta Unit.</th>
-      <th class="text-right">Subtotal</th>
+      <th class="text-center">Desc. %</th>
+      <th class="text-right">Total</th>
       <th class="text-right">Acción</th>
     </tr>
   </thead>
@@ -36,8 +37,16 @@
         C$ <%= number_with_precision(detalle.precio_unitario_venta, precision: 2, delimiter: ',') %>
       </td>
 
+      <td class="text-center tabular-nums text-sm">
+        <% if detalle.descuento_porcentaje.to_i > 0 %>
+          <span class="badge badge-warning badge-sm"><%= detalle.descuento_porcentaje %>%</span>
+        <% else %>
+          <span class="text-base-content/30">—</span>
+        <% end %>
+      </td>
+
       <td class="text-right font-semibold tabular-nums">
-        C$ <%= number_with_precision(detalle.subtotal, precision: 2, delimiter: ',') %>
+        C$ <%= number_with_precision(detalle.total_linea || detalle.subtotal, precision: 2, delimiter: ',') %>
       </td>
 
       <td class="text-right">
@@ -69,7 +78,7 @@
 
   <% if detalles.empty? %>
     <tr>
-      <td colspan="5" class="text-center py-16 text-base-content/40">
+      <td colspan="6" class="text-center py-16 text-base-content/40">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-3 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
         </svg>
@@ -83,9 +92,9 @@
   <% if detalles.any? %>
     <tfoot>
       <tr class="bg-base-200/50">
-        <td colspan="3" class="text-right font-semibold text-sm">Total Venta:</td>
+        <td colspan="4" class="text-right font-semibold text-sm">Total Venta:</td>
         <td class="text-right font-bold tabular-nums">
-          <% total = detalles.sum { |d| d.subtotal } %>
+          <% total = detalles.sum { |d| d.total_linea || d.subtotal } %>
           C$ <%= number_with_precision(total, precision: 2, delimiter: ',') %>
         </td>
         <td></td>
