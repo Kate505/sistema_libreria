@@ -19,7 +19,7 @@
             <span class="text-base-content/50 font-normal text-xl">— <%= @orden_de_compra.proveedor.nombre %></span>
           </h1>
           <p class="text-sm text-base-content/50">
-            <%= l(@orden_de_compra.fecha_compra, format: :long) rescue @orden_de_compra.fecha_compra.strftime("%d/%m/%Y") %>
+            <%= @orden_de_compra.fecha_compra.strftime("%d/%m/%Y") %>
             <% if @orden_de_compra.numero_factura.present? %>
               · Factura: <span class="font-medium"><%= @orden_de_compra.numero_factura %></span>
             <% end %>

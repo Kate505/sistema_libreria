@@ -27,14 +27,15 @@
           <%= f.text_field :segundo_apellido, class: 'input input-bordered w-full', placeholder: 'Segundo Apellido' %>
         </div>
 
-        <div class="w-full">
+        <div class="w-full" data-controller="cedula-mask">
           <%= f.label :cedula, 'Cédula', class: 'label pt-0' %>
           <%= f.text_field :cedula,
                            class: 'input input-bordered w-full validator',
                            placeholder: '000-000000-0000X',
                            pattern: '\d{3}-\d{6}-\d{4}[A-Z]',
                            maxlength: 16,
-                           title: 'Formato: 000-000000-0000X (3 dígitos - 6 dígitos - 4 dígitos y 1 letra mayúscula)' %>
+                           title: 'Formato: 000-000000-0000X (3 dígitos - 6 dígitos - 4 dígitos y 1 letra mayúscula)',
+                           data: { cedula_mask_target: 'input' } %>
           <p class="validator-hint">Formato: 000-000000-0000X</p>
         </div>
 
@@ -71,6 +72,7 @@
           <%= f.date_field :fecha_contratacion,
                            value: f.object.fecha_contratacion&.strftime('%Y-%m-%d'),
                            max: Date.current.iso8601,
+                           data: { controller: 'datepicker' },
                            class: 'input input-bordered w-full validator' %>
         </div>
 

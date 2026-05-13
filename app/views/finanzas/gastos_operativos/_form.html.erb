@@ -28,6 +28,7 @@
           <%= f.date_field :fecha,
                            class: 'input input-bordered w-full validator',
                            max: Date.current.iso8601,
+                           data: { controller: 'datepicker' },
                            required: true %>
         </div>
 

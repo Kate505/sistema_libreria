@@ -1,6 +1,8 @@
 class Cliente < ApplicationRecord
   self.table_name = "clientes"
 
+  before_validation :strip_cedula_dashes
+
   validates :primer_nombre,
             :primer_apellido,
             presence: true,
@@ -20,6 +22,18 @@ class Cliente < ApplicationRecord
 
   validates :cedula,
             uniqueness: true,
-            format: { with: /\A\d{3}-\d{6}-\d{4}[A-Z]\z/, message: "debe tener formato: 000-000000-0000X (3 dígitos - 6 dígitos fecha nacimiento - 4 dígitos y 1 letra mayúscula)" },
+            format: { with: /\A\d{13}[A-Z]\z/, message: "debe tener formato: 000-000000-0000X (3 dígitos - 6 dígitos fecha nacimiento - 4 dígitos y 1 letra mayúscula)" },
             allow_blank: true
+
+  # Formato con guiones para mostrar en vistas
+  def cedula_formateada
+    return nil if cedula.blank?
+    "#{cedula[0..2]}-#{cedula[3..8]}-#{cedula[9..13]}"
+  end
+
+  private
+
+  def strip_cedula_dashes
+    self.cedula = cedula.gsub("-", "") if cedula.present?
+  end
 end

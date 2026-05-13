@@ -30,12 +30,14 @@
             <div class="min-w-[130px]">
               <label class="label pt-0 pb-1"><span class="label-text text-xs font-semibold">Desde</span></label>
               <input type="date" name="fecha_desde" value="<%= params[:fecha_desde] %>"
-                     max="<%= Date.current.iso8601 %>" class="input input-bordered input-sm w-full">
+                     max="<%= Date.current.iso8601 %>" class="input input-bordered input-sm w-full"
+                     data-controller="datepicker">
             </div>
             <div class="min-w-[130px]">
               <label class="label pt-0 pb-1"><span class="label-text text-xs font-semibold">Hasta</span></label>
               <input type="date" name="fecha_hasta" value="<%= params[:fecha_hasta] %>"
-                     max="<%= Date.current.iso8601 %>" class="input input-bordered input-sm w-full">
+                     max="<%= Date.current.iso8601 %>" class="input input-bordered input-sm w-full"
+                     data-controller="datepicker">
             </div>
             <button type="submit" class="btn btn-primary btn-sm gap-1">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -3,6 +3,8 @@ class Empleado < ApplicationRecord
 
   has_one :user, dependent: :nullify
 
+  before_validation :strip_cedula_dashes
+
   normalizes :primer_nombre, :segundo_nombre, :primer_apellido, :segundo_apellido, :cargo,
              with: ->(valor) { valor.strip.titleize }
 
@@ -24,7 +26,7 @@ class Empleado < ApplicationRecord
 
   validates :cedula,
             uniqueness: true,
-            format: { with: /\A\d{3}-\d{6}-\d{4}[A-Z]\z/, message: "debe tener formato: 000-000000-0000X (3 dígitos - 6 dígitos fecha nacimiento - 4 dígitos y 1 letra mayúscula)" },
+            format: { with: /\A\d{13}[A-Z]\z/, message: "debe tener formato: 000-000000-0000X (3 dígitos - 6 dígitos fecha nacimiento - 4 dígitos y 1 letra mayúscula)" },
             allow_blank: true
 
   validate :fecha_contratacion_no_futura
@@ -54,7 +56,17 @@ class Empleado < ApplicationRecord
     )
   }
 
+  # Formato con guiones para mostrar en vistas
+  def cedula_formateada
+    return nil if cedula.blank?
+    "#{cedula[0..2]}-#{cedula[3..8]}-#{cedula[9..13]}"
+  end
+
   private
+
+  def strip_cedula_dashes
+    self.cedula = cedula.gsub("-", "") if cedula.present?
+  end
 
   def fecha_contratacion_no_futura
     return if fecha_contratacion.blank?

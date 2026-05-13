@@ -36,3 +36,9 @@ application.register("page-transition", PageTransitionController)
 
 import PagoFinalizarController from "./pago_finalizar_controller"
 application.register("pago-finalizar", PagoFinalizarController)
+
+import CedulaMaskController from "./cedula_mask_controller"
+application.register("cedula-mask", CedulaMaskController)
+
+import DatepickerController from "./datepicker_controller"
+application.register("datepicker", DatepickerController)

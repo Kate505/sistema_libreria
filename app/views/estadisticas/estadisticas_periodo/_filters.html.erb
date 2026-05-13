@@ -42,14 +42,14 @@
       <div class="flex items-end gap-2 flex-wrap">
         <div>
           <%= f.label :fecha_desde, "Desde", class: "label py-0 text-xs text-base-content/60" %>
-          <%= f.date_field :fecha_desde,
+          <%= f.date_field :fecha_desde, data: { controller: "datepicker" },
                            value: @fecha_desde.to_date.strftime("%Y-%m-%d"),
                            max: Date.current.iso8601,
                            class: "input input-sm input-bordered w-36" %>
         </div>
         <div>
           <%= f.label :fecha_hasta, "Hasta", class: "label py-0 text-xs text-base-content/60" %>
-          <%= f.date_field :fecha_hasta,
+          <%= f.date_field :fecha_hasta, data: { controller: "datepicker" },
                            value: @fecha_hasta.to_date.strftime("%Y-%m-%d"),
                            max: Date.current.iso8601,
                            class: "input input-sm input-bordered w-36" %>
