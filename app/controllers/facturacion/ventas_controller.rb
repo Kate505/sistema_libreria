@@ -214,6 +214,7 @@ class Facturacion::VentasController < ApplicationController
 
     @total_general = @ventas.sum(:cantidad_total)
     @total_ventas  = @ventas.count
+    @ventas = @ventas.page(params[:page]).per(10)
   end
 
   # GET /facturacion/ventas/buscar_producto?q=término
@@ -227,6 +228,7 @@ class Facturacion::VentasController < ApplicationController
         id: p.id,
         text: "#{p.sku.presence || '—'} · #{p.nombre}",
         precio: p.precio_venta.to_s,
+        precio_mayor: p.precio_venta_al_mayor.to_s,
         stock: p.stock_actual,
         descuento: p.descuento?,
         descuento_maximo: p.descuento_maximo.to_i

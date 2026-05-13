@@ -4,6 +4,16 @@ class Catalogos::ClientesController < ApplicationController
   def index
     @cliente = Cliente.new
     @clientes = Cliente.all.order(:primer_apellido)
+
+    if params[:q].present?
+      q = "%#{params[:q]}%"
+      @clientes = @clientes.where(
+        "primer_nombre ILIKE :q OR segundo_nombre ILIKE :q OR primer_apellido ILIKE :q OR segundo_apellido ILIKE :q OR cedula ILIKE :q OR telefono ILIKE :q",
+        q: q
+      )
+    end
+
+    @clientes = @clientes.page(params[:page]).per(10)
   end
 
   def edit
@@ -14,12 +24,11 @@ class Catalogos::ClientesController < ApplicationController
   def create
     @cliente = Cliente.new(cliente_params)
     if @cliente.save
-      @clientes = Cliente.all.order(:primer_apellido)
+      @clientes = Cliente.all.order(:primer_apellido).page(1).per(10)
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
             turbo_stream.update("clientes_table", partial: "catalogos/clientes/table", locals: { clientes: @clientes }),
-
             turbo_stream.replace("cliente_form", partial: "catalogos/clientes/form", locals: { cliente: Cliente.new })
           ]
         end
@@ -35,7 +44,7 @@ class Catalogos::ClientesController < ApplicationController
 
   def update
     if @cliente.update(cliente_params)
-      @clientes = Cliente.all.order(:primer_apellido)
+      @clientes = Cliente.all.order(:primer_apellido).page(1).per(10)
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
@@ -55,7 +64,7 @@ class Catalogos::ClientesController < ApplicationController
 
   def destroy
     @cliente.destroy
-    @clientes = Cliente.all.order(:primer_apellido)
+    @clientes = Cliente.all.order(:primer_apellido).page(1).per(10)
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [

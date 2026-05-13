@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_11_500002) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_11_500003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -82,8 +82,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_11_500002) do
   end
 
   create_table "gastos_operativos", force: :cascade do |t|
-    t.integer "periodo_mes", null: false
-    t.integer "periodo_year", null: false
+    t.integer "periodo_mes"
+    t.integer "periodo_year"
     t.decimal "costos_alquiler", precision: 10, scale: 2, default: "0.0"
     t.decimal "costo_utilidades", precision: 10, scale: 2, default: "0.0"
     t.decimal "costo_mantenimiento", precision: 10, scale: 2, default: "0.0"
@@ -91,7 +91,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_11_500002) do
     t.decimal "gran_total_gastos", precision: 10, scale: 2
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["periodo_mes", "periodo_year"], name: "index_gastos_operativos_on_periodo_mes_and_periodo_year", unique: true
+    t.date "fecha"
+    t.decimal "cantidad", precision: 10, scale: 2
+    t.string "descripcion", limit: 255
   end
 
   create_table "marcas", force: :cascade do |t|

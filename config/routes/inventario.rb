@@ -16,6 +16,8 @@ namespace :inventario do
       get :buscar_categoria
       get :buscar_marca
       get :consulta_precios
+      post :crear_categoria
+      post :crear_marca
     end
   end
 end

@@ -6,13 +6,23 @@ class Finanzas::GastosOperativosController < ApplicationController
 
   def index
     @gasto_operativo = GastoOperativo.new
-    @gastos_operativos = GastoOperativo.all.order(periodo_year: :desc, periodo_mes: :desc)
+    @gastos_operativos = GastoOperativo.por_fecha_desc
+
+    if params[:q].present?
+      @gastos_operativos = @gastos_operativos.buscar(params[:q])
+    end
+
+    if params[:fecha_desde].present? || params[:fecha_hasta].present?
+      @gastos_operativos = @gastos_operativos.por_rango_fecha(params[:fecha_desde], params[:fecha_hasta])
+    end
+
+    @gastos_operativos = @gastos_operativos.page(params[:page]).per(10)
   end
 
   def edit
     respond_to do |format|
       format.html do
-        @gastos_operativos = GastoOperativo.all.order(periodo_year: :desc, periodo_mes: :desc)
+        @gastos_operativos = GastoOperativo.por_fecha_desc.page(1).per(10)
         render :index
       end
       format.turbo_stream do
@@ -29,7 +39,7 @@ class Finanzas::GastosOperativosController < ApplicationController
     @gasto_operativo = GastoOperativo.new(gasto_operativo_params)
 
     if @gasto_operativo.save
-      @gastos_operativos = GastoOperativo.all.order(periodo_year: :desc, periodo_mes: :desc)
+      @gastos_operativos = GastoOperativo.por_fecha_desc.page(1).per(10)
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
@@ -59,7 +69,7 @@ class Finanzas::GastosOperativosController < ApplicationController
 
   def update
     if @gasto_operativo.update(gasto_operativo_params)
-      @gastos_operativos = GastoOperativo.all.order(periodo_year: :desc, periodo_mes: :desc)
+      @gastos_operativos = GastoOperativo.por_fecha_desc.page(1).per(10)
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
@@ -89,7 +99,7 @@ class Finanzas::GastosOperativosController < ApplicationController
 
   def destroy
     @gasto_operativo.destroy
-    @gastos_operativos = GastoOperativo.all.order(periodo_year: :desc, periodo_mes: :desc)
+    @gastos_operativos = GastoOperativo.por_fecha_desc.page(1).per(10)
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [
@@ -105,7 +115,6 @@ class Finanzas::GastosOperativosController < ApplicationController
     end
   end
 
-
   private
 
   def set_gasto_operativo
@@ -113,12 +122,6 @@ class Finanzas::GastosOperativosController < ApplicationController
   end
 
   def gasto_operativo_params
-    params.require(:gasto_operativo).permit(
-      :periodo_mes,
-      :periodo_year,
-      :costos_alquiler,
-      :costo_utilidades,
-      :costo_mantenimiento
-    )
+    params.require(:gasto_operativo).permit(:fecha, :cantidad, :descripcion)
   end
 end

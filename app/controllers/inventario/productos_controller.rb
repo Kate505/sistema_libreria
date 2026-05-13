@@ -3,7 +3,16 @@ class Inventario::ProductosController < ApplicationController
 
   def index
     @producto = Producto.new
-    @productos = Producto.includes(:categoria, :marca).all.order(:nombre).page(params[:page]).per(10)
+    @productos = Producto.includes(:categoria, :marca).all.order(:nombre)
+
+    if params[:q].present?
+      @productos = @productos.left_joins(:categoria).where(
+        "productos.nombre ILIKE :q OR productos.sku ILIKE :q OR categorias.nombre ILIKE :q",
+        q: "%#{params[:q]}%"
+      )
+    end
+
+    @productos = @productos.page(params[:page]).per(10)
   end
 
   def edit
@@ -38,6 +47,36 @@ class Inventario::ProductosController < ApplicationController
     @marcas = @marcas.limit(10)
 
     render json: @marcas.map { |m| { id: m.id, text: m.nombre } }
+  end
+
+  # POST /inventario/productos/crear_categoria
+  def crear_categoria
+    nombre = params[:nombre].to_s.strip
+    return render json: { error: "Nombre requerido" }, status: :unprocessable_entity if nombre.blank?
+
+    categoria = Categoria.find_or_initialize_by(nombre: nombre)
+    if categoria.new_record?
+      categoria.save!
+    end
+
+    render json: { id: categoria.id, text: categoria.nombre }, status: :created
+  rescue ActiveRecord::RecordInvalid => e
+    render json: { error: e.record.errors.full_messages.to_sentence }, status: :unprocessable_entity
+  end
+
+  # POST /inventario/productos/crear_marca
+  def crear_marca
+    nombre = params[:nombre].to_s.strip
+    return render json: { error: "Nombre requerido" }, status: :unprocessable_entity if nombre.blank?
+
+    marca = Marca.find_or_initialize_by(nombre: nombre)
+    if marca.new_record?
+      marca.save!
+    end
+
+    render json: { id: marca.id, text: marca.nombre }, status: :created
+  rescue ActiveRecord::RecordInvalid => e
+    render json: { error: e.record.errors.full_messages.to_sentence }, status: :unprocessable_entity
   end
 
   def consulta_precios

@@ -63,7 +63,7 @@ module Pdf
     end
 
     def tabla_detalles
-      tabla_datos = [["Cantidad", "Producto", "P. Unitario (C$)", "Desc. %", "Total (C$)"]]
+      tabla_datos = [["Cantidad", "Producto", "P. Unitario (C$)", "Subtotal (C$)", "Desc. %", "Total (C$)"]]
       
       @detalles.each do |detalle|
         desc_text = detalle.descuento_porcentaje.to_i > 0 ? "#{detalle.descuento_porcentaje}%" : "—"
@@ -73,6 +73,7 @@ module Pdf
           detalle.cantidad.to_s,
           detalle.producto.nombre,
           ActionController::Base.helpers.number_with_precision(detalle.precio_unitario_venta, precision: 2, delimiter: ','),
+          ActionController::Base.helpers.number_with_precision(detalle.subtotal_sin_descuento, precision: 2, delimiter: ','),
           desc_text,
           ActionController::Base.helpers.number_with_precision(total, precision: 2, delimiter: ',')
         ]
@@ -85,8 +86,9 @@ module Pdf
         
         columns(0).align = :center
         columns(2).align = :right
-        columns(3).align = :center
-        columns(4).align = :right
+        columns(3).align = :right
+        columns(4).align = :center
+        columns(5).align = :right
         
         cells.padding = 8
         cells.borders = [:bottom]

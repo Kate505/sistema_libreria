@@ -19,6 +19,7 @@ class Cliente < ApplicationRecord
             allow_blank: true
 
   validates :cedula,
+            uniqueness: true,
             format: { with: /\A\d{3}-\d{6}-\d{4}[A-Z]\z/, message: "debe tener formato: 000-000000-0000X (3 dígitos - 6 dígitos fecha nacimiento - 4 dígitos y 1 letra mayúscula)" },
             allow_blank: true
 end

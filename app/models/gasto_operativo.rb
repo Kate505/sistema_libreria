@@ -1,54 +1,44 @@
 class GastoOperativo < ApplicationRecord
   self.table_name = "gastos_operativos"
 
+  validates :fecha, presence: true
+  validates :cantidad, presence: true, numericality: { greater_than: 0 }
+  validates :descripcion, presence: true, length: { maximum: 255 }
 
-  validates :periodo_mes,
-            presence: true,
-            inclusion: { in: 1..12, message: "Debe ser un número entre 1 y 12" }
+  validate :fecha_no_futura
 
-  validates :periodo_year,
-            presence: true,
-            numericality: { only_integer: true, greater_than: 2000 }
+  before_save :sincronizar_campos_legados
 
-  validates :periodo_mes,
-            uniqueness: {
-              scope: :periodo_year,
-              message: "ya ha sido registrado para este año"
-            }
+  scope :por_fecha_desc, -> { order(fecha: :desc) }
 
-  validates :costos_alquiler, :costo_utilidades, :costo_mantenimiento,
-            numericality: { greater_than_or_equal_to: 0 }
-
-  before_save :calcular_total_gastos
-
-  scope :ultimos_n_meses, ->(n) {
-    fecha_inicio = n.months.ago.beginning_of_month
-    where("MAKE_DATE(periodo_year, periodo_mes, 1) >= ?", fecha_inicio)
+  scope :buscar, ->(q) {
+    return all if q.blank?
+    where("descripcion ILIKE ?", "%#{q}%")
   }
 
-  NOMBRES_MESES = {
-    1 => "Enero", 2 => "Febrero", 3 => "Marzo", 4 => "Abril",
-    5 => "Mayo", 6 => "Junio", 7 => "Julio", 8 => "Agosto",
-    9 => "Septiembre", 10 => "Octubre", 11 => "Noviembre", 12 => "Diciembre"
-  }.freeze
-
-  def nombre_mes
-    return unless periodo_mes
-    NOMBRES_MESES[periodo_mes]
-  end
-
-  def periodo_legible
-    "#{nombre_mes} #{periodo_year}"
-  end
-
+  scope :por_rango_fecha, ->(desde, hasta) {
+    scope = all
+    scope = scope.where("fecha >= ?", desde.to_date) if desde.present?
+    scope = scope.where("fecha <= ?", hasta.to_date) if hasta.present?
+    scope
+  }
 
   private
 
-  def calcular_total_gastos
-    self.gran_total_gastos = [
-      costos_alquiler,
-      costo_utilidades,
-      costo_mantenimiento
-    ].sum
+  def fecha_no_futura
+    return if fecha.blank?
+    errors.add(:fecha, "no puede ser una fecha futura") if fecha > Date.current
+  end
+
+  # Mantener campos legados sincronizados por si reportes viejos los usan
+  def sincronizar_campos_legados
+    if fecha.present?
+      self.periodo_mes  = fecha.month
+      self.periodo_year = fecha.year
+    end
+    self.gran_total_gastos = cantidad
+    self.costos_alquiler      ||= 0
+    self.costo_utilidades     ||= 0
+    self.costo_mantenimiento  ||= 0
   end
 end

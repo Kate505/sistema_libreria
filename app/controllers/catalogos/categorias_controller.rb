@@ -4,6 +4,12 @@ class Catalogos::CategoriasController < ApplicationController
   def index
     @categoria = Categoria.new
     @categorias = Categoria.all.order(:nombre)
+
+    if params[:q].present?
+      @categorias = @categorias.where("nombre ILIKE ?", "%#{params[:q]}%")
+    end
+
+    @categorias = @categorias.page(params[:page]).per(10)
   end
 
   def edit
@@ -14,12 +20,11 @@ class Catalogos::CategoriasController < ApplicationController
   def create
     @categoria = Categoria.new(categoria_params)
     if @categoria.save
-      @categorias = Categoria.all.order(:nombre)
+      @categorias = Categoria.all.order(:nombre).page(1).per(10)
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
             turbo_stream.update("categorias_table", partial: "catalogos/categorias/table", locals: { categorias: @categorias }),
-
             turbo_stream.replace("categoria_form", partial: "catalogos/categorias/form", locals: { categoria: Categoria.new })
           ]
         end
@@ -35,7 +40,7 @@ class Catalogos::CategoriasController < ApplicationController
 
   def update
     if @categoria.update(categoria_params)
-      @categorias = Categoria.all.order(:nombre)
+      @categorias = Categoria.all.order(:nombre).page(1).per(10)
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
@@ -55,7 +60,7 @@ class Catalogos::CategoriasController < ApplicationController
 
   def destroy
     @categoria.destroy
-    @categorias = Categoria.all.order(:nombre)
+    @categorias = Categoria.all.order(:nombre).page(1).per(10)
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [

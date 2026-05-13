@@ -55,6 +55,7 @@
               <th>Producto</th>
               <th class="text-center">Cant.</th>
               <th class="text-right">Precio</th>
+              <th class="text-right">Subtotal</th>
               <th class="text-center">Desc. %</th>
               <th class="text-right">Total</th>
             </tr>
@@ -81,6 +82,10 @@
                   C$ <%= number_with_precision(detalle.precio_unitario_venta, precision: 2, delimiter: ',') %>
                 </td>
 
+                <td class="text-right tabular-nums text-base-content/60">
+                  C$ <%= number_with_precision(detalle.subtotal_sin_descuento, precision: 2, delimiter: ',') %>
+                </td>
+
                 <td class="text-center tabular-nums">
                   <% if detalle.descuento_porcentaje.to_i > 0 %>
                     <span class="badge badge-warning badge-xs"><%= detalle.descuento_porcentaje %>%</span>
@@ -97,7 +102,7 @@
           </tbody>
           <tfoot>
             <tr class="bg-base-200/50 font-semibold">
-              <td colspan="4" class="text-right">Total</td>
+              <td colspan="5" class="text-right">Total</td>
               <td class="text-right tabular-nums">C$ <%= number_with_precision(venta.cantidad_total, precision: 2, delimiter: ',') %></td>
             </tr>
           </tfoot>

@@ -70,6 +70,13 @@
             <%= render "table", ordenes_de_compra: @ordenes_de_compra %>
           </div>
         </div>
+
+        <% if @ordenes_de_compra.respond_to?(:total_pages) && @ordenes_de_compra.total_pages > 1 %>
+          <div class="border-t border-base-200 p-3 shrink-0 flex justify-center">
+            <%= paginate @ordenes_de_compra, theme: 'twitter-bootstrap-4', window: 2,
+                         params: { fecha_desde: params[:fecha_desde], fecha_hasta: params[:fecha_hasta] } %>
+          </div>
+        <% end %>
       </div>
 
     </div>

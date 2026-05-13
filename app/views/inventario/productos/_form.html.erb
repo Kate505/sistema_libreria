@@ -38,6 +38,7 @@
         <div class="w-full"
              data-controller="autocomplete"
              data-autocomplete-url-value="<%= buscar_categoria_inventario_productos_path %>"
+             data-autocomplete-create-url-value="<%= crear_categoria_inventario_productos_path %>"
              data-action="click@window->autocomplete#hide">
 
           <%= f.label :categoria_id, 'Categoría', class: 'label pt-0' %>
@@ -69,6 +70,7 @@
         <div class="w-full"
              data-controller="autocomplete"
              data-autocomplete-url-value="<%= buscar_marca_inventario_productos_path %>"
+             data-autocomplete-create-url-value="<%= crear_marca_inventario_productos_path %>"
              data-action="click@window->autocomplete#hide">
 
           <%= f.label :nombre_marca, 'Marca', class: 'label pt-0' %>

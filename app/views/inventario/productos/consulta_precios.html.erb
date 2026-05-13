@@ -60,9 +60,19 @@
           </span>
         </div>
 
-        <div class="overflow-y-auto flex-1 min-h-0">
-          <%= render "consulta_precios_table", productos: @productos %>
+        <div class="flex-1 overflow-y-auto">
+          <div class="h-full">
+            <%= render "consulta_precios_table", productos: @productos %>
+          </div>
         </div>
+
+        <% if @productos.respond_to?(:total_pages) && @productos.total_pages > 1 %>
+          <div class="border-t border-base-200 p-3 shrink-0 flex justify-center">
+            <%= paginate @productos, theme: 'twitter-bootstrap-4', window: 2,
+                         params: { q: params[:q] } %>
+          </div>
+        <% end %>
+
       <% end %>
     </div>
 

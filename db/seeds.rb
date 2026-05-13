@@ -67,8 +67,8 @@ Menu.create!(codigo: "ROLES", nombre: "Roles", modulo: modulo_seguridad, parent:
 # -------------  Roles y Usuarios  ------------- #
 # Empleados
 
-empleado_admin = Empleado.create!(primer_nombre: "Administrador", primer_apellido: "Sistema", cargo: "Administrador")
-empleado_usuario = Empleado.create!(primer_nombre: "Usuario", primer_apellido: "Sistema", cargo: "Usuario")
+empleado_admin = Empleado.create!(primer_nombre: "Administrador", primer_apellido: "Sistema", cargo: "Administrador", cedula: "001-010101-0001A", fecha_contratacion: Date.new(2020,1,1))
+empleado_usuario = Empleado.create!(primer_nombre: "Usuario", primer_apellido: "Sistema", cargo: "Usuario", cedula: "002-020202-0002B", fecha_contratacion: Date.new(2020,1,1))
 
 # Usuarios
 user_admin = User.create!(email_address: "admin@gmail.com", password: "123456", password_confirmation: "123456", empleado: empleado_admin)
@@ -122,7 +122,8 @@ orden = OrdenDeCompra.create!(
   proveedor: proveedor,
   fecha_compra: Date.today,
   numero_factura: "INVENTARIO-INICIAL",
-  costo_total_flete: 0
+  costo_total_flete: 0,
+  finalizada: true
 )
 
 # Categoría base

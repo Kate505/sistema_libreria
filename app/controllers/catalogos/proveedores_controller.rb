@@ -4,6 +4,13 @@ class Catalogos::ProveedoresController < ApplicationController
   def index
     @proveedor = Proveedor.new
     @proveedores = Proveedor.all.order(:nombre)
+
+    if params[:q].present?
+      q = "%#{params[:q]}%"
+      @proveedores = @proveedores.where("nombre ILIKE :q OR telefono ILIKE :q OR direccion ILIKE :q", q: q)
+    end
+
+    @proveedores = @proveedores.page(params[:page]).per(10)
   end
 
   def edit
@@ -14,12 +21,11 @@ class Catalogos::ProveedoresController < ApplicationController
   def create
     @proveedor = Proveedor.new(proveedor_params)
     if @proveedor.save
-      @proveedores = Proveedor.all.order(:nombre)
+      @proveedores = Proveedor.all.order(:nombre).page(1).per(10)
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
             turbo_stream.update("proveedores_table", partial: "catalogos/proveedores/table", locals: { proveedores: @proveedores }),
-
             turbo_stream.replace("proveedor_form", partial: "catalogos/proveedores/form", locals: { proveedor: Proveedor.new })
           ]
         end
@@ -35,7 +41,7 @@ class Catalogos::ProveedoresController < ApplicationController
 
   def update
     if @proveedor.update(proveedor_params)
-      @proveedores = Proveedor.all.order(:nombre)
+      @proveedores = Proveedor.all.order(:nombre).page(1).per(10)
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
@@ -55,7 +61,7 @@ class Catalogos::ProveedoresController < ApplicationController
 
   def destroy
     @proveedor.destroy
-    @proveedores = Proveedor.all.order(:nombre)
+    @proveedores = Proveedor.all.order(:nombre).page(1).per(10)
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [
