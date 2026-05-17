@@ -1,7 +1,7 @@
 <table class="table table-pin-rows px-4">
   <thead>
   <tr class="bg-base-100 z-10">
-    <th>ID</th>
+    <th>SKU</th>
     <th>Nombre</th>
     <th>Marca</th>
     <th>Categoría</th>
@@ -16,7 +16,7 @@
   <tbody>
   <% productos.each do |producto| %>
     <tr class="hover:bg-base-200">
-      <td class="text-base-content/50 text-sm"><%= producto.id %></td>
+      <td class="text-base-content/50 text-sm"><%= producto.sku %></td>
 
       <td class="font-medium max-w-xs">
         <span class="truncate block"><%= producto.nombre %></span>

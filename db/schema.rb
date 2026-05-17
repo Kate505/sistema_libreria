@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_11_500003) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_17_022013) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -149,8 +149,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_11_500003) do
     t.integer "stock_maximo_limite", default: 1
     t.decimal "costo_promedio_ponderado", precision: 10, scale: 2, default: "0.0"
     t.decimal "ultimo_precio_compra", precision: 10, scale: 2
-    t.decimal "precio_venta", precision: 10, scale: 2, null: false
-    t.decimal "precio_venta_al_mayor", precision: 10, scale: 2, null: false
+    t.decimal "precio_venta", precision: 10, scale: 2
+    t.decimal "precio_venta_al_mayor", precision: 10, scale: 2
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "marca_id"

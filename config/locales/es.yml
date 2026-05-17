@@ -109,3 +109,4 @@ es:
       messages:
         required: "es requerido"
         blank: "no puede estar vacío"
+        taken: "ya está en uso"

@@ -62,9 +62,14 @@ export default class extends Controller {
 
 	renderResults(data, query) {
 		this.resultsTarget.innerHTML = ""
+		const q = (query || "").trim()
+		let exactMatch = false
 
 		if (data.length > 0) {
 			data.forEach(item => {
+				if (item.text.toLowerCase() === q.toLowerCase()) {
+					exactMatch = true
+				}
 				const li = document.createElement("li")
 				const a = document.createElement("a")
 				a.textContent = item.text
@@ -76,17 +81,13 @@ export default class extends Controller {
 				li.appendChild(a)
 				this.resultsTarget.appendChild(li)
 			})
-
-			this.resultsTarget.classList.remove("hidden")
-			return
 		}
 
-		// Sin resultados: ofrecer "Crear 'X'" si hay texto
-		const q = (query || "").trim()
-		if (q.length > 0) {
+		// Ofrecer "Crear 'X'" si hay texto y no es una coincidencia exacta
+		if (q.length > 0 && !exactMatch) {
 			const liCreate = document.createElement("li")
 			const aCreate = document.createElement("a")
-			aCreate.innerHTML = `Crear <strong>“${this.escapeHtml(q)}”</strong>`
+			aCreate.innerHTML = `Crear <strong class="ml-1">“${this.escapeHtml(q)}”</strong>`
 			aCreate.addEventListener("click", (e) => {
 				e.preventDefault()
 				if (this.hasCreateUrlValue && this.createUrlValue) {
@@ -99,10 +100,13 @@ export default class extends Controller {
 			this.resultsTarget.appendChild(liCreate)
 		}
 
-		// Mensaje informativo
-		const li = document.createElement("li")
-		li.innerHTML = `<span class="text-gray-500 italic cursor-default pointer-events-none">No se encontraron resultados</span>`
-		this.resultsTarget.appendChild(li)
+		// Mensaje informativo si no hay resultados y tampoco se ofrece la opción de crear
+		if (this.resultsTarget.children.length === 0) {
+			const li = document.createElement("li")
+			li.innerHTML = `<span class="text-gray-500 italic cursor-default pointer-events-none">No se encontraron resultados</span>`
+			this.resultsTarget.appendChild(li)
+		}
+
 		this.resultsTarget.classList.remove("hidden")
 	}
 
