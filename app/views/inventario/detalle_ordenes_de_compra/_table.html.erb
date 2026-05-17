@@ -36,7 +36,7 @@
         <% diferencia = detalle.costo_unitario_compra_calculado.to_d - detalle.precio_unitario_compra.to_d %>
         C$ <%= number_with_precision(detalle.costo_unitario_compra_calculado, precision: 2, delimiter: ',') %>
         <% if diferencia > 0 %>
-          <div class="text-xs text-warning/70">+C$ <%= number_with_precision(diferencia, precision: 2) %> flete</div>
+          <div class="text-xs text-base-content/60">+C$ <%= number_with_precision(diferencia, precision: 2) %> flete</div>
         <% end %>
       </td>
 

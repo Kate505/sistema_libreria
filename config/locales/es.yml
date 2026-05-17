@@ -110,3 +110,4 @@ es:
         required: "es requerido"
         blank: "no puede estar vacío"
         taken: "ya está en uso"
+        not_a_number: "no es un número válido"

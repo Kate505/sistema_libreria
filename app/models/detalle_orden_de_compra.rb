@@ -26,21 +26,11 @@ class DetalleOrdenDeCompra < ApplicationRecord
 
   # ─── Callbacks ───────────────────────────────────────────────────────
 
-  # Calcula automáticamente el costo con flete prorrateado antes de guardar
-  before_validation :calcular_flete_prorrateado
-
-  # Actualiza stock, CPP y precio_venta del producto al registrar la línea
-  # after_create :aplicar_en_producto
-  # Después de crear esta línea, recalcula el flete de los OTROS detalles de la misma orden
-  after_create :recalcular_flete_otros_detalles
+  # Asegura que el costo calculado no esté vacío para pasar las validaciones antes de que el servicio de flete lo recalcule
+  before_validation :asignar_costo_por_defecto, on: :create
 
   # Guarda los atributos necesarios antes del destroy (el record queda frozen después)
   before_destroy :capturar_atributos_para_reversion
-
-  # Revierte el stock del producto al eliminar la línea
-  # after_destroy :revertir_en_producto
-  # Después de eliminar esta línea, recalcula el flete de los detalles restantes
-  after_destroy :recalcular_flete_otros_detalles
 
   # ─── Helpers públicos ────────────────────────────────────────────────
 
@@ -61,68 +51,9 @@ class DetalleOrdenDeCompra < ApplicationRecord
 
   private
 
-  # ─── Prorrateo de flete por valor monetario ──────────────────────────
-  # Distribuye el costo total del flete de la orden entre todos los detalles
-  # proporcional al valor monetario de cada línea (precio × cantidad).
-  # Este es el método estándar de "Landed Cost" por valor.
-  def calcular_flete_prorrateado
-    return unless precio_unitario_compra.present? && cantidad.present?
-
-    flete_total = orden_de_compra&.costo_total_flete.to_d
-
-    if flete_total <= 0
-      # Sin flete: costo calculado = precio de compra
-      self.costo_unitario_compra_calculado = precio_unitario_compra
-      return
-    end
-
-    # Valor de este ítem
-    valor_propio = precio_unitario_compra.to_d * cantidad.to_i
-
-    # Valor de todos los ítems YA guardados (excluyendo este mismo si es update)
-    otros_detalles = orden_de_compra.detalle_ordenes_de_compra
-                                    .where.not(id: id)
-
-    valor_otros = otros_detalles.sum { |d| d.precio_unitario_compra.to_d * d.cantidad.to_i }
-    valor_total = valor_propio + valor_otros
-
-    if valor_total <= 0
-      self.costo_unitario_compra_calculado = precio_unitario_compra
-      return
-    end
-
-    # Prorratear flete proporcional al valor de esta línea
-    flete_asignado_linea = (valor_propio / valor_total) * flete_total
-    flete_unitario       = flete_asignado_linea / cantidad.to_i
-
-    self.costo_unitario_compra_calculado = (precio_unitario_compra.to_d + flete_unitario).round(4)
+  def asignar_costo_por_defecto
+    self.costo_unitario_compra_calculado ||= precio_unitario_compra
   end
-
-  # Recalcula y persiste el flete de los demás detalles de la misma orden.
-  # Se llama después de create/destroy para que el nuevo prorrateo sea correcto.
-  def recalcular_flete_otros_detalles
-    flete_total = orden_de_compra.costo_total_flete.to_d
-    return if flete_total <= 0
-
-    detalles = orden_de_compra.detalle_ordenes_de_compra.where.not(id: id)
-    return if detalles.empty?
-
-    valor_total = detalles.sum { |d| d.precio_unitario_compra.to_d * d.cantidad.to_i }
-    return if valor_total <= 0
-
-    detalles.each do |d|
-      valor_linea    = d.precio_unitario_compra.to_d * d.cantidad.to_i
-      flete_asignado = (valor_linea / valor_total) * flete_total
-      flete_unit     = flete_asignado / d.cantidad.to_i
-      nuevo_costo    = (d.precio_unitario_compra.to_d + flete_unit).round(4)
-
-      d.update_columns(
-        costo_unitario_compra_calculado: nuevo_costo,
-        updated_at: Time.current
-      )
-    end
-  end
-
 
   def capturar_atributos_para_reversion
     @atributos_compra = {

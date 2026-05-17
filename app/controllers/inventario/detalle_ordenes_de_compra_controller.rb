@@ -8,6 +8,7 @@ class Inventario::DetalleOrdenesDeCompraController < ApplicationController
     @detalle = @orden_de_compra.detalle_ordenes_de_compra.new(detalle_params)
 
     if @detalle.save
+      FreightCalculationService.call(@orden_de_compra)
       @detalles = detalles_recargados
       respond_to do |format|
         format.turbo_stream do
@@ -51,6 +52,7 @@ class Inventario::DetalleOrdenesDeCompraController < ApplicationController
   # DELETE /inventario/ordenes_de_compra/:orden_de_compra_id/detalle_ordenes_de_compra/:id
   def destroy
     @detalle.destroy
+    FreightCalculationService.call(@orden_de_compra)
     @detalles = detalles_recargados
     respond_to do |format|
       format.turbo_stream do

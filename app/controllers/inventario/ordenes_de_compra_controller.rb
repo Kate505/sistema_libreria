@@ -83,6 +83,9 @@ class Inventario::OrdenesDeCompraController < ApplicationController
   # PATCH /inventario/ordenes_de_compra/:id
   def update
     if @orden_de_compra.update(orden_params)
+      # Recalcular flete por si hubo un cambio en el costo total
+      FreightCalculationService.call(@orden_de_compra)
+
       @ordenes_de_compra = OrdenDeCompra.includes(:proveedor).order(fecha_compra: :desc, id: :desc).page(1).per(15)
       respond_to do |format|
         format.turbo_stream do
@@ -198,8 +201,23 @@ class Inventario::OrdenesDeCompraController < ApplicationController
   def buscar_producto
     @productos = Producto.where("nombre ILIKE :q OR sku ILIKE :q", q: "%#{params[:q]}%")
                          .order(:nombre)
-                         .limit(10)
+                         .limit(5)
     render json: @productos.map { |p| { id: p.id, text: "#{p.sku.presence || '—'} · #{p.nombre}" } }
+  end
+
+  # POST /inventario/ordenes_de_compra/crear_producto
+  # Crea un producto mínimo desde el autocomplete
+  def crear_producto
+    nombre = params[:nombre].to_s.strip
+    return render json: { error: "Nombre requerido" }, status: :unprocessable_entity if nombre.blank?
+
+    categoria = Categoria.find_or_create_by!(nombre: 'Sin Categoría')
+    existente = Producto.where("lower(nombre) = ?", nombre.downcase).first
+    producto = existente || Producto.create!(nombre: nombre, categoria: categoria)
+
+    render json: { id: producto.id, text: "#{producto.sku.presence || '—'} · #{producto.nombre}" }, status: :created
+  rescue ActiveRecord::RecordInvalid => e
+    render json: { error: e.record.errors.full_messages.to_sentence }, status: :unprocessable_entity
   end
 
   # POST /inventario/ordenes_de_compra/crear_proveedor
