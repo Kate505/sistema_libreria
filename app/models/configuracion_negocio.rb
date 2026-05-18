@@ -17,9 +17,9 @@ class ConfiguracionNegocio < ApplicationRecord
             numericality: { greater_than_or_equal_to: 0 }
 
   # ─── Singleton ───────────────────────────────────────────────────────
-  # Retorna el único registro de configuración, creándolo si no existe.
+  # Retorna el único registro de configuración, creándolo si no existe, y lo cachea por request.
   def self.configuracion
-    first_or_create!(
+    Current.configuracion_negocio ||= first_or_create!(
       margen_ganancia_meta:   0.40,
       porcentaje_opex:        0.20,
       ventas_proyectadas_mes: 0.0,
