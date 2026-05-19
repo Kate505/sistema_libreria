@@ -49,7 +49,7 @@ class Producto < ApplicationRecord
   # ─── Lógica de Precios ───────────────────────────────────────────────
 
   # Precio de venta sugerido basado en el CPP actual y la configuración global.
-  # Fórmula: CPP / (1 - (% Ganancia + % OpEx))
+  # Fórmula: CPP / (1 - % Ganancia)
   def precio_sugerido
     return nil if costo_promedio_ponderado.to_d <= 0
 
