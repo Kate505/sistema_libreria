@@ -18,6 +18,12 @@ class DetalleVenta < ApplicationRecord
             numericality: { greater_than_or_equal_to: 0 },
             allow_blank: true
 
+  validates :descuento_porcentaje,
+            numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100, only_integer: true },
+            allow_nil: true
+
+  validate :descuento_dentro_de_limites
+
   validates :producto_id,
             uniqueness: { scope: :venta_id, message: "ya está agregado a la venta. Edite la cantidad." }
 
@@ -26,6 +32,9 @@ class DetalleVenta < ApplicationRecord
 
   # Pre-llenar precio y precio histórico desde el producto
   before_validation :asignar_datos_producto, on: :create
+
+  # Calcular total_linea antes de guardar
+  before_save :calcular_total_linea
 
   # Recalcular cantidad_total de la venta padre al guardar o eliminar una línea
   after_save    :actualizar_total_venta
@@ -42,8 +51,14 @@ class DetalleVenta < ApplicationRecord
 
   # ── Helpers públicos ──────────────────────────────────────────────────────
 
-  def subtotal
+  def subtotal_sin_descuento
     (cantidad || 0) * (precio_unitario_venta || 0)
+  end
+
+  def subtotal
+    bruto = subtotal_sin_descuento
+    desc  = descuento_porcentaje.to_i
+    desc > 0 ? (bruto * (1 - desc / 100.0)).round(2) : bruto
   end
 
   private
@@ -53,8 +68,44 @@ class DetalleVenta < ApplicationRecord
   def asignar_datos_producto
     return unless producto.present?
 
-    self.precio_unitario_venta                ||= producto.precio_venta
+    # Usar precio al mayor si cantidad >= 3, sino precio normal
+    precio = if cantidad.to_i >= 3 && producto.precio_venta_al_mayor.to_d > 0
+               producto.precio_venta_al_mayor
+             else
+               producto.precio_venta
+             end
+
+    self.precio_unitario_venta                ||= precio
     self.precio_historico_al_momento_de_venta ||= producto.precio_venta
+
+    # Solo aplicar descuento si el producto tiene descuento habilitado
+    if producto.descuento? && producto.descuento_maximo.to_i > 0
+      if self.descuento_porcentaje.blank? || self.descuento_porcentaje == 0
+        self.descuento_porcentaje = producto.descuento_maximo
+      end
+    else
+      # Producto sin descuento → forzar a 0
+      self.descuento_porcentaje = 0
+    end
+  end
+
+  def descuento_dentro_de_limites
+    return if descuento_porcentaje.to_i == 0
+    return unless producto.present?
+
+    unless producto.descuento?
+      errors.add(:descuento_porcentaje, "no se permite descuento en este producto")
+      return
+    end
+
+    max = producto.descuento_maximo.to_i
+    if descuento_porcentaje.to_i > max
+      errors.add(:descuento_porcentaje, "no puede ser mayor al máximo permitido (#{max}%)")
+    end
+  end
+
+  def calcular_total_linea
+    self.total_linea = subtotal
   end
 
   def stock_suficiente
@@ -66,7 +117,7 @@ class DetalleVenta < ApplicationRecord
   end
 
   def actualizar_total_venta
-    total = venta.detalle_ventas.sum("cantidad * precio_unitario_venta")
+    total = venta.detalle_ventas.sum(:total_linea)
     venta.update_column(:cantidad_total, total)
   end
 

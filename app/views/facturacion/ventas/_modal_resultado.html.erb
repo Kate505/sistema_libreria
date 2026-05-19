@@ -29,7 +29,7 @@
         <div class="flex justify-between items-center py-2 border-b border-base-200">
           <span class="text-sm text-base-content/60">Total cobrado</span>
           <span class="font-bold text-lg tabular-nums">
-            C$ <%= number_with_precision(venta.cantidad_total, precision: 2, delimiter: ',') %>
+            C$ <%= number_with_precision(venta.cantidad_total, precision: 0, delimiter: ',') %>
           </span>
         </div>
 

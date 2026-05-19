@@ -30,7 +30,7 @@
       <h1 class="text-3xl font-bold">Estadísticas por Período</h1>
       <p class="text-base-content/50 text-sm mt-0.5">
         Análisis financiero completo ·
-        <%= @fecha_desde.strftime("%d %b %Y") %> — <%= @fecha_hasta.strftime("%d %b %Y") %>
+        <%= @fecha_desde.strftime("%d/%m/%Y") %> — <%= @fecha_hasta.strftime("%d/%m/%Y") %>
       </p>
     </div>
   </div>
@@ -41,14 +41,17 @@
   <%# ── KPIs ───────────────────────────────────────────────────────────-%>
   <%= render "kpis" %>
 
+  <%# ── Resumen Financiero ──────────────────────────────────────────────%>
+  <%= render "resumen_financiero" %>
+
   <%# ── Gráficos ───────────────────────────────────────────────────────-%>
   <%= render "charts" %>
 
   <%# ── Tablas de detalle ───────────────────────────────────────────────%>
   <%= render "tables" %>
 
-  <%# ── EDA ────────────────────────────────────────────────────────────-%>
-  <%= render "eda" %>
+
+
 
   <%# ── Chart.js Scripts ───────────────────────────────────────────────-%>
   <%= render "chart_scripts" %>

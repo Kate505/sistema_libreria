@@ -6,6 +6,10 @@ class Producto < ApplicationRecord
   has_many :detalle_ordenes_de_compra
   has_many :detalle_ventas
 
+  # Último detalle de compra (para mostrar costos en tabla de productos)
+  has_one :ultimo_detalle_compra, -> { order(created_at: :desc) },
+          class_name: "DetalleOrdenDeCompra"
+
   validates :sku,
             length: { maximum: 50 },
             uniqueness: true
@@ -24,7 +28,7 @@ class Producto < ApplicationRecord
 
   validates :precio_venta,
             :precio_venta_al_mayor,
-            numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
+            numericality: { greater_than_or_equal_to: 0, only_integer: true }, allow_nil: true
 
   validates :stock_actual,
             numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
@@ -48,63 +52,62 @@ class Producto < ApplicationRecord
 
   # ─── Lógica de Precios ───────────────────────────────────────────────
 
-  # Precio de venta sugerido basado en el CPP actual y la configuración global.
-  # Fórmula: CPP / (1 - (% Ganancia + % OpEx))
-  def precio_sugerido
-    return nil if costo_promedio_ponderado.to_d <= 0
-
-    ConfiguracionNegocio.configuracion.precio_sugerido(costo_promedio_ponderado)
+  # Último costo unitario calculado (con flete incluido) del detalle de compra más reciente.
+  def ultimo_costo_calculado
+    ultimo_detalle_compra&.costo_unitario_compra_calculado.to_d
   end
 
-  # Margen de ganancia neta estimado al precio de venta actual.
-  # Retorna un decimal (ej: 0.40 = 40%)
+  # Margen de ganancia: porcentaje de diferencia entre precio_venta y último costo calculado.
+  # Fórmula: ((PV - costo) / costo) * 100
   def margen_estimado
     pv    = precio_venta.to_d
-    costo = costo_promedio_ponderado.to_d
-    return BigDecimal("0") if pv <= 0
+    costo = ultimo_costo_calculado
+    return BigDecimal("0") if pv <= 0 || costo <= 0
 
-    ConfiguracionNegocio.configuracion.margen_actual(pv, costo)
+    ((pv - costo) / costo * 100).round(1)
   end
 
-  # Retorna true si el margen neta actual está por debajo del umbral de alerta.
+  # Retorna true si el margen actual está por debajo del umbral de alerta.
   def margen_bajo?
-    umbral = ConfiguracionNegocio.configuracion.margen_alerta_minimo.to_d
+    umbral = (ConfiguracionNegocio.configuracion.margen_alerta_minimo.to_d * 100).round(1)
     margen_estimado < umbral
   end
 
   # ─── Callbacks de compras ────────────────────────────────────────────
 
   # Llamado después de crear un DetalleOrdenDeCompra.
-  # Incrementa stock, actualiza último precio de compra, recalcula CPP
-  # y actualiza precio_venta con el precio sugerido por la configuración.
+  # Incrementa stock, actualiza último precio de compra, recalcula CPP (para estadísticas),
+  # y calcula precio_venta con PriceCalculationService basado en el costo calculado del detalle.
+  # precio_venta y precio_venta_al_mayor se mantienen sincronizados.
   def actualizar_por_compra!(detalle)
     transaction do
       cantidad   = detalle.cantidad.to_i
-      precio     = detalle.precio_unitario_compra.to_d
       costo      = detalle.costo_unitario_compra_calculado.to_d
+      precio     = detalle.precio_unitario_compra.to_d
       stock_prev = stock_actual.to_i
 
       nuevo_stock = stock_prev + cantidad
 
+      # CPP se mantiene para cálculos de estadísticas (COGS, valor inventario)
       nuevo_cpp = if nuevo_stock > 0
                     ((costo_promedio_ponderado.to_d * stock_prev) + (costo * cantidad)) / nuevo_stock
       else
                     costo
       end
 
-      nuevo_cpp_redondeado = nuevo_cpp.round(4)
-
-      # Calcular precio sugerido con el nuevo CPP
-      nuevo_precio_sugerido = ConfiguracionNegocio.configuracion
-                                                  .precio_sugerido(nuevo_cpp_redondeado)
+      # Calcular precio sugerido usando el costo calculado del detalle (no CPP)
+      nuevo_precio = PriceCalculationService.call(self, costo)
 
       columnas = {
         stock_actual:             nuevo_stock,
         ultimo_precio_compra:     precio,
-        costo_promedio_ponderado: nuevo_cpp_redondeado
+        costo_promedio_ponderado: nuevo_cpp.round(4)
       }
-      # Actualizar precio_venta con el precio sugerido (el usuario puede modificarlo)
-      columnas[:precio_venta] = nuevo_precio_sugerido if nuevo_precio_sugerido&.positive?
+
+      if nuevo_precio.positive?
+        columnas[:precio_venta]          = nuevo_precio
+        columnas[:precio_venta_al_mayor] = nuevo_precio
+      end
 
       update_columns(columnas)
     end

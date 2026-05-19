@@ -4,8 +4,9 @@ class PermissionRegistry
   # Controladores que comparten el código de menú de otro controlador.
   # Clave: controller_name  →  Valor: código de menú a usar para la verificación.
   CONTROLLER_MENU_MAP = {
-    "estadisticas_periodo" => "ESTADISTICAS",
-    "detalle_ventas"       => "VENTAS"
+    "estadisticas_periodo"     => "ESTADISTICAS",
+    "detalle_ventas"           => "VENTAS",
+    "detalle_ordenes_de_compra" => "ORDENES_DE_COMPRA"
   }.freeze
 
   def self.menu_code_for(controller_name)

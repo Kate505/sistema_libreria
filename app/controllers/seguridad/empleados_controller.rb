@@ -4,6 +4,16 @@ class Seguridad::EmpleadosController < ApplicationController
   def index
     @empleado = Empleado.new
     @empleados = Empleado.all.order(:primer_apellido)
+
+    if params[:q].present?
+      q = "%#{params[:q]}%"
+      @empleados = @empleados.where(
+        "primer_nombre ILIKE :q OR segundo_nombre ILIKE :q OR primer_apellido ILIKE :q OR segundo_apellido ILIKE :q OR cedula ILIKE :q OR telefono ILIKE :q",
+        q: q
+      )
+    end
+
+    @empleados = @empleados.page(params[:page]).per(10)
   end
 
   def edit
@@ -14,12 +24,11 @@ class Seguridad::EmpleadosController < ApplicationController
   def create
     @empleado = Empleado.new(empleado_params)
     if @empleado.save
-      @empleados = Empleado.all.order(:primer_apellido)
+      @empleados = Empleado.all.order(:primer_apellido).page(1).per(10)
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
             turbo_stream.update("empleados_table", partial: "seguridad/empleados/table", locals: { empleados: @empleados }),
-
             turbo_stream.replace("empleado_form", partial: "seguridad/empleados/form", locals: { empleado: Empleado.new })
           ]
         end
@@ -35,7 +44,7 @@ class Seguridad::EmpleadosController < ApplicationController
 
   def update
     if @empleado.update(empleado_params)
-      @empleados = Empleado.all.order(:primer_apellido)
+      @empleados = Empleado.all.order(:primer_apellido).page(1).per(10)
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
@@ -55,7 +64,7 @@ class Seguridad::EmpleadosController < ApplicationController
 
   def destroy
     @empleado.destroy
-    @empleados = Empleado.all.order(:primer_apellido)
+    @empleados = Empleado.all.order(:primer_apellido).page(1).per(10)
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [
@@ -75,6 +84,6 @@ class Seguridad::EmpleadosController < ApplicationController
 
   def empleado_params
     params.require(:empleado).permit(:primer_nombre, :segundo_nombre, :primer_apellido, :segundo_apellido,
-                                     :cargo, :fecha_contratacion, :pasivo)
+                                     :cargo, :fecha_contratacion, :pasivo, :cedula, :telefono)
   end
 end

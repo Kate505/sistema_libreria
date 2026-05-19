@@ -41,7 +41,7 @@
           <span class="badge badge-warning badge-sm">Pendiente</span>
         <% end %>
         <div class="mt-2 text-sm text-base-content/50">Total</div>
-        <div class="text-lg font-bold tabular-nums">C$ <%= number_with_precision(venta.cantidad_total, precision: 2, delimiter: ',') %></div>
+        <div class="text-lg font-bold tabular-nums">C$ <%= number_with_precision(venta.cantidad_total, precision: 0, delimiter: ',') %></div>
       </div>
     </div>
 
@@ -56,6 +56,8 @@
               <th class="text-center">Cant.</th>
               <th class="text-right">Precio</th>
               <th class="text-right">Subtotal</th>
+              <th class="text-center">Desc. %</th>
+              <th class="text-right">Total</th>
             </tr>
           </thead>
           <tbody>
@@ -77,19 +79,31 @@
                 </td>
 
                 <td class="text-right tabular-nums">
-                  C$ <%= number_with_precision(detalle.precio_unitario_venta, precision: 2, delimiter: ',') %>
+                  C$ <%= detalle.precio_unitario_venta.to_i %>
+                </td>
+
+                <td class="text-right tabular-nums text-base-content/60">
+                  C$ <%= number_with_precision(detalle.subtotal_sin_descuento, precision: 0, delimiter: ',') %>
+                </td>
+
+                <td class="text-center tabular-nums">
+                  <% if detalle.descuento_porcentaje.to_i > 0 %>
+                    <span class="badge badge-warning badge-xs"><%= detalle.descuento_porcentaje %>%</span>
+                  <% else %>
+                    <span class="text-base-content/30">—</span>
+                  <% end %>
                 </td>
 
                 <td class="text-right tabular-nums font-semibold">
-                  C$ <%= number_with_precision(detalle.subtotal, precision: 2, delimiter: ',') %>
+                  C$ <%= number_with_precision(detalle.total_linea || detalle.subtotal, precision: 0, delimiter: ',') %>
                 </td>
               </tr>
             <% end %>
           </tbody>
           <tfoot>
             <tr class="bg-base-200/50 font-semibold">
-              <td colspan="3" class="text-right">Total</td>
-              <td class="text-right tabular-nums">C$ <%= number_with_precision(venta.cantidad_total, precision: 2, delimiter: ',') %></td>
+              <td colspan="5" class="text-right">Total</td>
+              <td class="text-right tabular-nums">C$ <%= number_with_precision(venta.cantidad_total, precision: 0, delimiter: ',') %></td>
             </tr>
           </tfoot>
         </table>

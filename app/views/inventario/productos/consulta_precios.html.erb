@@ -1,11 +1,11 @@
 <%= turbo_frame_tag "main_content" do %>
 
-  <div class="grid grid-rows-[auto_auto_1fr] gap-4 h-[calc(100vh-10rem)] w-full">
+  <div class="grid grid-rows-[auto_auto_1fr] gap-4 h-[calc(100vh-10rem)] w-full min-h-0">
 
     <%# Header %>
     <div class="flex items-center justify-between shrink-0 flex-wrap gap-3">
       <div>
-        <h1 class="text-3xl font-bold">Consulta de Inventario</h1>
+        <h1 class="text-3xl font-bold">Consulta de Precios</h1>
         <p class="text-base-content/50 text-sm mt-0.5">Precios, stock y condiciones de productos</p>
       </div>
     </div>
@@ -46,11 +46,11 @@
     </div>
 
     <%# Tabla de resultados %>
-    <div class="card bg-base-100 shadow-xl flex flex-col overflow-hidden">
-      <%= turbo_frame_tag "consulta_table_frame", class: "flex flex-col overflow-hidden h-full" do %>
+    <div class="card bg-base-100 shadow-xl flex flex-col overflow-hidden min-h-0">
+      <%= turbo_frame_tag "consulta_table_frame", class: "flex flex-col overflow-hidden h-full min-h-0" do %>
         <%# Contador de resultados %>
         <div class="px-4 pt-3 pb-1 shrink-0 flex items-center gap-2">
-          <% count = @productos.count %>
+          <% count = @productos.total_count %>
           <span class="text-sm text-base-content/50">
             <% if @q.present? %>
               <%= count %> resultado<%= count == 1 ? "" : "s" %> para <span class="font-semibold text-base-content">"<%= @q %>"</span>
@@ -60,9 +60,19 @@
           </span>
         </div>
 
-        <div class="overflow-y-auto flex-1">
-          <%= render "consulta_precios_table", productos: @productos %>
+        <div class="flex-1 overflow-y-auto">
+          <div class="h-full">
+            <%= render "consulta_precios_table", productos: @productos %>
+          </div>
         </div>
+
+        <% if @productos.respond_to?(:total_pages) && @productos.total_pages > 1 %>
+          <div class="border-t border-base-200 p-3 shrink-0 flex justify-center">
+            <%= paginate @productos, theme: 'twitter-bootstrap-4', window: 2,
+                         params: { q: params[:q] } %>
+          </div>
+        <% end %>
+
       <% end %>
     </div>
 

@@ -17,39 +17,39 @@ class Estadisticas::EstadisticasPeriodoController < ApplicationController
     if @marca_id.present?
       # Ingresos brutos: suma de detalles de venta de la marca
       @ingresos_brutos = DetalleVenta.joins(:venta, :producto)
-                                     .where(ventas: { fecha_venta: rango }, productos: { marca_id: @marca_id })
+                                     .where(ventas: { fecha_venta: rango, finalizada: true }, productos: { marca_id: @marca_id })
                                      .sum("detalle_venta.cantidad * detalle_venta.precio_unitario_venta").to_f
 
-      @total_ventas_count = Venta.joins(detalle_ventas: :producto)
+      @total_ventas_count = Venta.finalizadas.joins(detalle_ventas: :producto)
                                  .where(fecha_venta: rango, productos: { marca_id: @marca_id })
                                  .distinct.count
 
       # Costo de compras (órdenes de compra) de la marca
       @costo_compras = DetalleOrdenDeCompra
         .joins(:orden_de_compra, :producto)
-        .where(ordenes_de_compra: { fecha_compra: rango }, productos: { marca_id: @marca_id })
+        .where(ordenes_de_compra: { fecha_compra: rango, finalizada: true }, productos: { marca_id: @marca_id })
         .sum("detalle_ordenes_de_compra.precio_unitario_compra * detalle_ordenes_de_compra.cantidad").to_f
 
       # COGS de la marca
       @cogs = DetalleVenta
         .joins(:venta, :producto)
-        .where(ventas: { fecha_venta: rango }, productos: { marca_id: @marca_id })
+        .where(ventas: { fecha_venta: rango, finalizada: true }, productos: { marca_id: @marca_id })
         .sum("detalle_venta.cantidad * productos.costo_promedio_ponderado").to_f
     else
       # Ingresos brutos: suma de ventas en el período
-      @ingresos_brutos      = Venta.where(fecha_venta: rango).sum(:cantidad_total).to_f
-      @total_ventas_count   = Venta.where(fecha_venta: rango).count
+      @ingresos_brutos      = Venta.finalizadas.where(fecha_venta: rango).sum(:cantidad_total).to_f
+      @total_ventas_count   = Venta.finalizadas.where(fecha_venta: rango).count
 
       # Costo de compras (órdenes de compra) en el período
       @costo_compras = DetalleOrdenDeCompra
         .joins(:orden_de_compra)
-        .where(ordenes_de_compra: { fecha_compra: rango })
+        .where(ordenes_de_compra: { fecha_compra: rango, finalizada: true })
         .sum("detalle_ordenes_de_compra.precio_unitario_compra * detalle_ordenes_de_compra.cantidad").to_f
 
       # Costo de los productos vendidos (COGS) basado en costo promedio ponderado
       @cogs = DetalleVenta
         .joins(:venta, :producto)
-        .where(ventas: { fecha_venta: rango })
+        .where(ventas: { fecha_venta: rango, finalizada: true })
         .sum("detalle_venta.cantidad * productos.costo_promedio_ponderado").to_f
     end
 
@@ -73,21 +73,42 @@ class Estadisticas::EstadisticasPeriodoController < ApplicationController
     @margen_neto_pct  = @ingresos_brutos > 0 ? ((@utilidad_neta / @ingresos_brutos) * 100).round(2) : 0.0
     @margen_bruto_pct = @ingresos_brutos > 0 ? ((@utilidad_bruta / @ingresos_brutos) * 100).round(2) : 0.0
 
+    # ── Artículos vendidos ────────────────────────────────────────────────────
+    if @marca_id.present?
+      @total_articulos_vendidos = DetalleVenta.joins(:venta, :producto)
+                                              .where(ventas: { fecha_venta: rango, finalizada: true }, productos: { marca_id: @marca_id })
+                                              .sum(:cantidad).to_i
+    else
+      @total_articulos_vendidos = DetalleVenta.joins(:venta)
+                                              .where(ventas: { fecha_venta: rango, finalizada: true })
+                                              .sum(:cantidad).to_i
+    end
+
+    # ── Desglose gastos operativos para resumen ───────────────────────────────
+    gastos_resumen = if meses_ids.any?
+      GastoOperativo.where("(periodo_year * 100 + periodo_mes) IN (?)", meses_ids)
+    else
+      GastoOperativo.none
+    end
+    @gastos_alquiler       = gastos_resumen.sum(:costos_alquiler).to_f
+    @gastos_utilidades     = gastos_resumen.sum(:costo_utilidades).to_f
+    @gastos_mantenimiento  = gastos_resumen.sum(:costo_mantenimiento).to_f
+
     # ── Gráfico 1: Tendencia Ingresos vs COGS (dual-line) ───────────────────
     dias = (@fecha_hasta.to_date - @fecha_desde.to_date).to_i.clamp(0, 365)
 
     if @marca_id.present?
       ingresos_scope = DetalleVenta.joins(:venta, :producto)
-                                   .where(ventas: { fecha_venta: rango }, productos: { marca_id: @marca_id })
+                                   .where(ventas: { fecha_venta: rango, finalizada: true }, productos: { marca_id: @marca_id })
       cogs_scope     = DetalleVenta.joins(:venta, :producto)
-                                   .where(ventas: { fecha_venta: rango }, productos: { marca_id: @marca_id })
+                                   .where(ventas: { fecha_venta: rango, finalizada: true }, productos: { marca_id: @marca_id })
       
       ingresos_sum_col = "detalle_venta.cantidad * detalle_venta.precio_unitario_venta"
       cogs_sum_col     = "detalle_venta.cantidad * productos.costo_promedio_ponderado"
       date_col         = "ventas.fecha_venta"
     else
-      ingresos_scope = Venta.where(fecha_venta: rango)
-      cogs_scope     = DetalleVenta.joins(:venta, :producto).where(ventas: { fecha_venta: rango })
+      ingresos_scope = Venta.finalizadas.where(fecha_venta: rango)
+      cogs_scope     = DetalleVenta.joins(:venta, :producto).where(ventas: { fecha_venta: rango, finalizada: true })
       
       ingresos_sum_col = :cantidad_total
       cogs_sum_col     = "detalle_venta.cantidad * productos.costo_promedio_ponderado"
@@ -143,11 +164,11 @@ class Estadisticas::EstadisticasPeriodoController < ApplicationController
     # ── Gráfico 2: Método de pago ────────────────────────────────────────────
     if @marca_id.present?
       ventas_metodo = DetalleVenta.joins(:venta, :producto)
-                                  .where(ventas: { fecha_venta: rango }, productos: { marca_id: @marca_id })
+                                  .where(ventas: { fecha_venta: rango, finalizada: true }, productos: { marca_id: @marca_id })
                                   .group("ventas.metodo_pago")
                                   .sum("detalle_venta.cantidad * detalle_venta.precio_unitario_venta")
     else
-      ventas_metodo = Venta.where(fecha_venta: rango).group(:metodo_pago).sum(:cantidad_total)
+      ventas_metodo = Venta.finalizadas.where(fecha_venta: rango).group(:metodo_pago).sum(:cantidad_total)
     end
     @metodo_pago_labels = ventas_metodo.keys.map { |k| Venta::METODOS_PAGO[k] || k }
     @metodo_pago_data   = ventas_metodo.values.map(&:to_f)
@@ -155,12 +176,12 @@ class Estadisticas::EstadisticasPeriodoController < ApplicationController
     # ── Gráfico 3: Utilidad por mes (bar) ────────────────────────────────────
     if @marca_id.present?
       ingresos_mes = DetalleVenta.joins(:venta, :producto)
-                                 .where(ventas: { fecha_venta: rango }, productos: { marca_id: @marca_id })
+                                 .where(ventas: { fecha_venta: rango, finalizada: true }, productos: { marca_id: @marca_id })
                                  .group("DATE_TRUNC('month', ventas.fecha_venta AT TIME ZONE 'UTC')")
                                  .sum("detalle_venta.cantidad * detalle_venta.precio_unitario_venta")
                                  .transform_keys { |k| k.to_date }
     else
-      ingresos_mes = Venta
+      ingresos_mes = Venta.finalizadas
         .where(fecha_venta: rango)
         .group("DATE_TRUNC('month', fecha_venta AT TIME ZONE 'UTC')")
         .sum(:cantidad_total)
@@ -196,7 +217,7 @@ class Estadisticas::EstadisticasPeriodoController < ApplicationController
     ]
 
     # ── Gráfico 5: Top 10 productos por ingreso (horizontal bar) ─────────────
-    top_ingresos_scope = DetalleVenta.joins(:venta, :producto).where(ventas: { fecha_venta: rango })
+    top_ingresos_scope = DetalleVenta.joins(:venta, :producto).where(ventas: { fecha_venta: rango, finalizada: true })
     top_ingresos_scope = top_ingresos_scope.where(productos: { marca_id: @marca_id }) if @marca_id.present?
 
     top_ingresos = top_ingresos_scope
@@ -209,7 +230,7 @@ class Estadisticas::EstadisticasPeriodoController < ApplicationController
     @top_ingresos_data   = top_ingresos.map { |_, v| v.to_f }
 
     # ── Gráfico 6: Top 10 productos por margen % (horizontal bar) ────────────
-    top_margen_scope = DetalleVenta.joins(:venta, :producto).where(ventas: { fecha_venta: rango })
+    top_margen_scope = DetalleVenta.joins(:venta, :producto).where(ventas: { fecha_venta: rango, finalizada: true })
     top_margen_scope = top_margen_scope.where(productos: { marca_id: @marca_id }) if @marca_id.present?
 
     top_margen_raw = top_margen_scope
@@ -236,7 +257,7 @@ class Estadisticas::EstadisticasPeriodoController < ApplicationController
 
     # ── Tabla: Detalle de ventas ──────────────────────────────────────────────
     if @marca_id.present?
-      @ventas_detalle = Venta
+      @ventas_detalle = Venta.finalizadas
         .joins(detalle_ventas: :producto)
         .includes(:cliente, :detalle_ventas)
         .where(fecha_venta: rango, productos: { marca_id: @marca_id })
@@ -244,7 +265,7 @@ class Estadisticas::EstadisticasPeriodoController < ApplicationController
         .order(fecha_venta: :desc)
         .limit(50)
     else
-      @ventas_detalle = Venta
+      @ventas_detalle = Venta.finalizadas
         .includes(:cliente, :detalle_ventas)
         .where(fecha_venta: rango)
         .order(fecha_venta: :desc)
@@ -262,7 +283,7 @@ class Estadisticas::EstadisticasPeriodoController < ApplicationController
 
     # ── Tabla: Órdenes de compra ───────────────────────────────────────────
     if @marca_id.present?
-      @compras_detalle = OrdenDeCompra
+      @compras_detalle = OrdenDeCompra.finalizadas
         .joins(detalle_ordenes_de_compra: :producto)
         .includes(:proveedor, :detalle_ordenes_de_compra)
         .where(fecha_compra: rango, productos: { marca_id: @marca_id })
@@ -270,72 +291,11 @@ class Estadisticas::EstadisticasPeriodoController < ApplicationController
         .order(fecha_compra: :desc)
         .limit(30)
     else
-      @compras_detalle = OrdenDeCompra
+      @compras_detalle = OrdenDeCompra.finalizadas
         .includes(:proveedor, :detalle_ordenes_de_compra)
         .where(fecha_compra: rango)
         .order(fecha_compra: :desc)
         .limit(30)
-    end
-
-    # ── EDA: Estadísticas descriptivas sobre ventas individuales ─────────────
-    if @marca_id.present?
-      # Si filtramos por marca, analizamos los montos de los detalles de venta de esa marca
-      ventas_values = DetalleVenta
-        .joins(:venta, :producto)
-        .where(ventas: { fecha_venta: rango }, productos: { marca_id: @marca_id })
-        .pluck("detalle_venta.cantidad * detalle_venta.precio_unitario_venta")
-        .map(&:to_f)
-        .sort
-    else
-      ventas_values = Venta
-        .where(fecha_venta: rango)
-        .where("cantidad_total > 0")
-        .pluck(:cantidad_total)
-        .map(&:to_f)
-        .sort
-    end
-
-    if ventas_values.any?
-      n              = ventas_values.size
-      media          = ventas_values.sum / n
-      mediana        = percentile(ventas_values, 50)
-      p25            = percentile(ventas_values, 25)
-      p75            = percentile(ventas_values, 75)
-      vmin           = ventas_values.first
-      vmax           = ventas_values.last
-      varianza       = ventas_values.sum { |v| (v - media)**2 } / n
-      desv_std       = Math.sqrt(varianza)
-      coef_variacion = media > 0 ? (desv_std / media * 100).round(2) : 0.0
-
-      # Asimetría de Pearson (moment-based)
-      asimetria = desv_std > 0 ? (ventas_values.sum { |v| ((v - media) / desv_std)**3 } / n).round(4) : 0.0
-
-      @eda = {
-        n: n, media: media.round(2), mediana: mediana.round(2),
-        p25: p25.round(2), p75: p75.round(2),
-        vmin: vmin.round(2), vmax: vmax.round(2),
-        desv_std: desv_std.round(2), coef_variacion: coef_variacion,
-        asimetria: asimetria,
-        rango_iqr: (p75 - p25).round(2)
-      }
-
-      # Histograma (10 bins) — guard against all-same-value edge case
-      num_bins = [ n, 10 ].min.clamp(3, 10)
-      bin_size = vmax > vmin ? (vmax - vmin) / num_bins.to_f : 1.0
-
-      @hist_labels = (0...num_bins).map do |i|
-        "C$#{(vmin + i * bin_size).round(0)}–#{(vmin + (i + 1) * bin_size).round(0)}"
-      end
-      @hist_data = (0...num_bins).map do |i|
-        lower = vmin + i * bin_size
-        upper = vmin + (i + 1) * bin_size
-        upper = vmax + 0.01 if i == num_bins - 1
-        ventas_values.count { |v| v >= lower && v < upper }
-      end
-    else
-      @eda = nil
-      @hist_labels = []
-      @hist_data   = []
     end
   end
 
@@ -358,12 +318,5 @@ class Estadisticas::EstadisticasPeriodoController < ApplicationController
     end
     meses
   end
-
-  def percentile(sorted_array, pct)
-    return 0.0 if sorted_array.empty?
-    rank  = pct / 100.0 * (sorted_array.size - 1)
-    lower = sorted_array[rank.floor].to_f
-    upper = sorted_array[rank.ceil].to_f
-    lower + (upper - lower) * (rank - rank.floor)
-  end
 end
+

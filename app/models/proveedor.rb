@@ -8,7 +8,8 @@ class Proveedor < ApplicationRecord
             length: { maximum: 150 }
 
   validates :telefono,
-            length: { maximum: 8 }
+            format: { with: /\A\d{8}\z/, message: "debe ser exactamente 8 dígitos numéricos" },
+            allow_blank: true
 
   validates :direccion,
             length: { maximum: 255 }

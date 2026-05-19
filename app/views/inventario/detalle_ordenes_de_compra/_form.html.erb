@@ -1,128 +1,117 @@
-<turbo-frame id="detalle_orden_form">
-  <%= form_with(model: [orden_de_compra, detalle],
-                url: inventario_orden_de_compra_detalle_ordenes_de_compra_path(orden_de_compra),
-                method: :post,
-                class: 'contents') do |f| %>
-
-    <div class="card-body">
-      <h2 class="card-title text-lg">Agregar Producto</h2>
-
-      <%# Errores %>
-      <% if detalle.errors.any? %>
-        <div class="alert alert-error text-sm py-2">
-          <ul class="list-disc list-inside">
-            <% detalle.errors.full_messages.each do |msg| %>
-              <li><%= msg %></li>
-            <% end %>
-          </ul>
-        </div>
-      <% end %>
-
-      <div class="grid grid-cols-1 gap-4">
-
-        <%# Producto - Autocomplete %>
-        <div class="w-full relative"
-             data-controller="autocomplete"
-             data-autocomplete-url-value="<%= buscar_producto_inventario_ordenes_de_compra_path %>"
-             data-action="click@window->autocomplete#hide">
-
-          <%= f.label :producto_id, 'Producto', class: 'label pt-0' %>
-          <%= f.hidden_field :producto_id, data: { autocomplete_target: "hidden" } %>
-
-          <div class="relative">
-            <% nombre_producto = detalle.producto_id.present? ? detalle.producto&.nombre : "" %>
-            <input type="text"
-                   class="input input-bordered w-full pr-10"
-                   placeholder="Buscar por nombre o SKU..."
-                   value="<%= nombre_producto %>"
-                   data-autocomplete-target="input"
-                   data-action="input->autocomplete#search"
-                   autocomplete="off">
-
-            <div data-autocomplete-target="loading" class="absolute right-3 top-3 hidden">
-              <span class="loading loading-spinner loading-sm text-primary"></span>
-            </div>
-          </div>
-
-          <ul data-autocomplete-target="results"
-              class="menu dropdown-content bg-base-100 rounded-box z-[50] w-full p-2 shadow-lg absolute top-full mt-1 border border-base-200 hidden max-h-60 overflow-y-auto">
-          </ul>
-        </div>
-
-        <%# Cantidad %>
-        <div class="w-full">
-          <%= f.label :cantidad, 'Cantidad', class: 'label pt-0' %>
-          <%= f.number_field :cantidad,
-                             min: 1,
-                             step: 1,
-                             class: 'input input-bordered w-full',
-                             placeholder: '1',
-                             required: true %>
-        </div>
-
-        <%# Sección Precios %>
-        <div class="divider divider-start text-xs font-semibold text-base-content/50 uppercase tracking-wider my-1">
-          Costos
-        </div>
-
-        <%# Precio Unitario de Compra %>
-        <div class="w-full">
-          <%= f.label :precio_unitario_compra, 'Precio Unitario Compra', class: 'label pt-0' %>
-          <label class="input input-bordered flex items-center gap-2 w-full">
-            <span class="text-base-content/60 text-sm font-semibold">C$</span>
-            <%= f.number_field :precio_unitario_compra,
-                               step: '0.01', min: 0,
-                               class: 'grow',
-                               placeholder: '0.00',
-                               required: true %>
-          </label>
-        </div>
-
-        <%# Costo Unitario Calculado - SOLO LECTURA (calculado automáticamente con flete) %>
-        <%
-          flete_total = orden_de_compra.costo_total_flete.to_d
-          tiene_flete = flete_total > 0
-        %>
-        <div class="w-full">
-          <label class="label pt-0">
-            Costo Unitario Calculado
-            <% if tiene_flete %>
-              <span class="label-text-alt text-warning font-semibold">Incluye flete prorrateado</span>
-            <% else %>
-              <span class="label-text-alt text-base-content/40">Sin flete en esta orden</span>
-            <% end %>
-          </label>
-          <label class="input input-bordered flex items-center gap-2 w-full bg-base-200 cursor-not-allowed">
-            <span class="text-base-content/60 text-sm font-semibold">C$</span>
-            <%# Campo oculto para enviar el valor calculado %>
-            <%= f.hidden_field :costo_unitario_compra_calculado,
-                               value: detalle.costo_unitario_compra_calculado %>
-            <span class="grow text-base-content/60 text-sm">
-              Se calcula automáticamente al guardar
-            </span>
-          </label>
-          <% if tiene_flete %>
-            <p class="text-xs text-warning/80 mt-1">
-              ⚠️ El flete total de C$<%= number_with_precision(flete_total, precision: 2) %> se distribuirá automáticamente entre todos los productos según su valor proporcional.
-            </p>
-          <% else %>
-            <p class="text-xs text-base-content/40 mt-1">
-              Para incluir flete, editá el campo "Costo Total Flete" en el encabezado de la orden.
-            </p>
-          <% end %>
-        </div>
-
-        <%# Acción %>
-        <div class="card-actions justify-end mt-2 pt-4 border-t border-base-200">
-          <button type="submit" class="btn btn-primary gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-            </svg>
-            Agregar Producto
-          </button>
-        </div>
-
+<div id="detalle_orden_form">
+  <% if orden_de_compra.finalizada? %>
+    <div class="card-body flex flex-col items-center justify-center text-center gap-4 h-full">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-success/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      <div>
+        <h3 class="font-bold text-lg text-success">Orden Finalizada</h3>
+        <p class="text-sm text-base-content/50 mt-1">Esta orden ya fue cerrada.<br>No se pueden agregar más productos.
+        </p>
       </div>
     </div>
+  <% else %>
+    <%= form_with(model: [orden_de_compra, detalle],
+                  url: inventario_orden_de_compra_detalle_ordenes_de_compra_path(orden_de_compra),
+                  method: :post,
+                  class: 'contents') do |f| %>
+
+      <div class="card-body">
+        <h2 class="card-title text-lg">Agregar Producto</h2>
+
+        <%# Errores %>
+        <% if detalle.errors.any? %>
+          <div class="alert alert-error text-sm py-2">
+            <ul class="list-disc list-inside">
+              <% detalle.errors.full_messages.each do |msg| %>
+                <li><%= msg %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <div class="grid grid-cols-1 gap-4">
+
+          <%# Producto - Autocomplete %>
+          <div class="w-full relative"
+               data-controller="autocomplete"
+               data-autocomplete-url-value="<%= buscar_producto_inventario_ordenes_de_compra_path %>"
+               data-action="click@window->autocomplete#hide">
+
+            <%= f.label :producto_id, 'Producto', class: 'label pt-0' %>
+            <%= f.hidden_field :producto_id, data: { autocomplete_target: "hidden" } %>
+
+            <div class="relative">
+              <% nombre_producto = detalle.producto_id.present? ? detalle.producto&.nombre : "" %>
+              <input type="text"
+                     class="input input-bordered w-full pr-10"
+                     placeholder="Buscar por nombre o SKU..."
+                     value="<%= nombre_producto %>"
+                     data-autocomplete-target="input"
+                     data-action="input->autocomplete#search"
+                     autocomplete="off">
+
+              <div data-autocomplete-target="loading" class="absolute right-3 top-3 hidden">
+                <span class="loading loading-spinner loading-sm text-primary"></span>
+              </div>
+            </div>
+
+            <ul data-autocomplete-target="results"
+                class="menu dropdown-content bg-base-100 rounded-box z-[50] w-full p-2 shadow-lg absolute top-full mt-1 border border-base-200 hidden max-h-60 overflow-y-auto">
+            </ul>
+          </div>
+
+          <%# Cantidad %>
+          <div class="w-full">
+            <%= f.label :cantidad, 'Cantidad', class: 'label pt-0' %>
+            <%= f.number_field :cantidad,
+                               min: 1,
+                               step: 1,
+                               class: 'input input-bordered w-full',
+                               placeholder: '1',
+                               required: true %>
+          </div>
+
+          <%# Sección Precios %>
+          <div class="divider divider-start text-xs font-semibold text-base-content/50 uppercase tracking-wider my-1">
+            Costos
+          </div>
+
+          <%# Precio Unitario de Compra %>
+          <div class="w-full">
+            <%= f.label :precio_unitario_compra, 'Precio Unitario Compra', class: 'label pt-0' %>
+            <label class="input input-bordered flex items-center gap-2 w-full">
+              <span class="text-base-content/60 text-sm font-semibold">C$</span>
+              <%= f.number_field :precio_unitario_compra,
+                                 step: '0.01', min: 0,
+                                 class: 'grow',
+                                 placeholder: '0.00',
+                                 required: true %>
+            </label>
+          </div>
+
+          <%# Costo Unitario Calculado - SOLO LECTURA (calculado automáticamente con flete) %>
+          <%
+            flete_total = orden_de_compra.costo_total_flete.to_d
+            tiene_flete = flete_total > 0
+          %>
+          <%# Campo oculto para enviar el valor calculado %>
+          <%= f.hidden_field :costo_unitario_compra_calculado,
+                             value: detalle.costo_unitario_compra_calculado %>
+
+
+          <%# Acción %>
+          <div class="card-actions justify-end mt-2 pt-4 border-t border-base-200">
+            <button type="submit" class="btn btn-primary gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+              </svg>
+              Agregar Producto
+            </button>
+          </div>
+
+        </div>
+      </div>
+    <% end %>
   <% end %>
-</turbo-frame>
+</div>

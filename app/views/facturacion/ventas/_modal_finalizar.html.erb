@@ -23,7 +23,7 @@
         <div class="flex items-center justify-between">
           <span class="text-sm text-base-content/60 font-medium">Total a cobrar</span>
           <span class="text-2xl font-bold tabular-nums text-primary">
-            C$ <%= number_with_precision(venta.cantidad_total, precision: 2, delimiter: ',') %>
+            C$ <%= number_with_precision(venta.cantidad_total, precision: 0, delimiter: ',') %>
           </span>
         </div>
         <p class="text-xs text-base-content/40 mt-1"><%= venta.detalle_ventas.size %> producto(s)</p>

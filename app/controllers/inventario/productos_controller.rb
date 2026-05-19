@@ -3,12 +3,21 @@ class Inventario::ProductosController < ApplicationController
 
   def index
     @producto = Producto.new
-    @productos = Producto.includes(:categoria).all.order(:nombre)
+    @productos = Producto.includes(:categoria, :marca, :ultimo_detalle_compra).all.order(:nombre)
+
+    if params[:q].present?
+      @productos = @productos.left_joins(:categoria).where(
+        "productos.nombre ILIKE :q OR productos.sku ILIKE :q OR categorias.nombre ILIKE :q",
+        q: "%#{params[:q]}%"
+      )
+    end
+
+    @productos = @productos.page(params[:page]).per(10)
   end
 
   def edit
     @producto = Producto.find_by(id: params[:id])
-    @productos = Producto.includes(:categoria).all.order(:nombre)
+    @productos = Producto.includes(:categoria, :marca, :ultimo_detalle_compra).all.order(:nombre).page(params[:page]).per(10)
 
     respond_to do |format|
       format.html { render :index }
@@ -40,23 +49,55 @@ class Inventario::ProductosController < ApplicationController
     render json: @marcas.map { |m| { id: m.id, text: m.nombre } }
   end
 
+  # POST /inventario/productos/crear_categoria
+  def crear_categoria
+    nombre = params[:nombre].to_s.strip
+    return render json: { error: "Nombre requerido" }, status: :unprocessable_entity if nombre.blank?
+
+    categoria = Categoria.find_or_initialize_by(nombre: nombre)
+    if categoria.new_record?
+      categoria.save!
+    end
+
+    render json: { id: categoria.id, text: categoria.nombre }, status: :created
+  rescue ActiveRecord::RecordInvalid => e
+    render json: { error: e.record.errors.full_messages.to_sentence }, status: :unprocessable_entity
+  end
+
+  # POST /inventario/productos/crear_marca
+  def crear_marca
+    nombre = params[:nombre].to_s.strip
+    return render json: { error: "Nombre requerido" }, status: :unprocessable_entity if nombre.blank?
+
+    marca = Marca.find_or_initialize_by(nombre: nombre)
+    if marca.new_record?
+      marca.save!
+    end
+
+    render json: { id: marca.id, text: marca.nombre }, status: :created
+  rescue ActiveRecord::RecordInvalid => e
+    render json: { error: e.record.errors.full_messages.to_sentence }, status: :unprocessable_entity
+  end
+
   def consulta_precios
     @q = params[:q].to_s.strip
-    @productos = Producto.includes(:categoria)
-                         .order(:nombre)
+    @productos = Producto.preload(:categoria)
+                         .order(:nombre, :id)
     unless @q.blank?
-      @productos = @productos.where(
+      @productos = @productos.left_joins(:categoria).where(
         "productos.nombre ILIKE :term OR productos.sku ILIKE :term OR categorias.nombre ILIKE :term",
         term: "%#{@q}%"
-      ).joins(:categoria)
+      )
     end
+
+    @productos = @productos.page(params[:page]).per(10)
   end
 
   def create
     @producto = Producto.new(producto_params)
 
     if @producto.save
-      @productos = Producto.includes(:categoria).all.order(:nombre)
+      @productos = Producto.includes(:categoria, :marca, :ultimo_detalle_compra).all.order(:nombre).page(1).per(10)
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
@@ -78,7 +119,7 @@ class Inventario::ProductosController < ApplicationController
 
   def update
     if @producto.update(producto_params)
-      @productos = Producto.includes(:categoria).all.order(:nombre)
+      @productos = Producto.includes(:categoria, :marca, :ultimo_detalle_compra).all.order(:nombre).page(1).per(10)
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
@@ -100,7 +141,7 @@ class Inventario::ProductosController < ApplicationController
 
   def destroy
     @producto.destroy
-    @productos = Producto.includes(:categoria).all.order(:nombre)
+    @productos = Producto.includes(:categoria, :marca, :ultimo_detalle_compra).all.order(:nombre).page(1).per(10)
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [
@@ -127,7 +168,9 @@ class Inventario::ProductosController < ApplicationController
       :descuento,
       :descuento_maximo,
       :stock_minimo_limite,
-      :stock_maximo_limite
+      :stock_maximo_limite,
+      :precio_venta,
+      :precio_venta_al_mayor
     )
   end
 end

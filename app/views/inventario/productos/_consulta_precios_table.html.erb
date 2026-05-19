@@ -1,25 +1,20 @@
-<table class="table table-pin-rows px-4 w-full">
+<table class="table table-pin-rows px-4">
   <thead>
-    <tr class="bg-base-100 z-10">
-      <th class="w-8">SKU</th>
-      <th>Nombre</th>
-      <th>Categoría</th>
-      <th class="text-right">CPP</th>
-      <th class="text-right">P. Sugerido</th>
-      <th class="text-right">Margen Est.</th>
-      <th class="text-right">P. Venta</th>
-      <th class="text-right">P. Mayor</th>
-      <th class="text-center">Descuento</th>
-      <th class="text-center">Stock</th>
-      <th class="text-center hidden md:table-cell">Mín.</th>
-      <th class="text-center hidden md:table-cell">Máx.</th>
-    </tr>
+  <tr class="bg-base-100 z-10">
+    <th class="w-8">SKU</th>
+    <th>Nombre</th>
+    <th>Categoría</th>
+    <th class="text-right">P. Venta</th>
+    <th class="text-right">P. Mayor</th>
+    <th class="text-center">Descuento</th>
+    <th class="text-center">Stock</th>
+  </tr>
   </thead>
 
   <tbody>
   <% productos.each do |producto| %>
     <% stock = producto.stock_actual.to_i %>
-    <% min   = producto.stock_minimo_limite.to_i %>
+    <% min = producto.stock_minimo_limite.to_i %>
     <tr class="hover:bg-base-200">
 
       <%# SKU %>
@@ -41,53 +36,26 @@
         <% end %>
       </td>
 
-      <%# CPP %>
-      <td class="text-right tabular-nums text-sm text-base-content/60 whitespace-nowrap">
-        C$ <%= number_with_precision(producto.costo_promedio_ponderado, precision: 2, delimiter: ",") %>
-      </td>
-
-      <%# Precio Sugerido %>
-      <td class="text-right tabular-nums text-sm font-medium whitespace-nowrap">
-        <% ps = producto.precio_sugerido %>
-        <% if ps&.positive? %>
-          C$ <%= number_with_precision(ps, precision: 2, delimiter: ",") %>
-        <% else %>
-          <span class="text-base-content/30 italic">—</span>
-        <% end %>
-      </td>
-
-      <%# Margen Estimado con alerta %>
-      <td class="text-right tabular-nums whitespace-nowrap">
-        <% margen = producto.margen_estimado %>
-        <% bajo = producto.margen_bajo? %>
-        <% pct = (margen * 100).round(1) %>
-        <span class="badge badge-sm <%= bajo ? 'badge-warning' : 'badge-success' %>"
-              title="<%= bajo ? 'Margen por debajo del umbral de alerta' : 'Margen dentro del rango aceptable' %>">
-          <% if bajo %>⚠️ <% end %><%= pct %>%
-        </span>
-      </td>
-
       <%# Precio de venta %>
       <td class="text-right font-semibold tabular-nums whitespace-nowrap">
-        C$ <%= number_with_precision(producto.precio_venta, precision: 2, delimiter: ",") %>
+        C$ <%= producto.precio_venta.to_i %>
       </td>
 
       <%# Precio al mayor %>
       <td class="text-right tabular-nums whitespace-nowrap text-base-content/70">
-        C$ <%= number_with_precision(producto.precio_venta_al_mayor, precision: 2, delimiter: ",") %>
+        C$ <%= producto.precio_venta_al_mayor.to_i %>
       </td>
 
       <%# Descuento %>
       <td class="text-center">
         <% if producto.descuento? %>
           <div class="flex flex-col items-center gap-0.5">
-            <span class="badge badge-info badge-sm">Sí</span>
-            <span class="text-xs text-base-content/50">
-              máx. <%= number_with_precision(producto.descuento_maximo, precision: 0) %>%
+            <span class="badge badge-info badge-sm">
+              máx. <%= number_with_precision(producto.descuento_maximo, precision: 0) %> %
             </span>
           </div>
         <% else %>
-          <span class="text-base-content/30 text-sm">No</span>
+          <span class="text-base-content/30 text-sm">NA</span>
         <% end %>
       </td>
 
@@ -96,35 +64,25 @@
         <% if stock <= 0 %>
           <span class="badge badge-error badge-sm gap-1">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
             </svg>
             <%= stock %>
           </span>
         <% elsif stock <= min %>
           <span class="badge badge-warning badge-sm gap-1">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12A9 9 0 113 12a9 9 0 0118 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12A9 9 0 113 12a9 9 0 0118 0z"/>
             </svg>
             <%= stock %>
           </span>
         <% else %>
           <span class="badge badge-success badge-sm gap-1">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
             </svg>
             <%= stock %>
           </span>
         <% end %>
-      </td>
-
-      <%# Stock mínimo %>
-      <td class="text-center text-sm text-base-content/50 hidden md:table-cell tabular-nums">
-        <%= producto.stock_minimo_limite %>
-      </td>
-
-      <%# Stock máximo %>
-      <td class="text-center text-sm text-base-content/50 hidden md:table-cell tabular-nums">
-        <%= producto.stock_maximo_limite %>
       </td>
 
     </tr>

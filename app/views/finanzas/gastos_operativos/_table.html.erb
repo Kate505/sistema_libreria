@@ -1,11 +1,9 @@
 <table class="table table-pin-rows px-4">
   <thead>
     <tr class="bg-base-100 z-10">
-      <th>Período</th>
-      <th class="text-right">Alquiler</th>
-      <th class="text-right">Utilidades</th>
-      <th class="text-right">Mantenimiento</th>
-      <th class="text-right font-bold">Total</th>
+      <th>Fecha</th>
+      <th>Descripción</th>
+      <th class="text-right">Cantidad (C$)</th>
       <th class="text-right">Acciones</th>
     </tr>
   </thead>
@@ -14,27 +12,16 @@
   <% gastos_operativos.each do |gasto| %>
     <tr class="hover:bg-base-200">
 
-      <td>
-        <div class="flex flex-col">
-          <span class="font-semibold"><%= gasto.nombre_mes %></span>
-          <span class="text-xs text-base-content/50"><%= gasto.periodo_year %></span>
-        </div>
+      <td class="whitespace-nowrap">
+        <span class="font-semibold"><%= gasto.fecha&.strftime("%d/%m/%Y") || "—" %></span>
       </td>
 
-      <td class="text-right tabular-nums">
-        C$ <%= number_with_precision(gasto.costos_alquiler, precision: 2, delimiter: ',') %>
+      <td class="max-w-xs">
+        <span class="truncate block"><%= gasto.descripcion.presence || "—" %></span>
       </td>
 
-      <td class="text-right tabular-nums">
-        C$ <%= number_with_precision(gasto.costo_utilidades, precision: 2, delimiter: ',') %>
-      </td>
-
-      <td class="text-right tabular-nums">
-        C$ <%= number_with_precision(gasto.costo_mantenimiento, precision: 2, delimiter: ',') %>
-      </td>
-
-      <td class="text-right tabular-nums">
-        C$ <%= number_with_precision(gasto.gran_total_gastos, precision: 2, delimiter: ',') %>
+      <td class="text-right tabular-nums font-semibold">
+        C$ <%= number_with_precision(gasto.cantidad, precision: 2, delimiter: ',') %>
       </td>
 
       <td class="flex gap-2 justify-end">
@@ -51,7 +38,7 @@
         <% end %>
 
         <%= link_to finanzas_gasto_operativo_path(gasto),
-                    data: { turbo_method: :delete, turbo_confirm: "¿Eliminar el gasto operativo de #{gasto.periodo_legible}? Esta acción no se puede deshacer." },
+                    data: { turbo_method: :delete, turbo_confirm: "¿Eliminar este gasto operativo? Esta acción no se puede deshacer." },
                     class: "btn btn-sm btn-ghost btn-square text-error",
                     title: "Eliminar" do %>
           <% inline_svg "remove.svg" %>
@@ -62,7 +49,7 @@
 
   <% if gastos_operativos.empty? %>
     <tr>
-      <td colspan="7" class="text-center py-12 text-base-content/40">
+      <td colspan="4" class="text-center py-12 text-base-content/40">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-3 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M12 7h.01M3 5a2 2 0 012-2h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5z" />
         </svg>

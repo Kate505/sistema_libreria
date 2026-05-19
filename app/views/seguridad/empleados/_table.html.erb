@@ -3,6 +3,8 @@
   <tr class="bg-base-100 z-10">
     <th>ID</th>
     <th>Nombre</th>
+    <th>Cédula</th>
+    <th>Teléfono</th>
     <th>Cargo</th>
     <th>Fecha de contratación</th>
     <th>Estado</th>
@@ -15,8 +17,10 @@
     <tr class="hover:bg-base-200">
       <td><%= empleado.id %></td>
       <td class="font-bold"><%= empleado.nombre_completo %></td>
+      <td class="font-mono text-sm"><%= empleado.cedula_formateada.presence || "—" %></td>
+      <td class="font-mono text-sm"><%= empleado.telefono.presence || "—" %></td>
       <td class="font-bold"><%= empleado.cargo %></td>
-      <td class="font-bold"><%= empleado.fecha_contratacion %></td>
+      <td class="font-bold"><%= empleado.fecha_contratacion&.strftime("%d/%m/%Y") %></td>
 
       <td>
         <%= status_badge(pasivo: empleado.pasivo) %>

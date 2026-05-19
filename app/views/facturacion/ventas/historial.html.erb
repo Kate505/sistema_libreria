@@ -31,7 +31,7 @@
         <div class="stat py-2 px-4 bg-primary/10 rounded-box">
           <div class="stat-title text-xs font-bold text-primary">Total</div>
           <div class="stat-value text-lg tabular-nums text-primary">
-            C$ <%= number_with_precision(@total_general, precision: 2, delimiter: ',') %>
+            C$ <%= number_with_precision(@total_general, precision: 0, delimiter: ',') %>
           </div>
         </div>
       </div>
@@ -53,7 +53,9 @@
             <input type="date"
                    name="fecha_desde"
                    value="<%= params[:fecha_desde] %>"
-                   class="input input-bordered input-sm w-full">
+                   max="<%= Date.current.iso8601 %>"
+                   class="input input-bordered input-sm w-full"
+                   data-controller="datepicker">
           </div>
 
           <%# Fecha hasta %>
@@ -64,7 +66,9 @@
             <input type="date"
                    name="fecha_hasta"
                    value="<%= params[:fecha_hasta] %>"
-                   class="input input-bordered input-sm w-full">
+                   max="<%= Date.current.iso8601 %>"
+                   class="input input-bordered input-sm w-full"
+                   data-controller="datepicker">
           </div>
 
           <%# Nombre del cliente %>
@@ -197,7 +201,7 @@
                   </td>
 
                   <td class="text-right tabular-nums font-semibold">
-                    C$ <%= number_with_precision(venta.cantidad_total, precision: 2, delimiter: ',') %>
+                    C$ <%= number_with_precision(venta.cantidad_total, precision: 0, delimiter: ',') %>
                   </td>
 
                   <td class="text-right">
@@ -221,7 +225,7 @@
                   Total (<%= @total_ventas %> ventas):
                 </td>
                 <td class="text-right tabular-nums">
-                  C$ <%= number_with_precision(@total_general, precision: 2, delimiter: ',') %>
+                  C$ <%= number_with_precision(@total_general, precision: 0, delimiter: ',') %>
                 </td>
                 <td></td>
               </tr>
@@ -240,6 +244,16 @@
           </div>
         <% end %>
       </div>
+
+      <% if @ventas.respond_to?(:total_pages) && @ventas.total_pages > 1 %>
+        <div class="border-t border-base-200 p-3 shrink-0 flex justify-center">
+          <%= paginate @ventas, theme: 'twitter-bootstrap-4', window: 2,
+                       params: { fecha_desde: params[:fecha_desde], fecha_hasta: params[:fecha_hasta],
+                                 cliente_nombre: params[:cliente_nombre], metodo_pago: params[:metodo_pago],
+                                 estado: params[:estado] } %>
+        </div>
+      <% end %>
+
     </div>
 
   </div>

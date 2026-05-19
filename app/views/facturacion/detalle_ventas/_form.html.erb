@@ -78,23 +78,25 @@
           <div class="w-full">
             <%= f.label :cantidad, 'Cantidad', class: 'label pt-0' %>
             <%= f.number_field :cantidad,
+                               id: "detalle_cantidad",
                                min: 1,
                                step: 1,
                                class: 'input input-bordered w-full',
                                placeholder: '1',
-                               required: true %>
+                               required: true,
+                               oninput: 'actualizarPrecioPorCantidad()' %>
           </div>
 
-          <%# Precio de Venta Unitario — solo lectura, se llena al seleccionar producto %>
+          <%# Precio de Venta Unitario — solo lectura %>
           <div class="w-full">
             <%= f.label :precio_unitario_venta, 'Precio Unitario Venta', class: 'label pt-0' %>
             <label class="input input-bordered flex items-center gap-2 w-full bg-base-200/60">
               <span class="text-base-content/60 text-sm font-semibold">C$</span>
               <%= f.number_field :precio_unitario_venta,
                                  id: "precio_unitario_venta",
-                                 step: '0.01', min: 0,
+                                 step: 1, min: 0,
                                  class: 'grow cursor-not-allowed',
-                                 placeholder: '0.00',
+                                 placeholder: '0',
                                  required: true,
                                  readonly: true,
                                  tabindex: -1 %>
@@ -102,9 +104,62 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
               </svg>
             </label>
-            <p class="text-xs text-base-content/40 mt-1">
-              Se llena automáticamente al seleccionar el producto.
-            </p>
+            <div id="precio_tipo_info" class="hidden mt-1">
+              <span id="precio_tipo_badge" class="badge badge-sm gap-1"></span>
+            </div>
+          </div>
+
+          <%# ── Descuento — Control premium con slider + badge ── %>
+          <div id="descuento_section" class="w-full hidden">
+            <%= f.label :descuento_porcentaje, 'Descuento', class: 'label pt-0' %>
+
+            <%# Contenedor con apariencia card %>
+            <div class="bg-gradient-to-r from-warning/5 to-warning/10 border border-warning/20 rounded-xl p-4">
+
+              <%# Fila superior: Badge visual + valor numérico %>
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                  <div class="bg-warning/20 rounded-lg p-1.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-warning" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/>
+                    </svg>
+                  </div>
+                  <span class="text-sm font-medium text-base-content/70">Descuento aplicado</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <input type="number"
+                         id="descuento_porcentaje"
+                         name="detalle_venta[descuento_porcentaje]"
+                         min="0" max="100" step="1"
+                         value="<%= detalle.descuento_porcentaje.to_i %>"
+                         class="input input-bordered input-sm w-16 text-center font-bold tabular-nums text-warning"
+                         oninput="syncDescuentoSlider(this.value)">
+                  <span class="text-sm font-bold text-warning">%</span>
+                </div>
+              </div>
+
+              <%# Slider range con labels %>
+              <div>
+                <input type="range"
+                       id="descuento_slider"
+                       min="0" max="100" step="1"
+                       value="<%= detalle.descuento_porcentaje.to_i %>"
+                       class="range range-warning range-sm w-full"
+                       oninput="syncDescuentoInput(this.value)">
+                <div class="flex justify-between text-xs text-base-content/40 mt-1 px-0.5">
+                  <span>0%</span>
+                  <span id="descuento_max_label">Máx: —</span>
+                </div>
+              </div>
+
+              <%# Info del máximo permitido %>
+              <div id="descuento_limit_info" class="flex items-center gap-1.5 mt-2 text-xs text-warning/70">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span>Máximo permitido: <strong id="descuento_max_value">0</strong>%</span>
+              </div>
+            </div>
           </div>
 
           <%# Acción %>
@@ -124,20 +179,102 @@
 </turbo-frame>
 
 <script>
-  // Al seleccionar un producto del autocomplete, rellena el precio unitario y muestra el stock.
-  document.addEventListener("autocomplete:select", function(event) {
-    const item = event.detail;
-    if (item && item.precio !== undefined) {
-      const precioField = document.getElementById("precio_unitario_venta");
-      if (precioField) {
-        precioField.value = parseFloat(item.precio).toFixed(2);
+  // ── Estado global del producto seleccionado ──
+  var _precioNormal = 0;
+  var _precioMayor = 0;
+  var _descuentoMax = 0;
+  var _descuentoPermitido = false;
+
+  // ── Precio al mayor: cambia automáticamente cuando qty >= 3 ──
+  function actualizarPrecioPorCantidad() {
+    var cantField = document.getElementById("detalle_cantidad");
+    var precioField = document.getElementById("precio_unitario_venta");
+    var infoDiv = document.getElementById("precio_tipo_info");
+    var badge = document.getElementById("precio_tipo_badge");
+    if (!cantField || !precioField || _precioNormal === 0) return;
+
+    var qty = parseInt(cantField.value) || 0;
+    var usarMayor = qty >= 3 && _precioMayor > 0 && _precioMayor !== _precioNormal;
+    var precio = usarMayor ? _precioMayor : _precioNormal;
+    precioField.value = precio;
+
+    // Badge indicador
+    if (infoDiv && badge) {
+      if (usarMayor) {
+        badge.className = "badge badge-sm badge-info gap-1";
+        badge.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg> Precio al mayor (≥3 uds.)';
+        infoDiv.classList.remove("hidden");
+      } else if (_precioMayor > 0 && _precioMayor !== _precioNormal) {
+        badge.className = "badge badge-sm badge-ghost gap-1";
+        badge.textContent = "Precio normal (al mayor desde 3 uds.)";
+        infoDiv.classList.remove("hidden");
+      } else {
+        infoDiv.classList.add("hidden");
       }
-      const stockInfo  = document.getElementById("stock_info");
-      const stockValue = document.getElementById("stock_value");
+    }
+  }
+
+  // ── Descuento ──
+  function syncDescuentoInput(val) {
+    val = Math.min(parseInt(val) || 0, _descuentoMax);
+    var numField = document.getElementById("descuento_porcentaje");
+    var slider = document.getElementById("descuento_slider");
+    if (numField) numField.value = val;
+    if (slider) slider.value = val;
+  }
+
+  function syncDescuentoSlider(val) {
+    val = Math.min(parseInt(val) || 0, _descuentoMax);
+    var numField = document.getElementById("descuento_porcentaje");
+    var slider = document.getElementById("descuento_slider");
+    if (numField) numField.value = val;
+    if (slider) slider.value = val;
+  }
+
+  function configurarDescuento(permitido, maxVal) {
+    _descuentoPermitido = permitido;
+    _descuentoMax = permitido ? (parseInt(maxVal) || 0) : 0;
+
+    var section = document.getElementById("descuento_section");
+    var numField = document.getElementById("descuento_porcentaje");
+    var slider = document.getElementById("descuento_slider");
+    var maxLabel = document.getElementById("descuento_max_label");
+    var maxValue = document.getElementById("descuento_max_value");
+
+    if (!section) return;
+
+    if (permitido && _descuentoMax > 0) {
+      section.classList.remove("hidden");
+      if (numField) { numField.max = _descuentoMax; numField.value = _descuentoMax; }
+      if (slider)   { slider.max = _descuentoMax; slider.value = _descuentoMax; }
+      if (maxLabel) maxLabel.textContent = "Máx: " + _descuentoMax + "%";
+      if (maxValue) maxValue.textContent = _descuentoMax;
+    } else {
+      section.classList.add("hidden");
+      if (numField) { numField.value = 0; numField.max = 0; }
+      if (slider)   { slider.value = 0; slider.max = 0; }
+    }
+  }
+
+  // ── Al seleccionar producto del autocomplete ──
+  document.addEventListener("autocomplete:select", function(event) {
+    var item = event.detail;
+    if (item && item.precio !== undefined) {
+      _precioNormal = parseInt(item.precio) || 0;
+      _precioMayor  = parseInt(item.precio_mayor) || 0;
+
+      // Aplicar precio según cantidad actual
+      actualizarPrecioPorCantidad();
+
+      var stockInfo  = document.getElementById("stock_info");
+      var stockValue = document.getElementById("stock_value");
       if (stockInfo && stockValue) {
         stockValue.textContent = item.stock;
         stockInfo.classList.remove("hidden");
       }
+
+      // Configurar descuento según producto
+      configurarDescuento(item.descuento === true, item.descuento_maximo);
     }
   });
 </script>

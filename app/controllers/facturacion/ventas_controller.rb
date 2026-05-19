@@ -143,7 +143,7 @@ class Facturacion::VentasController < ApplicationController
   # GET /facturacion/ventas/buscar_cliente?q=término
   def buscar_cliente
     @clientes = Cliente.where(
-      "primer_nombre ILIKE :q OR primer_apellido ILIKE :q OR segundo_nombre ILIKE :q",
+      "primer_nombre ILIKE :q OR primer_apellido ILIKE :q OR segundo_nombre ILIKE :q OR cedula ILIKE :q OR telefono ILIKE :q",
       q: "%#{params[:q]}%"
     ).order(:primer_apellido, :primer_nombre).limit(10)
     render json: @clientes.map { |c| { id: c.id, text: "#{c.primer_nombre} #{c.primer_apellido}" } }
@@ -214,6 +214,7 @@ class Facturacion::VentasController < ApplicationController
 
     @total_general = @ventas.sum(:cantidad_total)
     @total_ventas  = @ventas.count
+    @ventas = @ventas.page(params[:page]).per(10)
   end
 
   # GET /facturacion/ventas/buscar_producto?q=término
@@ -227,7 +228,10 @@ class Facturacion::VentasController < ApplicationController
         id: p.id,
         text: "#{p.sku.presence || '—'} · #{p.nombre}",
         precio: p.precio_venta.to_s,
-        stock: p.stock_actual
+        precio_mayor: p.precio_venta_al_mayor.to_s,
+        stock: p.stock_actual,
+        descuento: p.descuento?,
+        descuento_maximo: p.descuento_maximo.to_i
       }
     }
   end

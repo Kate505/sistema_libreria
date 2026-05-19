@@ -58,6 +58,7 @@
           <%= f.datetime_local_field :fecha_venta,
                                      class: 'input input-bordered w-full',
                                      value: (venta.fecha_venta || Time.current).strftime("%Y-%m-%dT%H:%M"),
+                                     max: Time.current.strftime("%Y-%m-%dT%H:%M"),
                                      required: true %>
         </div>
 

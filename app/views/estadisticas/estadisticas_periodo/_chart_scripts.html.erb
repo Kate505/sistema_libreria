@@ -210,45 +210,6 @@
         }
       })
     }
-
-    // ── Gráfico 7: Histograma EDA ─────────────────────────────────────────
-    destroyChart("histogramaVentasChart")
-    const ctxHist = document.getElementById("histogramaVentasChart")
-    if (ctxHist) {
-      ctxHist._chartInstance = new Chart(ctxHist, {
-        type: "bar",
-        data: {
-          labels: <%= raw @hist_labels.to_json %>,
-          datasets: [{
-            label: "Frecuencia",
-            data: <%= raw @hist_data.to_json %>,
-            backgroundColor: "rgba(99,102,241,0.75)",
-            borderColor: "rgba(99,102,241,1)",
-            borderWidth: 1,
-            borderRadius: 3
-          }]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y} ventas` } }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: { precision: 0 },
-              title: { display: true, text: "Frecuencia" },
-              grid: { color: "rgba(128,128,128,0.1)" }
-            },
-            x: {
-              grid: { display: false },
-              ticks: { font: { size: 9 } }
-            }
-          }
-        }
-      })
-    }
   }
 
   document.addEventListener("turbo:load", initCharts)

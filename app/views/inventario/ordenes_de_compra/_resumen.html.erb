@@ -4,22 +4,46 @@
   <% total    = subtotal + flete %>
   <% count    = orden_de_compra.detalle_ordenes_de_compra.size %>
 
-  <div class="stats stats-horizontal shadow">
-    <div class="stat py-2 px-4">
-      <div class="stat-title text-xs">Productos</div>
-      <div class="stat-value text-lg"><%= count %></div>
+  <div class="flex flex-wrap items-center gap-3">
+    <div class="stats stats-horizontal shadow">
+      <div class="stat py-2 px-4">
+        <div class="stat-title text-xs">Productos</div>
+        <div class="stat-value text-lg"><%= count %></div>
+      </div>
+      <div class="stat py-2 px-4">
+        <div class="stat-title text-xs">Subtotal</div>
+        <div class="stat-value text-lg tabular-nums">C$ <%= number_with_precision(subtotal, precision: 2, delimiter: ',') %></div>
+      </div>
+      <div class="stat py-2 px-4">
+        <div class="stat-title text-xs">Flete</div>
+        <div class="stat-value text-lg tabular-nums">C$ <%= number_with_precision(flete, precision: 2, delimiter: ',') %></div>
+      </div>
+      <div class="stat py-2 px-4 bg-primary/10 rounded-box">
+        <div class="stat-title text-xs font-bold text-primary">Total</div>
+        <div class="stat-value text-lg tabular-nums text-primary">C$ <%= number_with_precision(total, precision: 2, delimiter: ',') %></div>
+      </div>
     </div>
-    <div class="stat py-2 px-4">
-      <div class="stat-title text-xs">Subtotal</div>
-      <div class="stat-value text-lg tabular-nums">C$ <%= number_with_precision(subtotal, precision: 2, delimiter: ',') %></div>
-    </div>
-    <div class="stat py-2 px-4">
-      <div class="stat-title text-xs">Flete</div>
-      <div class="stat-value text-lg tabular-nums">C$ <%= number_with_precision(flete, precision: 2, delimiter: ',') %></div>
-    </div>
-    <div class="stat py-2 px-4 bg-primary/10 rounded-box">
-      <div class="stat-title text-xs font-bold text-primary">Total</div>
-      <div class="stat-value text-lg tabular-nums text-primary">C$ <%= number_with_precision(total, precision: 2, delimiter: ',') %></div>
-    </div>
+
+    <% if orden_de_compra.pendiente? && count > 0 %>
+      <%# Botón para abrir el modal de finalizar %>
+      <button class="btn btn-success gap-2"
+              onclick="document.getElementById('dialog_finalizar_orden').showModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        Finalizar Orden
+      </button>
+    <% elsif orden_de_compra.finalizada? %>
+      <span class="badge badge-success badge-lg gap-1 font-semibold">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+        Orden Finalizada
+      </span>
+    <% end %>
   </div>
+
+  <%# Modal de finalización (se reemplaza por turbo_stream al finalizar) %>
+  <%= render "inventario/ordenes_de_compra/modal_finalizar", orden_de_compra: orden_de_compra %>
+
 </turbo-frame>

@@ -5,6 +5,8 @@
       <th class="text-center">Cantidad</th>
       <th class="text-right">P. Compra Unit.</th>
       <th class="text-right">Costo Unit. Calc.</th>
+      <th class="text-right">Precio Venta</th>
+      <th class="text-right">P. Mayor</th>
       <th class="text-right">Total Línea</th>
       <th class="text-right">Acción</th>
     </tr>
@@ -13,6 +15,7 @@
   <tbody>
   <% detalles.each do |detalle| %>
     <% total_linea = detalle.costo_unitario_compra_calculado.to_d * detalle.cantidad.to_i %>
+    <% precio_sugerido = PriceCalculationService.call(detalle.producto, detalle.costo_unitario_compra_calculado) %>
     <tr class="hover:bg-base-200">
 
       <td class="font-medium max-w-xs">
@@ -36,7 +39,37 @@
         <% diferencia = detalle.costo_unitario_compra_calculado.to_d - detalle.precio_unitario_compra.to_d %>
         C$ <%= number_with_precision(detalle.costo_unitario_compra_calculado, precision: 2, delimiter: ',') %>
         <% if diferencia > 0 %>
-          <div class="text-xs text-warning/70">+C$ <%= number_with_precision(diferencia, precision: 2) %> flete</div>
+          <div class="text-xs text-base-content/60">+C$ <%= number_with_precision(diferencia, precision: 2) %> flete</div>
+        <% end %>
+      </td>
+
+      <td class="text-right tabular-nums">
+        <% if orden_de_compra.pendiente? %>
+          <input type="number"
+                 name="precios_venta[<%= detalle.producto_id %>]"
+                 value="<%= precio_sugerido %>"
+                 min="1"
+                 step="1"
+                 form="form_finalizar_orden"
+                 class="input input-bordered input-sm w-24 text-right tabular-nums"
+                 title="Precio de venta (editable)">
+        <% else %>
+          <span class="font-semibold">C$ <%= detalle.producto.precio_venta.to_i %></span>
+        <% end %>
+      </td>
+
+      <td class="text-right tabular-nums">
+        <% if orden_de_compra.pendiente? %>
+          <input type="number"
+                 name="precios_mayor[<%= detalle.producto_id %>]"
+                 value="<%= precio_sugerido %>"
+                 min="1"
+                 step="1"
+                 form="form_finalizar_orden"
+                 class="input input-bordered input-sm w-24 text-right tabular-nums"
+                 title="Precio al por mayor (editable)">
+        <% else %>
+          <span class="font-semibold">C$ <%= detalle.producto.precio_venta_al_mayor.to_i %></span>
         <% end %>
       </td>
 
@@ -45,17 +78,21 @@
       </td>
 
       <td class="text-right">
-        <%= link_to inventario_orden_de_compra_detalle_ordenes_de_compra_path(orden_de_compra, detalle),
-                    data: { turbo_method: :delete,
-                            turbo_confirm: "¿Eliminar #{detalle.producto.nombre} de esta orden? Se revertirán #{detalle.cantidad} unidades del stock." },
-                    class: "btn btn-sm btn-ghost btn-square text-error",
-                    title: "Eliminar línea" do %>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="3 6 5 6 21 6"/>
-            <path d="M19 6l-1 14H6L5 6"/>
-            <path d="M10 11v6M14 11v6"/>
-            <path d="M9 6V4h6v2"/>
-          </svg>
+        <% if orden_de_compra.pendiente? %>
+          <%= link_to inventario_orden_de_compra_detalle_orden_de_compra_path(orden_de_compra, detalle),
+                      data: { turbo_method: :delete,
+                              turbo_confirm: "¿Eliminar #{detalle.producto.nombre} de esta orden? Se revertirán #{detalle.cantidad} unidades del stock." },
+                      class: "btn btn-sm btn-ghost btn-square text-error",
+                      title: "Eliminar línea" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6l-1 14H6L5 6"/>
+              <path d="M10 11v6M14 11v6"/>
+              <path d="M9 6V4h6v2"/>
+            </svg>
+          <% end %>
+        <% else %>
+          <span class="text-base-content/20 text-xs italic">—</span>
         <% end %>
       </td>
 
@@ -64,7 +101,7 @@
 
   <% if detalles.empty? %>
     <tr>
-      <td colspan="6" class="text-center py-16 text-base-content/40">
+      <td colspan="8" class="text-center py-16 text-base-content/40">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-3 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
         </svg>
@@ -78,7 +115,7 @@
   <% if detalles.any? %>
     <tfoot>
       <tr class="bg-base-200/50">
-        <td colspan="4" class="text-right font-semibold text-sm">Subtotal (costo calculado):</td>
+        <td colspan="6" class="text-right font-semibold text-sm">Subtotal (costo calculado):</td>
         <td class="text-right font-bold tabular-nums">
           <% subtotal = detalles.sum { |d| d.costo_unitario_compra_calculado.to_d * d.cantidad.to_i } %>
           C$ <%= number_with_precision(subtotal, precision: 2, delimiter: ',') %>
@@ -88,3 +125,9 @@
     </tfoot>
   <% end %>
 </table>
+
+<% if detalles.respond_to?(:total_pages) && detalles.total_pages > 1 %>
+  <div class="flex justify-center py-4 border-t border-base-200">
+    <%= paginate detalles, param_name: :page %>
+  </div>
+<% end %>
