@@ -194,7 +194,7 @@
     if (!cantField || !precioField || _precioNormal === 0) return;
 
     var qty = parseInt(cantField.value) || 0;
-    var usarMayor = qty >= 3 && _precioMayor > 0;
+    var usarMayor = qty >= 3 && _precioMayor > 0 && _precioMayor !== _precioNormal;
     var precio = usarMayor ? _precioMayor : _precioNormal;
     precioField.value = precio;
 
@@ -204,7 +204,7 @@
         badge.className = "badge badge-sm badge-info gap-1";
         badge.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg> Precio al mayor (≥3 uds.)';
         infoDiv.classList.remove("hidden");
-      } else if (_precioMayor > 0) {
+      } else if (_precioMayor > 0 && _precioMayor !== _precioNormal) {
         badge.className = "badge badge-sm badge-ghost gap-1";
         badge.textContent = "Precio normal (al mayor desde 3 uds.)";
         infoDiv.classList.remove("hidden");

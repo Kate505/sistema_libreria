@@ -143,7 +143,7 @@ class Facturacion::VentasController < ApplicationController
   # GET /facturacion/ventas/buscar_cliente?q=término
   def buscar_cliente
     @clientes = Cliente.where(
-      "primer_nombre ILIKE :q OR primer_apellido ILIKE :q OR segundo_nombre ILIKE :q",
+      "primer_nombre ILIKE :q OR primer_apellido ILIKE :q OR segundo_nombre ILIKE :q OR cedula ILIKE :q OR telefono ILIKE :q",
       q: "%#{params[:q]}%"
     ).order(:primer_apellido, :primer_nombre).limit(10)
     render json: @clientes.map { |c| { id: c.id, text: "#{c.primer_nombre} #{c.primer_apellido}" } }

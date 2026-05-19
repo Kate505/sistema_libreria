@@ -230,15 +230,17 @@
   <% end %>
 
   <%# ── Tabla de Alertas de Stock Bajo ─────────────────────────────────── %>
-  <% if @productos_bajo_stock.any? %>
-    <div class="card bg-base-100 shadow-sm border border-error/20 mb-4">
-      <div class="card-body p-4">
-        <h2 class="card-title text-base text-error">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-          </svg>
-          Alertas de Stock Bajo
-        </h2>
+  <div class="card bg-base-100 shadow-sm border border-error/20 mb-4">
+    <div class="card-body p-4">
+      <h2 class="card-title text-base text-error">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+        Alertas de Stock Bajo
+        <span class="badge badge-error badge-sm"><%= @productos_stock_bajo %></span>
+      </h2>
+
+      <% if @productos_bajo_stock.any? %>
         <div class="overflow-x-auto mt-2">
           <table class="table table-sm">
             <thead>
@@ -259,7 +261,7 @@
                       <div class="text-xs text-base-content/40 font-mono"><%= p.sku %></div>
                     <% end %>
                   </td>
-                  <td class="text-sm"><%= p.categoria.nombre %></td>
+                  <td class="text-sm"><%= p.categoria&.nombre || "—" %></td>
                   <td class="text-center font-bold <%= p.stock_actual == 0 ? 'text-error' : 'text-warning' %>">
                     <%= p.stock_actual %>
                   </td>
@@ -276,9 +278,20 @@
             </tbody>
           </table>
         </div>
-      </div>
+
+        <% if @productos_bajo_stock.respond_to?(:total_pages) && @productos_bajo_stock.total_pages > 1 %>
+          <div class="border-t border-base-200 pt-3 mt-2 flex justify-center">
+            <%= paginate @productos_bajo_stock, theme: 'twitter-bootstrap-4', window: 2,
+                         param_name: :stock_page,
+                         params: { fecha_desde: params[:fecha_desde], fecha_hasta: params[:fecha_hasta],
+                                   marca_id: params[:marca_id] } %>
+          </div>
+        <% end %>
+      <% else %>
+        <p class="text-sm text-base-content/40 mt-2 text-center py-6">No hay productos con stock bajo.</p>
+      <% end %>
     </div>
-  <% end %>
+  </div>
 
 <% end %>
 

@@ -15,20 +15,20 @@ class HomeController < ApplicationController
     # ── KPI Cards ─────────────────────────────────────────────────────────
     if @marca_id.present?
       @ventas_periodo = DetalleVenta.joins(:venta, :producto)
-                                    .where(ventas: { fecha_venta: rango }, productos: { marca_id: @marca_id })
+                                    .where(ventas: { fecha_venta: rango, finalizada: true }, productos: { marca_id: @marca_id })
                                     .sum("detalle_venta.cantidad * detalle_venta.precio_unitario_venta")
 
-      @total_ventas_count = Venta.joins(detalle_ventas: :producto)
+      @total_ventas_count = Venta.finalizadas.joins(detalle_ventas: :producto)
                                  .where(fecha_venta: rango, productos: { marca_id: @marca_id })
                                  .distinct.count
 
       @ventas_hoy = DetalleVenta.joins(:venta, :producto)
-                                .where(ventas: { fecha_venta: hoy.all_day }, productos: { marca_id: @marca_id })
+                                .where(ventas: { fecha_venta: hoy.all_day, finalizada: true }, productos: { marca_id: @marca_id })
                                 .sum("detalle_venta.cantidad * detalle_venta.precio_unitario_venta")
     else
-      @ventas_periodo     = Venta.where(fecha_venta: rango).sum(:cantidad_total)
-      @total_ventas_count = Venta.where(fecha_venta: rango).count
-      @ventas_hoy         = Venta.where(fecha_venta: hoy.all_day).sum(:cantidad_total)
+      @ventas_periodo     = Venta.finalizadas.where(fecha_venta: rango).sum(:cantidad_total)
+      @total_ventas_count = Venta.finalizadas.where(fecha_venta: rango).count
+      @ventas_hoy         = Venta.finalizadas.where(fecha_venta: hoy.all_day).sum(:cantidad_total)
     end
 
     productos_scope = Producto.all
@@ -44,11 +44,11 @@ class HomeController < ApplicationController
     # Base query for trend
     if @marca_id.present?
       trend_scope = DetalleVenta.joins(:venta, :producto)
-                                .where(ventas: { fecha_venta: rango }, productos: { marca_id: @marca_id })
+                                .where(ventas: { fecha_venta: rango, finalizada: true }, productos: { marca_id: @marca_id })
       sum_column = "detalle_venta.cantidad * detalle_venta.precio_unitario_venta"
       date_column = "ventas.fecha_venta"
     else
-      trend_scope = Venta.where(fecha_venta: rango)
+      trend_scope = Venta.finalizadas.where(fecha_venta: rango)
       sum_column = :cantidad_total
       date_column = "fecha_venta"
     end
@@ -77,7 +77,7 @@ class HomeController < ApplicationController
     end
 
     # ── Gráfico 2: Top 5 productos más vendidos (barras horizontales) ────
-    top_productos_scope = DetalleVenta.joins(:venta, :producto).where(ventas: { fecha_venta: rango })
+    top_productos_scope = DetalleVenta.joins(:venta, :producto).where(ventas: { fecha_venta: rango, finalizada: true })
     top_productos_scope = top_productos_scope.where(productos: { marca_id: @marca_id }) if @marca_id.present?
 
     top_productos = top_productos_scope
@@ -96,18 +96,18 @@ class HomeController < ApplicationController
     
     if @marca_id.present?
       ventas_metodo = DetalleVenta.joins(:venta, :producto)
-                                  .where(ventas: { fecha_venta: rango }, productos: { marca_id: @marca_id })
+                                  .where(ventas: { fecha_venta: rango, finalizada: true }, productos: { marca_id: @marca_id })
                                   .group("ventas.metodo_pago")
                                   .sum("detalle_venta.cantidad * detalle_venta.precio_unitario_venta")
     else
-      ventas_metodo = Venta.where(fecha_venta: rango).group(:metodo_pago).sum(:cantidad_total)
+      ventas_metodo = Venta.finalizadas.where(fecha_venta: rango).group(:metodo_pago).sum(:cantidad_total)
     end
 
     @metodo_pago_labels = ventas_metodo.keys.map { |k| Venta::METODOS_PAGO[k] || k }
     @metodo_pago_data   = ventas_metodo.values.map(&:to_f)
 
     # ── Gráfico 4: Ventas por categoría (barras) — NUEVO ─────────────────
-    ventas_cat_scope = DetalleVenta.joins(:venta, producto: :categoria).where(ventas: { fecha_venta: rango })
+    ventas_cat_scope = DetalleVenta.joins(:venta, producto: :categoria).where(ventas: { fecha_venta: rango, finalizada: true })
     ventas_cat_scope = ventas_cat_scope.where(productos: { marca_id: @marca_id }) if @marca_id.present?
 
     ventas_cat = ventas_cat_scope
@@ -129,12 +129,11 @@ class HomeController < ApplicationController
     @stock_cat_labels = stock_cat.keys
     @stock_cat_data   = stock_cat.values.map(&:to_i)
 
-    # ── Tabla: Productos con stock bajo ───────────────────────────────────
     @productos_bajo_stock = productos_scope
       .includes(:categoria)
       .where("stock_actual <= stock_minimo_limite")
       .order(stock_actual: :asc)
-      .limit(8)
+      .page(params[:stock_page]).per(10)
   end
 
   private
