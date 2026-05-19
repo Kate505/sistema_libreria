@@ -5,9 +5,17 @@
     <th>Nombre</th>
     <th>Marca</th>
     <th>Categoría</th>
-    <th class="text-right">CPP</th>
-    <th class="text-right">Precio Venta</th>
-    <th class="text-right">Margen Est.</th>
+    <th class="text-right">P. Compra</th>
+    <th class="text-right">Costo Calc.</th>
+    <th class="text-right">
+      <span class="inline-flex items-center gap-1" title="El Precio de Venta es un precio de venta ponderado con el precio de venta anterior del producto.">
+        Precio Venta
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 opacity-60" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true" focusable="false">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8h.01M11 12h1v4h1m-1-10a9 9 0 1 0 0 18a9 9 0 0 0 0-18z"/>
+        </svg>
+      </span>
+    </th>
+    <th class="text-right">Margen</th>
     <th>Stock</th>
     <th class="text-right">Acciones</th>
   </tr>
@@ -15,6 +23,7 @@
 
   <tbody>
   <% productos.each do |producto| %>
+    <% costo_calc = producto.ultimo_costo_calculado %>
     <tr class="hover:bg-base-200">
       <td class="text-base-content/50 text-sm"><%= producto.sku %></td>
 
@@ -39,23 +48,31 @@
       </td>
 
       <td class="text-right tabular-nums text-sm text-base-content/60">
-        C$ <%= number_with_precision(producto.costo_promedio_ponderado, precision: 2, delimiter: ',') %>
+        <% if producto.ultimo_precio_compra.to_d > 0 %>
+          C$ <%= number_with_precision(producto.ultimo_precio_compra, precision: 2, delimiter: ',') %>
+        <% else %>
+          <span class="text-base-content/30 italic">—</span>
+        <% end %>
+      </td>
+
+      <td class="text-right tabular-nums text-sm text-base-content/60">
+        <% if costo_calc > 0 %>
+          C$ <%= number_with_precision(costo_calc, precision: 2, delimiter: ',') %>
+        <% else %>
+          <span class="text-base-content/30 italic">—</span>
+        <% end %>
       </td>
 
       <td class="text-right font-semibold tabular-nums">
-        C$ <%= number_with_precision(producto.precio_venta, precision: 2, delimiter: ',') %>
+        C$ <%= producto.precio_venta.to_i %>
       </td>
 
-      <%# Margen estimado con alerta %>
+      <%# Margen: ((PV - costo_calc) / costo_calc) * 100 %>
       <td class="text-right tabular-nums">
         <% margen = producto.margen_estimado %>
         <% bajo = producto.margen_bajo? %>
-        <% pct = (margen * 100).round(1) %>
         <span class="badge badge-sm <%= bajo ? 'badge-warning' : 'badge-success' %>">
-          <% if bajo %>
-            ⚠️
-          <% end %>
-          <%= pct %>%
+          <%= margen %>%
         </span>
       </td>
 
@@ -109,7 +126,7 @@
 
   <% if productos.empty? %>
     <tr>
-      <td colspan="9" class="text-center py-12 text-base-content/40">
+      <td colspan="10" class="text-center py-12 text-base-content/40">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-3 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
         </svg>

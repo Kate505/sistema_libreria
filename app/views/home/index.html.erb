@@ -95,7 +95,7 @@
           </svg>
         </div>
         <p class="text-2xl font-bold mt-1 tabular-nums">
-          C$ <%= number_with_precision(@ventas_periodo, precision: 2, delimiter: ',') %>
+          C$ <%= number_with_precision(@ventas_periodo, precision: 0, delimiter: ',') %>
         </p>
         <p class="text-xs opacity-70 mt-1"><%= @total_ventas_count %> transacciones</p>
       </div>
@@ -112,7 +112,7 @@
           </span>
         </div>
         <p class="text-2xl font-bold mt-1 tabular-nums">
-          C$ <%= number_with_precision(@ventas_hoy, precision: 2, delimiter: ',') %>
+          C$ <%= number_with_precision(@ventas_hoy, precision: 0, delimiter: ',') %>
         </p>
         <p class="text-xs text-base-content/40 mt-1">día actual (independiente del filtro)</p>
       </div>
@@ -127,7 +127,7 @@
           </svg>
         </div>
         <p class="text-2xl font-bold mt-1 tabular-nums">
-          C$ <%= number_with_precision(@valor_inventario, precision: 2, delimiter: ',') %>
+          C$ <%= number_with_precision(@valor_inventario, precision: 0, delimiter: ',') %>
         </p>
         <p class="text-xs text-base-content/40 mt-1"><%= @total_productos %> productos</p>
       </div>
@@ -363,7 +363,7 @@
             legend: { position: "bottom", labels: { boxWidth: 12, padding: 10 } },
             tooltip: {
               callbacks: {
-                label: ctx => ` C$ ${ctx.parsed.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`
+                label: ctx => ` C$ ${ctx.parsed.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`
               }
             }
           }

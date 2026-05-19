@@ -49,11 +49,11 @@
             </label>
             <label class="input input-bordered flex items-center gap-2">
               <%= f.number_field :margen_ganancia_meta,
-                                 step: "0.01", min: 0.01, max: 0.99,
+                                 step: 1, min: 1, max: 99,
                                  class: "grow",
-                                 placeholder: "0.40",
+                                 placeholder: "40",
                                  id: "configuracion_negocio_margen_ganancia_meta",
-                                 value: (@configuracion.margen_ganancia_meta.to_d * 100).round(2) %>
+                                 value: (@configuracion.margen_ganancia_meta.to_d * 100).round(0).to_i %>
               <span class="text-base-content/60 font-semibold">%</span>
             </label>
             <p class="text-xs text-base-content/50 mt-1">
@@ -68,11 +68,11 @@
             </label>
             <label class="input input-bordered flex items-center gap-2">
               <%= f.number_field :margen_alerta_minimo,
-                                 step: "0.01", min: 0.01, max: 0.99,
+                                 step: 1, min: 1, max: 99,
                                  class: "grow",
-                                 placeholder: "0.35",
+                                 placeholder: "35",
                                  id: "configuracion_negocio_margen_alerta_minimo",
-                                 value: (@configuracion.margen_alerta_minimo.to_d * 100).round(2) %>
+                                 value: (@configuracion.margen_alerta_minimo.to_d * 100).round(0).to_i %>
               <span class="text-base-content/60 font-semibold">%</span>
             </label>
             <p class="text-xs text-base-content/50 mt-1">

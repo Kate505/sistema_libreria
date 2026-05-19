@@ -3,7 +3,7 @@ class Inventario::ProductosController < ApplicationController
 
   def index
     @producto = Producto.new
-    @productos = Producto.includes(:categoria, :marca).all.order(:nombre)
+    @productos = Producto.includes(:categoria, :marca, :ultimo_detalle_compra).all.order(:nombre)
 
     if params[:q].present?
       @productos = @productos.left_joins(:categoria).where(
@@ -17,7 +17,7 @@ class Inventario::ProductosController < ApplicationController
 
   def edit
     @producto = Producto.find_by(id: params[:id])
-    @productos = Producto.includes(:categoria, :marca).all.order(:nombre).page(params[:page]).per(10)
+    @productos = Producto.includes(:categoria, :marca, :ultimo_detalle_compra).all.order(:nombre).page(params[:page]).per(10)
 
     respond_to do |format|
       format.html { render :index }
@@ -97,7 +97,7 @@ class Inventario::ProductosController < ApplicationController
     @producto = Producto.new(producto_params)
 
     if @producto.save
-      @productos = Producto.includes(:categoria, :marca).all.order(:nombre).page(1).per(10)
+      @productos = Producto.includes(:categoria, :marca, :ultimo_detalle_compra).all.order(:nombre).page(1).per(10)
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
@@ -119,7 +119,7 @@ class Inventario::ProductosController < ApplicationController
 
   def update
     if @producto.update(producto_params)
-      @productos = Producto.includes(:categoria, :marca).all.order(:nombre).page(1).per(10)
+      @productos = Producto.includes(:categoria, :marca, :ultimo_detalle_compra).all.order(:nombre).page(1).per(10)
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
@@ -141,7 +141,7 @@ class Inventario::ProductosController < ApplicationController
 
   def destroy
     @producto.destroy
-    @productos = Producto.includes(:categoria, :marca).all.order(:nombre).page(1).per(10)
+    @productos = Producto.includes(:categoria, :marca, :ultimo_detalle_compra).all.order(:nombre).page(1).per(10)
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [
@@ -168,7 +168,9 @@ class Inventario::ProductosController < ApplicationController
       :descuento,
       :descuento_maximo,
       :stock_minimo_limite,
-      :stock_maximo_limite
+      :stock_maximo_limite,
+      :precio_venta,
+      :precio_venta_al_mayor
     )
   end
 end

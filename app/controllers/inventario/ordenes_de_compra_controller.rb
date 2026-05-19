@@ -135,7 +135,9 @@ class Inventario::OrdenesDeCompraController < ApplicationController
 
   # PATCH /inventario/ordenes_de_compra/:id/finalizar
   def finalizar
-    if @orden_de_compra.finalizar!
+    precios = params.dig(:precios_venta)&.permit!&.to_h || {}
+    precios_mayor = params.dig(:precios_mayor)&.permit!&.to_h || {}
+    if @orden_de_compra.finalizar!(precios: precios, precios_mayor: precios_mayor)
       @detalles = @orden_de_compra.detalle_ordenes_de_compra.includes(:producto).order(:created_at)
       respond_to do |format|
         format.turbo_stream do

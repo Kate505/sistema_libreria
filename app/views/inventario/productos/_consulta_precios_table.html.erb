@@ -38,12 +38,12 @@
 
       <%# Precio de venta %>
       <td class="text-right font-semibold tabular-nums whitespace-nowrap">
-        C$ <%= number_with_precision(producto.precio_venta, precision: 2, delimiter: ",") %>
+        C$ <%= producto.precio_venta.to_i %>
       </td>
 
       <%# Precio al mayor %>
       <td class="text-right tabular-nums whitespace-nowrap text-base-content/70">
-        C$ <%= number_with_precision(producto.precio_venta_al_mayor, precision: 2, delimiter: ",") %>
+        C$ <%= producto.precio_venta_al_mayor.to_i %>
       </td>
 
       <%# Descuento %>

@@ -61,6 +61,7 @@
         <%# Botones %>
         <%= form_with url: finalizar_inventario_orden_de_compra_path(orden_de_compra),
                       method: :patch,
+                      id: "form_finalizar_orden",
                       class: "px-6 pb-6" do %>
           <div class="flex gap-3">
             <button type="button"

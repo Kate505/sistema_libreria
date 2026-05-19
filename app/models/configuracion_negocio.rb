@@ -19,6 +19,7 @@ class ConfiguracionNegocio < ApplicationRecord
 
   # ─── Cálculo de precio sugerido ──────────────────────────────────────
   # Fórmula: PrecioVenta = CostoReal / (1 - % Ganancia)
+  # Siempre redondeado al entero superior (ceil).
   def precio_sugerido(costo_unitario_real)
     costo = costo_unitario_real.to_d
     return BigDecimal("0") if costo <= 0
@@ -26,7 +27,7 @@ class ConfiguracionNegocio < ApplicationRecord
     denominador = 1.0 - margen_ganancia_meta.to_d
     return nil if denominador <= 0  # configuración imposible
 
-    (costo / denominador).round(2)
+    (costo / denominador).ceil
   end
 
   # ─── Margen actual de un producto ────────────────────────────────────

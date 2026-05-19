@@ -94,9 +94,9 @@
               <span class="text-base-content/60 text-sm font-semibold">C$</span>
               <%= f.number_field :precio_unitario_venta,
                                  id: "precio_unitario_venta",
-                                 step: '0.01', min: 0,
+                                 step: 1, min: 0,
                                  class: 'grow cursor-not-allowed',
-                                 placeholder: '0.00',
+                                 placeholder: '0',
                                  required: true,
                                  readonly: true,
                                  tabindex: -1 %>
@@ -196,7 +196,7 @@
     var qty = parseInt(cantField.value) || 0;
     var usarMayor = qty >= 3 && _precioMayor > 0;
     var precio = usarMayor ? _precioMayor : _precioNormal;
-    precioField.value = precio.toFixed(2);
+    precioField.value = precio;
 
     // Badge indicador
     if (infoDiv && badge) {
@@ -260,8 +260,8 @@
   document.addEventListener("autocomplete:select", function(event) {
     var item = event.detail;
     if (item && item.precio !== undefined) {
-      _precioNormal = parseFloat(item.precio) || 0;
-      _precioMayor  = parseFloat(item.precio_mayor) || 0;
+      _precioNormal = parseInt(item.precio) || 0;
+      _precioMayor  = parseInt(item.precio_mayor) || 0;
 
       // Aplicar precio según cantidad actual
       actualizarPrecioPorCantidad();

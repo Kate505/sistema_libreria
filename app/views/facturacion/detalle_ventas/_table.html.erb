@@ -24,7 +24,7 @@
           <% if detalle.precio_historico_al_momento_de_venta.present? &&
                 detalle.precio_historico_al_momento_de_venta != detalle.precio_unitario_venta %>
             <span class="text-xs text-warning/70">
-              Precio orig.: C$ <%= number_with_precision(detalle.precio_historico_al_momento_de_venta, precision: 2) %>
+              Precio orig.: C$ <%= detalle.precio_historico_al_momento_de_venta.to_i %>
             </span>
           <% end %>
         </div>
@@ -35,11 +35,11 @@
       </td>
 
       <td class="text-right tabular-nums text-sm">
-        C$ <%= number_with_precision(detalle.precio_unitario_venta, precision: 2, delimiter: ',') %>
+        C$ <%= detalle.precio_unitario_venta.to_i %>
       </td>
 
       <td class="text-right tabular-nums text-sm text-base-content/60">
-        C$ <%= number_with_precision(detalle.subtotal_sin_descuento, precision: 2, delimiter: ',') %>
+        C$ <%= number_with_precision(detalle.subtotal_sin_descuento, precision: 0, delimiter: ',') %>
       </td>
 
       <td class="text-center tabular-nums text-sm">
@@ -51,7 +51,7 @@
       </td>
 
       <td class="text-right font-semibold tabular-nums">
-        C$ <%= number_with_precision(detalle.total_linea || detalle.subtotal, precision: 2, delimiter: ',') %>
+        C$ <%= number_with_precision(detalle.total_linea || detalle.subtotal, precision: 0, delimiter: ',') %>
       </td>
 
       <td class="text-right">
@@ -100,7 +100,7 @@
         <td colspan="5" class="text-right font-semibold text-sm">Total Venta:</td>
         <td class="text-right font-bold tabular-nums">
           <% total = detalles.sum { |d| d.total_linea || d.subtotal } %>
-          C$ <%= number_with_precision(total, precision: 2, delimiter: ',') %>
+          C$ <%= number_with_precision(total, precision: 0, delimiter: ',') %>
         </td>
         <td></td>
       </tr>
