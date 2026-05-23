@@ -37,6 +37,7 @@ class Finanzas::GastosOperativosController < ApplicationController
 
   def create
     @gasto_operativo = GastoOperativo.new(gasto_operativo_params)
+    @gasto_operativo.user = Current.user
 
     if @gasto_operativo.save
       @gastos_operativos = GastoOperativo.por_fecha_desc.page(1).per(10)
@@ -98,6 +99,17 @@ class Finanzas::GastosOperativosController < ApplicationController
   end
 
   def destroy
+    unless Current.user.can_access_menu?("ELIMINAR_GASTOS")
+      flash.now[:alert] = "No tienes permisos para eliminar gastos operativos."
+      respond_to do |format|
+        format.html { redirect_to finanzas_gastos_operativos_path, alert: "No tienes permisos para eliminar gastos operativos." }
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.replace("flash-messages", partial: "shared/flash")
+        end
+      end
+      return
+    end
+
     @gasto_operativo.destroy
     @gastos_operativos = GastoOperativo.por_fecha_desc.page(1).per(10)
     respond_to do |format|

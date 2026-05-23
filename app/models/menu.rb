@@ -5,7 +5,7 @@ class Menu < ApplicationRecord
   belongs_to :parent, class_name: "Menu", optional: true, foreign_key: "menu_id"
   has_many :children, class_name: "Menu", foreign_key: "menu_id", dependent: :destroy
 
-  has_many :roles_menus
+  has_many :roles_menus, dependent: :destroy
   has_many :roles, through: :roles_menus, source: :rol
 
   validates :codigo, presence: true, length: { maximum: 30 }, uniqueness: true

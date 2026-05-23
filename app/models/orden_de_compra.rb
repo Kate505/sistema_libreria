@@ -2,6 +2,7 @@ class OrdenDeCompra < ApplicationRecord
   self.table_name = "ordenes_de_compra"
 
   belongs_to :proveedor
+  belongs_to :user, optional: true
   has_many :detalle_ordenes_de_compra, dependent: :destroy
 
   normalizes :numero_factura, with: ->(valor) { valor.strip.upcase }

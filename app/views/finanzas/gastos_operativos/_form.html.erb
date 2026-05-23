@@ -1,12 +1,12 @@
 <turbo-frame id="gasto_operativo_form">
   <%= form_with(model: gasto_operativo,
-                url: gasto_operativo.new_record? ? finanzas_gastos_operativos_path : finanzas_gasto_operativo_path(gasto_operativo),
-                method: gasto_operativo.new_record? ? :post : :patch,
+                url: finanzas_gastos_operativos_path,
+                method: :post,
                 class: 'contents') do |f| %>
 
     <div class="card-body">
       <h2 class="card-title text-lg">
-        <%= gasto_operativo.new_record? ? "Registrar Gasto Operativo" : "Editar Gasto" %>
+        Registrar Gasto Operativo
       </h2>
 
       <%# Errores %>

@@ -1,12 +1,5 @@
 <!-- tailwind safelist: swap swap-rotate swap-on swap-off h-6 w-6 pe-2 fill-current -->
 <div class="hero bg-base-200 w-full h-screen">
-  <% if (alert = flash[:alert]) %>
-    <div role="alert" class="alert alert-error alert-soft" id="alert"><%= alert %></div>
-  <% end %>
-
-  <% if (notice = flash[:notice]) %>
-    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice"><%= notice %></p>
-  <% end %>
   <div class="hero-content flex-col lg:flex-row-reverse">
     <div class="text-center">
       <h1 class="text-5xl font-bold p-4"><%= link_to "Librería Pequeños Detalles", root_path %></h1>
@@ -16,6 +9,13 @@
     </div>
     <div class="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
       <div class="card-body">
+        <% if (alert = flash[:alert]) %>
+          <div role="alert" class="alert alert-error alert-soft mb-4" id="alert"><%= alert %></div>
+        <% end %>
+
+        <% if (notice = flash[:notice]) %>
+          <p class="py-2 px-3 bg-green-50 mb-4 text-green-500 font-medium rounded-lg inline-block w-full text-center" id="notice"><%= notice %></p>
+        <% end %>
         <fieldset class="fieldset">
           <div class="flex items-center justify-between">
             <h2 class="text-lg">Iniciar Sesión</h2>

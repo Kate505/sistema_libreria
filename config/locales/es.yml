@@ -135,6 +135,7 @@ es:
       configuracion_negocio:
         margen_ganancia_meta: "Margen de ganancia meta"
         margen_alerta_minimo: "Margen de alerta mínimo"
+        tasa_cambio: "Tasa de cambio"
     errors:
       messages:
         required: "es requerido"

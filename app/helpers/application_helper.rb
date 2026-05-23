@@ -5,9 +5,10 @@ module ApplicationHelper
 
   def menu_list_from_module(modulo)
     menus = Current.user.accessible_menus_by_user_and_module(modulo.id)
+    visible_menus = menus.select { |m| m.children.any? || m.link_to.present? }
 
     content_tag(:ul, class: "p-0 m-0") do
-      menus.map { |menu| render_menu_item(menu) }.join.html_safe
+      visible_menus.map { |menu| render_menu_item(menu) }.join.html_safe
     end
   end
 
@@ -48,7 +49,8 @@ module ApplicationHelper
       )
       concat(
         content_tag(:ul) do
-          menu.children.map { |child| render_menu_item(child) }.join.html_safe
+          visible_children = menu.children.select { |child| child.children.any? || child.link_to.present? }
+          visible_children.map { |child| render_menu_item(child) }.join.html_safe
         end
       )
     end

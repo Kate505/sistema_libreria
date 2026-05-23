@@ -8,7 +8,8 @@ class PermissionRegistry
     "detalle_ventas"           => "VENTAS",
     "detalle_ordenes_de_compra" => "ORDENES_DE_COMPRA",
     "productos#consulta_precios" => "CONSULTA_PRECIOS",
-    "ventas#historial"           => "HISTORIAL"
+    "ventas#historial"           => "HISTORIAL",
+    "gastos_operativos#destroy"  => "ELIMINAR_GASTOS"
   }.freeze
 
   def self.menu_code_for(controller_name, action_name = nil)

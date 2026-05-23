@@ -23,7 +23,8 @@ class Configuraciones::NegocioController < ApplicationController
   def configuracion_params
     raw = params.require(:configuracion_negocio).permit(
       :margen_ganancia_meta,
-      :margen_alerta_minimo
+      :margen_alerta_minimo,
+      :tasa_cambio
     )
 
     # Los campos de porcentaje se ingresan como "40" en la UI pero se guardan como 0.40
