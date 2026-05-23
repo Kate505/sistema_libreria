@@ -19,7 +19,7 @@ class ApplicationController < ActionController::Base
     puts("permisos: #{PermissionRegistry.requires_menu_check?(current_controller)}")
     return unless PermissionRegistry.requires_menu_check?(current_controller)
 
-    required_menu = PermissionRegistry.menu_code_for(current_controller)
+    required_menu = PermissionRegistry.menu_code_for(current_controller, action_name)
 
     puts("Mapeo de menú: #{required_menu}")
     if required_menu.present?

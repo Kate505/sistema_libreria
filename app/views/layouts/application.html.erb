@@ -70,12 +70,6 @@
                     <% end %>
                   </li>
                   <li>
-                    <%= link_to root_path do %>
-                      <%= inline_svg "settings.svg", class_name: "w-5 h-5" %>
-                      Configuraciones
-                    <% end %>
-                  </li>
-                  <li>
                     <%= link_to session_path, data: { turbo_method: :delete, turbo_confirm: "¿Estás seguro?" } do %>
                       <%= inline_svg "logout.svg", class_name: "w-5 h-5" %>
                       Cerrar Sesión
