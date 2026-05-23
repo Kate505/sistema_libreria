@@ -60,6 +60,7 @@ class Inventario::ProductosControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "consulta precios paginates results and preserves the search term in links" do
+    ensure_menu_access_for!(@user, "CONSULTA_PRECIOS")
     create_productos_for_consulta_precios!(11)
 
     get consulta_precios_inventario_productos_path, params: { q: "Producto" }
@@ -78,12 +79,34 @@ class Inventario::ProductosControllerTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "Producto 01"
   end
 
+  test "access to consulta_precios is allowed with CONSULTA_PRECIOS but denied with only PRODUCTOS" do
+    # At setup, user has PRODUCTOS. Verify they can access index but NOT consulta_precios
+    get inventario_productos_path
+    assert_response :success
+
+    get consulta_precios_inventario_productos_path
+    assert_redirected_to root_path
+    assert_equal "No tienes permisos para acceder a este recurso.", flash[:alert]
+
+    # Strip their roles/menus access and give them ONLY CONSULTA_PRECIOS
+    RolesMenu.delete_all
+    ensure_menu_access_for!(@user, "CONSULTA_PRECIOS")
+
+    # Verify they can access consulta_precios but NOT index
+    get consulta_precios_inventario_productos_path
+    assert_response :success
+
+    get inventario_productos_path
+    assert_redirected_to root_path
+    assert_equal "No tienes permisos para acceder a este recurso.", flash[:alert]
+  end
+
   private
 
   def ensure_menu_access_for!(user, menu_code)
     # Estructura mínima para que `user.can_access_menu?` sea true.
     modulo = Modulo.find_or_create_by!(nombre: "Inventario") do |m|
-      m.icono = "package"
+      m.icono = "inventario.svg"
       m.link_to = "/inventario/productos"
       m.pasivo = false if m.respond_to?(:pasivo=)
     end

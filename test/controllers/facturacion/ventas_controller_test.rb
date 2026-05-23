@@ -133,7 +133,7 @@ class Facturacion::VentasControllerTest < ActionDispatch::IntegrationTest
 
   def ensure_menu_access_for!(user, menu_code)
     modulo = Modulo.find_or_create_by!(nombre: "Facturación") do |m|
-      m.icono = "receipt"
+      m.icono = "facturacion.svg"
       m.link_to = "/facturacion/ventas"
       m.pasivo = false if m.respond_to?(:pasivo=)
     end

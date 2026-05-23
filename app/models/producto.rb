@@ -30,6 +30,8 @@ class Producto < ApplicationRecord
             :precio_venta_al_mayor,
             numericality: { greater_than_or_equal_to: 0, only_integer: true }, allow_nil: true
 
+  before_validation :normalize_precios_venta
+
   validates :stock_actual,
             numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
 
@@ -91,9 +93,9 @@ class Producto < ApplicationRecord
       # CPP se mantiene para cálculos de estadísticas (COGS, valor inventario)
       nuevo_cpp = if nuevo_stock > 0
                     ((costo_promedio_ponderado.to_d * stock_prev) + (costo * cantidad)) / nuevo_stock
-      else
+                  else
                     costo
-      end
+                  end
 
       # Calcular precio sugerido usando el costo calculado del detalle (no CPP)
       nuevo_precio = PriceCalculationService.call(self, costo)
@@ -132,5 +134,12 @@ class Producto < ApplicationRecord
   # Restaura el stock que fue descontado al momento de la venta.
   def revertir_venta!(cantidad)
     update_column(:stock_actual, stock_actual.to_i + cantidad.to_i)
+  end
+
+  private
+
+  def normalize_precios_venta
+    self.precio_venta = precio_venta.present? ? precio_venta.to_i : nil
+    self.precio_venta_al_mayor = precio_venta_al_mayor.present? ? precio_venta_al_mayor.to_i : nil
   end
 end
