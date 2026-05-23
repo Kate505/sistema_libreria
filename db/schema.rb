@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_18_210855) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_23_054444) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -37,6 +37,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_18_210855) do
     t.decimal "margen_alerta_minimo", precision: 5, scale: 4, default: "0.35", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.decimal "tasa_cambio", precision: 8, scale: 2, default: "36.7", null: false
   end
 
   create_table "detalle_ordenes_de_compra", force: :cascade do |t|
@@ -92,6 +93,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_18_210855) do
     t.date "fecha"
     t.decimal "cantidad", precision: 10, scale: 2
     t.string "descripcion", limit: 255
+    t.bigint "user_id"
+    t.index ["user_id"], name: "index_gastos_operativos_on_user_id"
   end
 
   create_table "marcas", force: :cascade do |t|
@@ -133,7 +136,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_18_210855) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "finalizada", default: false, null: false
+    t.bigint "user_id"
     t.index ["proveedor_id"], name: "index_ordenes_de_compra_on_proveedor_id"
+    t.index ["user_id"], name: "index_ordenes_de_compra_on_user_id"
   end
 
   create_table "productos", force: :cascade do |t|
@@ -229,9 +234,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_18_210855) do
   add_foreign_key "detalle_ordenes_de_compra", "productos"
   add_foreign_key "detalle_venta", "productos"
   add_foreign_key "detalle_venta", "ventas"
+  add_foreign_key "gastos_operativos", "users"
   add_foreign_key "menus", "menus"
   add_foreign_key "menus", "modulos"
   add_foreign_key "ordenes_de_compra", "proveedores"
+  add_foreign_key "ordenes_de_compra", "users"
   add_foreign_key "productos", "categorias"
   add_foreign_key "productos", "marcas"
   add_foreign_key "roles_menus", "menus"

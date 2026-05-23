@@ -1,5 +1,4 @@
 class Facturacion::VentasController < ApplicationController
-  TASA_CAMBIO_USD_NIO = BigDecimal("36.70")
 
   before_action :set_venta, only: %i[show edit update destroy finalizar]
   before_action :verificar_venta_abierta, only: %i[update destroy]
@@ -240,7 +239,8 @@ class Facturacion::VentasController < ApplicationController
   def finalizar
     metodo_pago   = params[:metodo_pago].to_s.strip.upcase
     moneda        = params[:moneda].to_s  # "NIO" o "USD"
-    tasa_cambio   = moneda == "USD" ? TASA_CAMBIO_USD_NIO : 0.to_d
+    tasa_oficial  = ConfiguracionNegocio.configuracion.tasa_cambio
+    tasa_cambio   = moneda == "USD" ? tasa_oficial : 0.to_d
     monto_recibido = params[:monto_recibido].to_d
 
     unless Venta::METODOS_PAGO.key?(metodo_pago)

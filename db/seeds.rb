@@ -4,16 +4,19 @@ require 'roo'
 Session.delete_all
 RolesUser.delete_all
 RolesMenu.delete_all
-Menu.delete_all
-Modulo.delete_all
-Rol.delete_all
-User.delete_all
-Empleado.delete_all
-# Limpiar inventario y catálogos relacionados (en orden correcto por FK)
+
 DetalleVenta.delete_all
 Venta.delete_all
 DetalleOrdenDeCompra.delete_all
 OrdenDeCompra.delete_all
+GastoOperativo.delete_all
+
+User.delete_all
+Empleado.delete_all
+Rol.delete_all
+Menu.delete_all
+Modulo.delete_all
+
 Producto.delete_all
 Marca.delete_all
 Categoria.delete_all
@@ -51,6 +54,7 @@ Menu.create!(codigo: "ESTADISTICAS", nombre: "Estadísticas por período", modul
 
 # # Módulo Finanzas
 Menu.create!(codigo: "GASTOS_OPERATIVOS", nombre: "Gastos Operativos", modulo: modulo_finanzas, link_to: "/finanzas/gastos_operativos")
+Menu.create!(codigo: "ELIMINAR_GASTOS", nombre: "Eliminar Gastos Operativos", modulo: modulo_finanzas, link_to: "")
 
 # # Módulo Configuraciones
 Menu.create!(codigo: "NEGOCIO", nombre: "Configuración de Negocio", modulo: modulo_configuraciones, link_to: "/configuraciones/negocio/edit")
@@ -77,10 +81,12 @@ user_normal = User.create!(email_address: "user@gmail.com", password: "123456", 
 # Roles
 admin_role = Rol.create!(nombre: "Administrador")
 seller_role = Rol.create!(nombre: "Vendedor")
+gerente_role = Rol.create!(nombre: "Gerente")
 
 # Roles - Menús
 Menu.all.each do |menu|
   RolesMenu.create!(rol: admin_role, menu: menu)
+  RolesMenu.create!(rol: gerente_role, menu: menu)
 end
 
 [ menu_ventas, menu_clientes, menu_consulta_precios ].each do |menu|

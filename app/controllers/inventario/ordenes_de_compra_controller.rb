@@ -50,6 +50,7 @@ class Inventario::OrdenesDeCompraController < ApplicationController
   # POST /inventario/ordenes_de_compra
   def create
     @orden_de_compra = OrdenDeCompra.new(orden_params)
+    @orden_de_compra.user = Current.user
 
     if @orden_de_compra.save
       @ordenes_de_compra = OrdenDeCompra.includes(:proveedor).order(fecha_compra: :desc, id: :desc).page(1).per(15)

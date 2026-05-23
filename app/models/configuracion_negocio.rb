@@ -8,12 +8,17 @@ class ConfiguracionNegocio < ApplicationRecord
   validates :margen_alerta_minimo,
             numericality: { greater_than: 0, less_than: 1 }
 
+  validates :tasa_cambio,
+            presence: true,
+            numericality: { greater_than: 0 }
+
   # ─── Singleton ───────────────────────────────────────────────────────
   # Retorna el único registro de configuración, creándolo si no existe, y lo cachea por request.
   def self.configuracion
     Current.configuracion_negocio ||= first_or_create!(
       margen_ganancia_meta: 0.40,
-      margen_alerta_minimo: 0.35
+      margen_alerta_minimo: 0.35,
+      tasa_cambio: 36.70
     )
   end
 

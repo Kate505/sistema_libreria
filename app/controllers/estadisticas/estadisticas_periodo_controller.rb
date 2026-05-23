@@ -191,7 +191,10 @@ class Estadisticas::EstadisticasPeriodoController < ApplicationController
     gastos_mes = if meses_ids.any?
       GastoOperativo
         .where("(periodo_year * 100 + periodo_mes) IN (?)", meses_ids)
-        .index_by { |g| Date.new(g.periodo_year, g.periodo_mes, 1) }
+        .group(:periodo_year, :periodo_mes)
+        .sum(:gran_total_gastos)
+        .select { |k, v| k[0].present? && k[1].present? }
+        .transform_keys { |k| Date.new(k[0], k[1], 1) }
     else
       {}
     end
@@ -200,7 +203,7 @@ class Estadisticas::EstadisticasPeriodoController < ApplicationController
 
     @util_mes_labels   = meses_trend.map { |d| d.strftime("%b %Y") }
     @util_mes_ingresos = meses_trend.map { |d| ingresos_mes[d]&.to_f || 0 }
-    @util_mes_gastos   = meses_trend.map { |d| gastos_mes[d]&.gran_total_gastos&.to_f || 0 }
+    @util_mes_gastos   = meses_trend.map { |d| gastos_mes[d]&.to_f || 0.0 }
     @util_mes_data     = meses_trend.each_with_index.map { |d, i| @util_mes_ingresos[i] - @util_mes_gastos[i] }
 
     # ── Gráfico 4: Desglose gastos operativos (pie) ──────────────────────────

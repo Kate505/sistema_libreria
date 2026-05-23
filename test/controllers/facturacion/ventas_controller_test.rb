@@ -6,6 +6,7 @@ class Facturacion::VentasControllerTest < ActionDispatch::IntegrationTest
     sign_in(@user)
 
     ensure_menu_access_for!(@user, "VENTAS")
+    ensure_menu_access_for!(@user, "HISTORIAL")
   end
 
   test "index muestra solo ventas pendientes" do
@@ -127,6 +128,31 @@ class Facturacion::VentasControllerTest < ActionDispatch::IntegrationTest
     assert_response :created
     body = JSON.parse(response.body)
     assert body["id"].present?
+  end
+
+  test "finalizar venta en USD utiliza la tasa de cambio de la configuracion de negocio" do
+    config = ConfiguracionNegocio.configuracion
+    config.update!(tasa_cambio: 38.50)
+
+    venta = Venta.create!(
+      user: @user,
+      fecha_venta: Time.current,
+      finalizada: false,
+      cantidad_total: 770
+    )
+
+    patch finalizar_facturacion_venta_path(venta), params: {
+      metodo_pago: "E",
+      moneda: "USD",
+      monto_recibido: 20
+    }, as: :turbo_stream
+
+    assert_response :success
+    venta.reload
+    assert venta.finalizada?
+    assert_equal "E", venta.metodo_pago
+
+    assert_includes response.body, "38.50"
   end
 
   private

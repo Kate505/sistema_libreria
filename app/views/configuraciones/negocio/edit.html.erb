@@ -78,6 +78,21 @@
             <p class="text-xs text-base-content/50 mt-1">
               Si el margen estimado de un producto cae debajo de este valor, se muestra una alerta.
             </p>
+          <%# Tasa de cambio %>
+          <div>
+            <label class="label font-semibold">
+              Tasa de Cambio Oficial (C$ por 1 US$)
+            </label>
+            <label class="input input-bordered flex items-center gap-2">
+              <%= f.number_field :tasa_cambio,
+                                 step: 0.01, min: 0.01,
+                                 class: "grow",
+                                 placeholder: "36.70",
+                                 id: "configuracion_negocio_tasa_cambio" %>
+            </label>
+            <p class="text-xs text-base-content/50 mt-1">
+              Tasa utilizada para la conversión en la facturación y ventas en dólares.
+            </p>
           </div>
 
           <div class="card-actions justify-end border-t border-base-200 pt-4">

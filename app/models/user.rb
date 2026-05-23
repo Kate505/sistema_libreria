@@ -3,6 +3,8 @@ class User < ApplicationRecord
   has_many :sessions, dependent: :destroy
 
   has_many :ventas, dependent: :nullify
+  has_many :gastos_operativos, dependent: :nullify
+  has_many :ordenes_de_compra, dependent: :nullify
 
   has_many :roles_users, dependent: :destroy
   has_many :roles, through: :roles_users, source: :rol
@@ -12,6 +14,10 @@ class User < ApplicationRecord
   delegate :nombre_completo,
            :nombre_corto,
            :cargo, to: :empleado, allow_nil: true
+
+  def inicial
+    (empleado&.primer_nombre || email_address).to_s.strip[0].upcase
+  end
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
 
