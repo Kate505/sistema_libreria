@@ -58,7 +58,10 @@ Rails.application.configure do
   # config.action_mailer.raise_delivery_errors = false
 
   # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "sistema-libreria.prometheuslab.tech" }
+  config.action_mailer.default_url_options = { host: "sistema-libreria.prometheuslab.tech", protocol: "https" }
+
+  # Ensure URLs generated outside a request default to HTTPS.
+  config.action_controller.default_url_options = { protocol: "https" }
 
   # Specify outgoing SMTP server. Remember to add smtp/* credentials via rails credentials:edit.
   # config.action_mailer.smtp_settings = {

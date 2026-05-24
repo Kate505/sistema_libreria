@@ -39,5 +39,3 @@ app/assets/builds/*
 .idea
 node_modules/*
 package-lock.json
-
-vendor/javascript/@rails--request.js.js
