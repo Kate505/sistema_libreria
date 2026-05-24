@@ -133,7 +133,7 @@ class HomeController < ApplicationController
       .includes(:categoria)
       .where("stock_actual <= stock_minimo_limite")
       .order(stock_actual: :asc)
-      .page(params[:stock_page]).per(10)
+      .page(params[:stock_page]).per(8)
   end
 
   private

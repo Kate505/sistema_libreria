@@ -1,8 +1,9 @@
 <turbo-frame id="orden_de_compra_resumen">
   <% subtotal = orden_de_compra.detalle_ordenes_de_compra.sum { |d| d.costo_unitario_compra_calculado.to_d * d.cantidad.to_i } %>
-  <% flete    = orden_de_compra.costo_total_flete.to_d %>
-  <% total    = subtotal + flete %>
-  <% count    = orden_de_compra.detalle_ordenes_de_compra.size %>
+  <% flete = orden_de_compra.costo_total_flete.to_d %>
+  <% total = subtotal + flete %>
+  <% total_ventas = orden_de_compra.detalle_ordenes_de_compra.sum { |d| d.producto.precio_venta.to_d * d.cantidad.to_i } if orden_de_compra.finalizada? %>
+  <% count = orden_de_compra.detalle_ordenes_de_compra.size %>
 
   <div class="flex flex-wrap items-center gap-3">
     <div class="stats stats-horizontal shadow">
@@ -19,9 +20,15 @@
         <div class="stat-value text-lg tabular-nums">C$ <%= number_with_precision(flete, precision: 2, delimiter: ',') %></div>
       </div>
       <div class="stat py-2 px-4 bg-primary/10 rounded-box">
-        <div class="stat-title text-xs font-bold text-primary">Total</div>
+        <div class="stat-title text-xs font-bold text-primary">Total en Compras</div>
         <div class="stat-value text-lg tabular-nums text-primary">C$ <%= number_with_precision(total, precision: 2, delimiter: ',') %></div>
       </div>
+      <% unless orden_de_compra.pendiente? %>
+        <div class="stat py-2 px-4 bg-primary/10 rounded-box">
+          <div class="stat-title text-xs font-bold text-primary">Total en Ventas</div>
+          <div class="stat-value text-lg tabular-nums text-primary">C$ <%= number_with_precision(total_ventas, precision: 2, delimiter: ',') %></div>
+        </div>
+      <% end %>
     </div>
 
     <% if orden_de_compra.pendiente? && count > 0 %>

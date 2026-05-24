@@ -27,7 +27,15 @@ class Inventario::OrdenesDeCompraController < ApplicationController
     @detalles = @orden_de_compra.detalle_ordenes_de_compra
                                 .includes(:producto)
                                 .order(:created_at)
-                                .page(params[:page]).per(8)
+
+    if params[:q].present?
+      @detalles = @detalles.joins(:producto).where(
+        "productos.nombre ILIKE :q OR productos.sku ILIKE :q",
+        q: "%#{params[:q]}%"
+      )
+    end
+
+    @detalles = @detalles.page(params[:page]).per(7)
   end
 
   # GET /inventario/ordenes_de_compra/:id/edit
@@ -140,6 +148,13 @@ class Inventario::OrdenesDeCompraController < ApplicationController
     precios_mayor = params.dig(:precios_mayor)&.permit!&.to_h || {}
     if @orden_de_compra.finalizar!(precios: precios, precios_mayor: precios_mayor)
       @detalles = @orden_de_compra.detalle_ordenes_de_compra.includes(:producto).order(:created_at)
+      if params[:q].present?
+        @detalles = @detalles.joins(:producto).where(
+          "productos.nombre ILIKE :q OR productos.sku ILIKE :q",
+          q: "%#{params[:q]}%"
+        )
+      end
+      @detalles = @detalles.page(params[:page]).per(7)
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [

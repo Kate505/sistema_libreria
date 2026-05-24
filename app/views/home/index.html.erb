@@ -240,55 +240,57 @@
         <span class="badge badge-error badge-sm"><%= @productos_stock_bajo %></span>
       </h2>
 
-      <% if @productos_bajo_stock.any? %>
-        <div class="overflow-x-auto mt-2">
-          <table class="table table-sm">
-            <thead>
-              <tr>
-                <th>Producto</th>
-                <th>Categoría</th>
-                <th class="text-center">Stock Actual</th>
-                <th class="text-center">Mínimo</th>
-                <th class="text-center">Estado</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% @productos_bajo_stock.each do |p| %>
-                <tr class="hover">
-                  <td>
-                    <div class="font-medium"><%= p.nombre %></div>
-                    <% if p.sku.present? %>
-                      <div class="text-xs text-base-content/40 font-mono"><%= p.sku %></div>
-                    <% end %>
-                  </td>
-                  <td class="text-sm"><%= p.categoria&.nombre || "—" %></td>
-                  <td class="text-center font-bold <%= p.stock_actual == 0 ? 'text-error' : 'text-warning' %>">
-                    <%= p.stock_actual %>
-                  </td>
-                  <td class="text-center text-sm text-base-content/60"><%= p.stock_minimo_limite %></td>
-                  <td class="text-center">
-                    <% if p.stock_actual == 0 %>
-                      <span class="badge badge-error badge-sm">Sin stock</span>
-                    <% else %>
-                      <span class="badge badge-warning badge-sm">Bajo</span>
-                    <% end %>
-                  </td>
+      <%= turbo_frame_tag "stock_alerts_frame", data: { turbo_scroll: "false" } do %>
+        <% if @productos_bajo_stock.any? %>
+          <div class="overflow-x-auto mt-2">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th>Categoría</th>
+                  <th class="text-center">Stock Actual</th>
+                  <th class="text-center">Mínimo</th>
+                  <th class="text-center">Estado</th>
                 </tr>
-              <% end %>
-            </tbody>
-          </table>
-        </div>
-
-        <% if @productos_bajo_stock.respond_to?(:total_pages) && @productos_bajo_stock.total_pages > 1 %>
-          <div class="border-t border-base-200 pt-3 mt-2 flex justify-center">
-            <%= paginate @productos_bajo_stock, theme: 'twitter-bootstrap-4', window: 2,
-                         param_name: :stock_page,
-                         params: { fecha_desde: params[:fecha_desde], fecha_hasta: params[:fecha_hasta],
-                                   marca_id: params[:marca_id] } %>
+              </thead>
+              <tbody>
+                <% @productos_bajo_stock.each do |p| %>
+                  <tr class="hover">
+                    <td>
+                      <div class="font-medium"><%= p.nombre %></div>
+                      <% if p.sku.present? %>
+                        <div class="text-xs text-base-content/40 font-mono"><%= p.sku %></div>
+                      <% end %>
+                    </td>
+                    <td class="text-sm"><%= p.categoria&.nombre || "—" %></td>
+                    <td class="text-center font-bold <%= p.stock_actual == 0 ? 'text-error' : 'text-warning' %>">
+                      <%= p.stock_actual %>
+                    </td>
+                    <td class="text-center text-sm text-base-content/60"><%= p.stock_minimo_limite %></td>
+                    <td class="text-center">
+                      <% if p.stock_actual == 0 %>
+                        <span class="badge badge-error badge-sm">Sin stock</span>
+                      <% else %>
+                        <span class="badge badge-warning badge-sm">Bajo</span>
+                      <% end %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
           </div>
+
+          <% if @productos_bajo_stock.respond_to?(:total_pages) && @productos_bajo_stock.total_pages > 1 %>
+            <div class="border-t border-base-200 pt-3 mt-2 flex justify-center">
+              <%= paginate @productos_bajo_stock, theme: 'twitter-bootstrap-4', window: 2,
+                           param_name: :stock_page,
+                           params: { fecha_desde: params[:fecha_desde], fecha_hasta: params[:fecha_hasta],
+                                     marca_id: params[:marca_id] } %>
+            </div>
+          <% end %>
+        <% else %>
+          <p class="text-sm text-base-content/40 mt-2 text-center py-6">No hay productos con stock bajo.</p>
         <% end %>
-      <% else %>
-        <p class="text-sm text-base-content/40 mt-2 text-center py-6">No hay productos con stock bajo.</p>
       <% end %>
     </div>
   </div>
