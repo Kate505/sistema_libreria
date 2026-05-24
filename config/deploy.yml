@@ -94,4 +94,4 @@ accessories:
       memory-swap: 512m
     cmd: "postgres -c shared_buffers=128MB -c effective_cache_size=256MB -c work_mem=4MB -c maintenance_work_mem=32MB"
     directories:
-      - sistema_libreria_pg_data:/var/lib/postgresql/data
+      - sistema_libreria_pg_data:/var/lib/postgresql
