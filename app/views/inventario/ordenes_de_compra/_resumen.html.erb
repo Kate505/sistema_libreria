@@ -1,6 +1,6 @@
 <turbo-frame id="orden_de_compra_resumen">
-  <% subtotal = orden_de_compra.detalle_ordenes_de_compra.sum { |d| d.costo_unitario_compra_calculado.to_d * d.cantidad.to_i } %>
   <% flete = orden_de_compra.costo_total_flete.to_d %>
+  <% subtotal = orden_de_compra.detalle_ordenes_de_compra.sum { |d| d.costo_unitario_compra_calculado.to_d * d.cantidad.to_i } - flete%>
   <% total = subtotal + flete %>
   <% total_ventas = orden_de_compra.detalle_ordenes_de_compra.sum { |d| d.producto.precio_venta.to_d * d.cantidad.to_i } if orden_de_compra.finalizada? %>
   <% count = orden_de_compra.detalle_ordenes_de_compra.size %>
