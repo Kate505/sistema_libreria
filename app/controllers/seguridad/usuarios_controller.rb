@@ -81,9 +81,11 @@ class Seguridad::UsuariosController < ApplicationController
     nueva_password = params_limpios.delete(:password).presence
     params_limpios.delete(:password_confirmation)
 
-    # Si el admin activó la contraseña temporal y proporcionó una nueva clave, asignarla
-    if params_limpios[:requires_password_change] == "1" && nueva_password.present?
-      password_confirmation = params.dig(:user, :password_confirmation).presence
+    # Si el admin activó la contraseña temporal, asignar nueva clave o usar Temporal123 como fallback
+    if params_limpios[:requires_password_change] == "1"
+      # Usar la contraseña ingresada o "Temporal123" como fallback
+      nueva_password = nueva_password.presence || "Temporal123"
+      password_confirmation = params.dig(:user, :password_confirmation).presence || nueva_password
 
       if nueva_password != password_confirmation
         @usuario.errors.add(:password, "y su confirmación no coinciden")

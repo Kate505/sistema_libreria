@@ -93,10 +93,9 @@
           <%# Nuevo usuario: campos de contraseña siempre visibles %>
           <div class="w-full col-span-full flex flex-col gap-3 p-3 rounded-lg bg-info/10 border border-info/30">
             <p class="text-sm text-info font-semibold">
-              ℹ Ingresa la contraseña temporal que usará el usuario para su primer inicio de sesión.
-              Si la dejas en blanco se usará <strong>Temporal123</strong>.
+              ℹ Contraseña temporal para el primer inicio de sesión. Déjala en blanco para usar: <strong>Temporal123</strong>
             </p>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="w-full">
                 <label class="label pt-0 text-sm">Contraseña temporal</label>
                 <%= f.password_field :password,
@@ -118,14 +117,14 @@
           <div id="temp_password_section"
                class="<%= usuario.requires_password_change? ? '' : 'hidden' %> col-span-full flex flex-col gap-3 p-3 rounded-lg bg-warning/10 border border-warning/30">
             <p class="text-sm text-warning font-semibold">
-              ⚠ Ingresa la nueva contraseña temporal que el usuario deberá usar para iniciar sesión.
+              ⚠ Nueva contraseña temporal. Déjala en blanco para usar: <strong>Temporal123</strong>
             </p>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="w-full">
                 <label class="label pt-0 text-sm">Nueva contraseña temporal</label>
                 <%= f.password_field :password,
                                      class: 'input input-bordered w-full',
-                                     placeholder: 'Ej: Temporal2024!',
+                                     placeholder: 'Dejar en blanco para usar Temporal123',
                                      autocomplete: 'new-password',
                                      id: 'temp_password_input' %>
               </div>
