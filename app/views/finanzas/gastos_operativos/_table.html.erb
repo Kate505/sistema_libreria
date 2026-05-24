@@ -4,6 +4,7 @@
       <th>Fecha</th>
       <th>Descripción</th>
       <th class="text-right">Cantidad (C$)</th>
+      <th class="text-center">Usuario</th>
       <th class="text-right">Acciones</th>
     </tr>
   </thead>
@@ -22,6 +23,10 @@
 
       <td class="text-right tabular-nums font-semibold">
         C$ <%= number_with_precision(gasto.cantidad, precision: 2, delimiter: ',') %>
+      </td>
+
+      <td class="text-center">
+        <span class="truncate block"><%= gasto.user.nombre_completo %></span>
       </td>
 
       <td class="flex gap-2 justify-end">

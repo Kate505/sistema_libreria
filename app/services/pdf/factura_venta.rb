@@ -26,10 +26,10 @@ module Pdf
     private
 
     def encabezado
-      text "Sistema Librería", size: 24, style: :bold, align: :center
-      text "Dirección de la Tienda Principal", align: :center
-      text "Teléfono: (505) 0000-0000", align: :center
-      text "RUC: 123456789", align: :center
+      text "Librería Pequeños Detalles", size: 24, style: :bold, align: :center
+      text "Sucursal El Reparto", align: :center
+      text "Teléfono: (505) 8858-4872", align: :center
+      text "RUC: J1330000035088", align: :center
     end
 
     def datos_venta
@@ -47,9 +47,6 @@ module Pdf
                      "N/A"
                    end
           text "<b>Método de Pago:</b> #{metodo}", inline_format: true
-          
-          estado = @venta.finalizada? ? "Finalizada" : "Pendiente"
-          text "<b>Estado:</b> #{estado}", inline_format: true
         end
 
         # Columna Derecha
@@ -63,7 +60,7 @@ module Pdf
     end
 
     def tabla_detalles
-      tabla_datos = [["Cantidad", "Producto", "P. Unitario (C$)", "Subtotal (C$)", "Desc. %", "Total (C$)"]]
+      tabla_datos = [["Cantidad", "Producto", "P. Unitario", "Subtotal", "Desc.", "Total (C$)"]]
       
       @detalles.each do |detalle|
         desc_text = detalle.descuento_porcentaje.to_i > 0 ? "#{detalle.descuento_porcentaje}%" : "—"
@@ -83,14 +80,16 @@ module Pdf
         row(0).font_style = :bold
         row(0).background_color = "f0f0f0"
         row(0).align = :center
-        
+        row(0).size = 9
+
         columns(0).align = :center
         columns(2).align = :right
         columns(3).align = :right
         columns(4).align = :center
         columns(5).align = :right
         
-        cells.padding = 8
+        cells.padding = 6
+        cells.size = 9
         cells.borders = [:bottom]
         cells.border_width = 0.5
         cells.border_color = "cccccc"
@@ -109,7 +108,6 @@ module Pdf
     def pie_de_pagina
       move_down 50
       text "¡Gracias por su compra!", align: :center, style: :italic
-      text "Este documento no es un comprobante fiscal válido a menos que se indique lo contrario", align: :center, size: 8, color: "777777"
       
       number_pages "Página <page> de <total>", {
         start_count_at: 1,
