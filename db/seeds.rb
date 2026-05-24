@@ -129,7 +129,7 @@ orden = OrdenDeCompra.create!(
   fecha_compra: Date.today,
   numero_factura: "INVENTARIO-INICIAL",
   costo_total_flete: 0,
-  finalizada: true
+  finalizada: false
 )
 
 # Categoría base
@@ -158,34 +158,39 @@ def detectar_categoria(nombre)
   # EXCEPTO: si habla de papelería (papel/cartulina/etc.), se va a Papelería.
   if t.match?(re_colores)
     if t.match?(re_papeleria)
-      return pick.call("Papelería", "Papeleria")
+      return pick.call("Papelería", nil)
     end
 
     if t.match?(re_instrumento_escritura)
-      return pick.call("Lapices y Lapiceros", nil)
+      return pick.call("Lapices", nil)
     end
 
-    return pick.call("Lapices de colores", "Lapices y Lapiceros")
+    return pick.call("Colores", nil)
   end
 
   case t
-  when /tajador|borrador/
-    pick.call("Tajadores y Borradores", nil)
+  when /tajador/
+    pick.call("Borradores", nil)
+  when /borrador/
+    pick.call("Tajadores", nil)
 
   when /lapiz|lapicero|lapiceros|pluma|boligrafo|esfero|portamin|lapicera/
-    pick.call("Lapices y Lapiceros", nil)
+    pick.call("Lapices", nil)
 
-  when /corrector|mina|minas/
-    pick.call("Correctores y minas", nil)
+  when /corrector/
+    pick.call("Correctores", nil)
+
+  when /minas/
+    pick.call("Minas", nil)
 
   when /tape|sellador|pega|silicon/
-    pick.call("Pegas, silicones y cintas", nil)
+    pick.call("Pegamentos", nil)
 
   when /tijera|cutter/
-    pick.call("Tijeras y cutter", nil)
+    pick.call("Tijeras", nil)
 
   when /tachuelas|pushpin|chinches/
-    pick.call("Tachuelas y chinches", nil)
+    pick.call("Tachuelas", nil)
 
   when /notitas|notas/
     pick.call("Notitas", nil)
@@ -193,11 +198,14 @@ def detectar_categoria(nombre)
   when /marcador|marcadores|resaltador|resaltadores/
     pick.call("Marcadores", nil)
 
-  when /cuaderno|libreta|block/
-    pick.call("Cuadernos y libretas", nil)
+  when /cuaderno/
+    pick.call("Cuadernos", nil)
+
+  when /libreta|block/
+    pick.call("Libretas", nil)
 
   when /folder|carpeta/
-    pick.call("Folders y Carpetas", nil)
+    pick.call("Folders", nil)
 
   when /foami/
     pick.call("Foamis", nil)

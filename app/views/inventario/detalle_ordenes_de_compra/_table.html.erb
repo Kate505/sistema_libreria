@@ -1,4 +1,33 @@
-<table class="table table-pin-rows">
+<%# Barra de búsqueda %>
+<div class="px-4 py-3 border-b border-base-200 shrink-0">
+  <%= form_with url: inventario_orden_de_compra_path(orden_de_compra), method: :get,
+                data: { turbo_frame: "main_content", turbo_action: "advance" },
+                class: "flex items-end gap-3" do %>
+    <div class="flex-1">
+      <input type="text" name="q" value="<%= params[:q] %>" placeholder="Buscar por producto o SKU..."
+             class="input input-bordered input-sm w-full" />
+    </div>
+    <button type="submit" class="btn btn-primary btn-sm gap-1">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+      </svg>
+      Buscar
+    </button>
+    <% if params[:q].present? %>
+      <%= link_to inventario_orden_de_compra_path(orden_de_compra),
+                  data: { turbo_frame: "main_content", turbo_action: "advance" },
+                  class: "btn btn-ghost btn-sm" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+        Limpiar
+      <% end %>
+    <% end %>
+  <% end %>
+</div>
+
+<div class="overflow-x-auto w-full">
+  <table class="table table-pin-rows">
   <thead>
     <tr class="bg-base-100 z-10">
       <th>Producto</th>
@@ -7,14 +36,15 @@
       <th class="text-right">Costo Unit. Calc.</th>
       <th class="text-right">Precio Venta</th>
       <th class="text-right">P. Mayor</th>
-      <th class="text-right">Total Línea</th>
+      <th class="text-right">Total Compra</th>
       <th class="text-right">Acción</th>
     </tr>
   </thead>
 
   <tbody>
   <% detalles.each do |detalle| %>
-    <% total_linea = detalle.costo_unitario_compra_calculado.to_d * detalle.cantidad.to_i %>
+    <% total_compra = detalle.costo_unitario_compra_calculado.to_d * detalle.cantidad.to_i %>
+    <% total_venta = detalle.costo_unitario_compra_calculado.to_d * detalle.cantidad.to_i %>
     <% precio_sugerido = PriceCalculationService.call(detalle.producto, detalle.costo_unitario_compra_calculado) %>
     <tr class="hover:bg-base-200">
 
@@ -74,12 +104,12 @@
       </td>
 
       <td class="text-right font-semibold tabular-nums">
-        C$ <%= number_with_precision(total_linea, precision: 2, delimiter: ',') %>
+        C$ <%= number_with_precision(total_compra, precision: 2, delimiter: ',') %>
       </td>
 
       <td class="text-right">
         <% if orden_de_compra.pendiente? %>
-          <%= link_to inventario_orden_de_compra_detalle_orden_de_compra_path(orden_de_compra, detalle),
+          <%= link_to inventario_orden_de_compra_detalle_orden_de_compra_path(orden_de_compra, detalle, q: params[:q], page: params[:page]),
                       data: { turbo_method: :delete,
                               turbo_confirm: "¿Eliminar #{detalle.producto.nombre} de esta orden? Se revertirán #{detalle.cantidad} unidades del stock." },
                       class: "btn btn-sm btn-ghost btn-square text-error",
@@ -124,10 +154,11 @@
       </tr>
     </tfoot>
   <% end %>
-</table>
+  </table>
+</div>
 
 <% if detalles.respond_to?(:total_pages) && detalles.total_pages > 1 %>
   <div class="flex justify-center py-4 border-t border-base-200">
-    <%= paginate detalles, param_name: :page %>
+    <%= paginate detalles, param_name: :page, params: { q: params[:q] } %>
   </div>
 <% end %>

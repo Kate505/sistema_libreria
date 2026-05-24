@@ -89,7 +89,14 @@ class Inventario::DetalleOrdenesDeCompraController < ApplicationController
   end
 
   def detalles_recargados
-    @orden_de_compra.detalle_ordenes_de_compra.includes(:producto).order(:created_at).page(1).per(20)
+    detalles = @orden_de_compra.detalle_ordenes_de_compra.includes(:producto).order(:created_at)
+    if params[:q].present?
+      detalles = detalles.joins(:producto).where(
+        "productos.nombre ILIKE :q OR productos.sku ILIKE :q",
+        q: "%#{params[:q]}%"
+      )
+    end
+    detalles.page(params[:page] || 1).per(7)
   end
 
   def detalle_params
