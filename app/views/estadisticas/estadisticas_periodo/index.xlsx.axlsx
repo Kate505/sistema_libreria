@@ -52,17 +52,15 @@ wb.styles do |style|
 
   # Hoja 3: Gastos Operativos
   wb.add_worksheet(name: "Gastos") do |sheet|
-    sheet.add_row ["Período", "Alquiler", "Utilidades", "Mantenimiento", "Total"], style: header_cell
+    sheet.add_row ["Descripción", "Período", "Monto (C$)"], style: header_cell
     @gastos_detalle.each do |gasto|
       sheet.add_row [
+        gasto.descripcion,
         "#{gasto.periodo_mes}/#{gasto.periodo_year}",
-        gasto.costos_alquiler.to_f,
-        gasto.costo_utilidades.to_f,
-        gasto.costo_mantenimiento.to_f,
-        gasto.gran_total_gastos.to_f
-      ], style: [data_cell, money_cell, money_cell, money_cell, money_cell]
+        gasto.cantidad.to_f
+      ], style: [data_cell, data_cell, money_cell]
     end
-    sheet.column_widths 15, 15, 15, 15, 15
+    sheet.column_widths 30, 15, 15
   end
 
   # Hoja 4: Compras (Órdenes de Compra)

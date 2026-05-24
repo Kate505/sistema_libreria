@@ -90,9 +90,11 @@ class Estadisticas::EstadisticasPeriodoController < ApplicationController
     else
       GastoOperativo.none
     end
-    @gastos_alquiler       = gastos_resumen.sum(:costos_alquiler).to_f
-    @gastos_utilidades     = gastos_resumen.sum(:costo_utilidades).to_f
-    @gastos_mantenimiento  = gastos_resumen.sum(:costo_mantenimiento).to_f
+    # Agrupar gastos por descripción personalizada
+    @gastos_por_descripcion = gastos_resumen.group(:descripcion).sum(:cantidad).to_h
+    @gastos_alquiler       = 0.0
+    @gastos_utilidades     = 0.0
+    @gastos_mantenimiento  = 0.0
 
     # ── Gráfico 1: Tendencia Ingresos vs COGS (dual-line) ───────────────────
     dias = (@fecha_hasta.to_date - @fecha_desde.to_date).to_i.clamp(0, 365)
@@ -212,12 +214,10 @@ class Estadisticas::EstadisticasPeriodoController < ApplicationController
     else
       GastoOperativo.none
     end
-    @gastos_desglose_labels = [ "Alquiler", "Utilidades", "Mantenimiento" ]
-    @gastos_desglose_data   = [
-      gastos_records.sum(:costos_alquiler).to_f,
-      gastos_records.sum(:costo_utilidades).to_f,
-      gastos_records.sum(:costo_mantenimiento).to_f
-    ]
+    # Agrupar por descripción personalizada para el gráfico
+    gastos_agrupados = gastos_records.group(:descripcion).sum(:cantidad)
+    @gastos_desglose_labels = gastos_agrupados.keys
+    @gastos_desglose_data   = gastos_agrupados.values.map(&:to_f)
 
     # ── Gráfico 5: Top 10 productos por ingreso (horizontal bar) ─────────────
     top_ingresos_scope = DetalleVenta.joins(:venta, :producto).where(ventas: { fecha_venta: rango, finalizada: true })
