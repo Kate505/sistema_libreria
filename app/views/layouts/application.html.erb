@@ -23,7 +23,7 @@
 
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
     <%= javascript_importmap_tags %>
   </head>
 
@@ -82,7 +82,7 @@
           <!--             Page content here-->
           <main class="flex-1">
             <%#= breadcrumbs %>
-            <div class="p-8">
+            <div class="p-8 page-padding">
               <%= render "shared/flash" %>
 
               <%= turbo_frame_tag "main_content", class: "content-fade-in" do %>

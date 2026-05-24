@@ -2,27 +2,33 @@
   <%= turbo_stream_from "gastos_operativos" %>
   <%= turbo_refreshes_with method: :morph, scroll: :preserve %>
 
-  <div class="grid grid-rows-[auto_1fr] gap-6 h-[calc(100vh-10rem)] w-full">
+  <div class="grid grid-rows-[auto_1fr] gap-6 h-[calc(100vh-10rem)] w-full page-grid">
 
-    <div class="flex items-center shrink-0">
-      <h1 class="text-3xl font-bold">Gastos Operativos</h1>
+    <div class="flex items-center justify-between shrink-0 flex-wrap gap-3">
+      <h1 class="text-3xl font-bold page-title">Gastos Operativos</h1>
+      <button class="btn btn-primary btn-sm lg:hidden" onclick="document.getElementById('mobile_form_modal').showModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Nuevo Gasto
+      </button>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 min-h-0">
 
-      <div class="card bg-base-100 shadow-xl overflow-hidden flex flex-col h-full lg:max-h-full">
+      <div class="card bg-base-100 shadow-xl overflow-hidden flex-col h-full lg:max-h-full hidden lg:flex">
         <div class="overflow-y-auto flex-1 p-0">
           <%= render "form", gasto_operativo: @gasto_operativo %>
         </div>
       </div>
 
-      <div class="card bg-base-100 shadow-xl col-span-2 flex flex-col h-full overflow-hidden">
+      <div class="card bg-base-100 shadow-xl lg:col-span-2 flex flex-col h-full overflow-hidden">
 
         <%# Barra de búsqueda + filtro por fecha %>
         <div class="px-4 pt-4 pb-2 border-b border-base-200 shrink-0">
           <%= form_with url: finanzas_gastos_operativos_path, method: :get,
                         data: { turbo_frame: "main_content", turbo_action: "advance" },
-                        class: "flex flex-wrap items-end gap-3" do %>
+                        class: "flex flex-wrap items-end gap-3 filter-bar" do %>
             <div class="flex-1 min-w-[160px]">
               <input type="text" name="q" value="<%= params[:q] %>" placeholder="Buscar descripción..."
                      class="input input-bordered input-sm w-full" />
@@ -58,7 +64,7 @@
           <% end %>
         </div>
 
-        <div class="flex-1 overflow-y-auto" id="gastos_operativos_table_container">
+        <div class="flex-1 overflow-y-auto table-scroll-wrapper" id="gastos_operativos_table_container">
           <div id="gastos_operativos_table" class="h-full">
             <%= render "table", gastos_operativos: @gastos_operativos %>
           </div>
@@ -76,4 +82,13 @@
     </div>
 
   </div>
+
+  <dialog id="mobile_form_modal" class="modal modal-bottom lg:hidden">
+    <div class="modal-box max-h-[85vh] overflow-y-auto">
+      <form method="dialog"><button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button></form>
+      <%= render "form", gasto_operativo: @gasto_operativo %>
+    </div>
+    <form method="dialog" class="modal-backdrop"><button>close</button></form>
+  </dialog>
+
 <% end %>

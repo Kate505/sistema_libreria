@@ -140,7 +140,7 @@
         <div class="w-full">
           <%= f.label :descuento_maximo, 'Descuento Máximo (%)', class: 'label pt-0' %>
           <label class="input input-bordered flex items-center gap-2 w-full">
-            <%= f.number_field :descuento_maximo, min: 0, max: 100, class: 'grow', placeholder: '0' %>
+            <%= f.number_field :descuento_maximo, min: 0, max: 100, class: 'grow min-w-0', placeholder: '0' %>
             <span class="text-base-content/60 text-sm font-semibold">%</span>
           </label>
         </div>
@@ -160,7 +160,7 @@
               <%= f.number_field :precio_venta,
                                  min: 0, step: 1,
                                  value: producto.precio_venta&.to_i,
-                                 class: 'grow',
+                                 class: 'grow min-w-0',
                                  placeholder: '0' %>
             </label>
           </div>
@@ -172,7 +172,7 @@
               <%= f.number_field :precio_venta_al_mayor,
                                  min: 0, step: 1,
                                  value: producto.precio_venta_al_mayor&.to_i,
-                                 class: 'grow',
+                                 class: 'grow min-w-0',
                                  placeholder: '0' %>
             </label>
           </div>

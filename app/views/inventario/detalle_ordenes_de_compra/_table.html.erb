@@ -2,7 +2,7 @@
 <div class="px-4 py-3 border-b border-base-200 shrink-0">
   <%= form_with url: inventario_orden_de_compra_path(orden_de_compra), method: :get,
                 data: { turbo_frame: "main_content", turbo_action: "advance" },
-                class: "flex items-end gap-3" do %>
+                class: "flex items-end gap-3 filter-bar" do %>
     <div class="flex-1">
       <input type="text" name="q" value="<%= params[:q] %>" placeholder="Buscar por producto o SKU..."
              class="input input-bordered input-sm w-full" />
@@ -26,7 +26,7 @@
   <% end %>
 </div>
 
-<div class="overflow-x-auto w-full">
+<div class="overflow-x-auto w-full table-scroll-wrapper">
   <table class="table table-pin-rows">
   <thead>
     <tr class="bg-base-100 z-10">
