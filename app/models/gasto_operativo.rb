@@ -1,7 +1,7 @@
 class GastoOperativo < ApplicationRecord
   self.table_name = "gastos_operativos"
 
-  belongs_to :user, optional: true
+  belongs_to :user, optional: false
 
   validates :fecha, presence: true
   validates :cantidad, presence: true, numericality: { greater_than: 0 }

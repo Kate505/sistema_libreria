@@ -128,8 +128,8 @@ orden = OrdenDeCompra.create!(
   proveedor: proveedor,
   fecha_compra: Date.today,
   numero_factura: "INVENTARIO-INICIAL",
-  costo_total_flete: 0,
-  finalizada: false
+  costo_total_flete: 2000,
+  finalizada: true
 )
 
 # Categoría base
@@ -240,6 +240,9 @@ end
   precio_compra = row["Precio unitario de compra"].to_f
   precio_compra = precio_venta * 0.60 if precio_compra.nil?
 
+  precio_compra_calculado = row["Costo Unitario Compra Calculado"].to_f
+  precio_compra_calculado = precio_compra if precio_compra_calculado.nil?
+
   precio_venta = row["Precio unitario de venta"].to_f
   precio_venta = 0 if precio_venta.nil?
 
@@ -273,7 +276,7 @@ end
       producto: producto,
       cantidad: cantidad,
       precio_unitario_compra: precio_compra,
-      costo_unitario_compra_calculado: precio_compra
+      costo_unitario_compra_calculado: precio_compra_calculado
     )
   rescue ActiveRecord::RecordInvalid => e
     puts "Error in Row #{i}: #{e.message}"
