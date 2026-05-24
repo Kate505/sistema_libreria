@@ -33,7 +33,8 @@ class Finanzas::GastosOperativosControllerTest < ActionDispatch::IntegrationTest
     gasto = GastoOperativo.create!(
       fecha: Date.current,
       cantidad: 100.00,
-      descripcion: "Original"
+      descripcion: "Original",
+      user: @user
     )
 
     gasto.descripcion = "Modificado"
@@ -46,7 +47,8 @@ class Finanzas::GastosOperativosControllerTest < ActionDispatch::IntegrationTest
     gasto = GastoOperativo.create!(
       fecha: Date.current,
       cantidad: 100.00,
-      descripcion: "Gasto a eliminar"
+      descripcion: "Gasto a eliminar",
+      user: @user
     )
 
     assert_no_difference("GastoOperativo.count") do
@@ -63,7 +65,8 @@ class Finanzas::GastosOperativosControllerTest < ActionDispatch::IntegrationTest
     gasto = GastoOperativo.create!(
       fecha: Date.current,
       cantidad: 100.00,
-      descripcion: "Gasto a eliminar"
+      descripcion: "Gasto a eliminar",
+      user: @user
     )
 
     assert_difference("GastoOperativo.count", -1) do

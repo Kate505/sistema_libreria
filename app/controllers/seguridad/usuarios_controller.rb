@@ -58,6 +58,7 @@ class Seguridad::UsuariosController < ApplicationController
 
     if @usuario.save
       @usuarios = User.all.order(:email_address)
+      flash.now[:notice] = "Usuario creado exitosamente."
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
@@ -65,9 +66,10 @@ class Seguridad::UsuariosController < ApplicationController
             turbo_stream.replace("usuario_form", partial: "seguridad/usuarios/form", locals: { usuario: User.new, roles_usuario: @roles_usuario })
           ]
         end
-        format.html { redirect_to seguridad_usuarios_path, notice: "Creado" }
+        format.html { redirect_to seguridad_usuarios_path, notice: "Usuario creado exitosamente." }
       end
     else
+      flash.now[:alert] = "No se pudo crear el usuario."
       respond_to do |format|
         format.turbo_stream { render turbo_stream: turbo_stream.replace("usuario_form", partial: "seguridad/usuarios/form", locals: { usuario: @usuario, roles_usuario: @roles_usuario, lista_agregar_roles: @lista_agregar_roles }) }
         format.html { render :index, status: :unprocessable_entity }
@@ -103,6 +105,7 @@ class Seguridad::UsuariosController < ApplicationController
     if @usuario.update(params_limpios)
       @usuarios = User.all.order(:email_address)
       refresh_lists_for_view
+      flash.now[:notice] = "Usuario actualizado exitosamente."
 
       respond_to do |format|
         format.turbo_stream do
@@ -111,7 +114,7 @@ class Seguridad::UsuariosController < ApplicationController
             turbo_stream.replace("usuario_form", partial: "seguridad/usuarios/form", locals: { usuario: User.new, roles_usuario: @roles_usuario })
           ]
         end
-        format.html { redirect_to seguridad_usuarios_path, notice: "Actualizado" }
+        format.html { redirect_to seguridad_usuarios_path, notice: "Usuario actualizado exitosamente." }
       end
     else
       refresh_lists_for_view
@@ -125,6 +128,7 @@ class Seguridad::UsuariosController < ApplicationController
   def destroy
     @usuario.destroy
     @usuarios = User.all.order(:email_address)
+    flash.now[:notice] = "Usuario eliminado exitosamente."
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [
@@ -132,7 +136,7 @@ class Seguridad::UsuariosController < ApplicationController
           turbo_stream.replace("usuario_form", partial: "seguridad/usuarios/form", locals: { usuario: User.new, roles_usuario: [] })
         ]
       end
-      format.html { redirect_to seguridad_usuarios_path, notice: "Eliminado" }
+      format.html { redirect_to seguridad_usuarios_path, notice: "Usuario eliminado exitosamente." }
     end
   end
 
@@ -144,9 +148,9 @@ class Seguridad::UsuariosController < ApplicationController
                             User.where(modulo_id: modulo_id)
                                 .where.not(nombre: "Inicio")
                                 .order(:nombre)
-    else
+                          else
                             []
-    end
+                          end
 
     render turbo_stream: turbo_stream.replace(
       target,

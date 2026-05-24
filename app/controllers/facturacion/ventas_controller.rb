@@ -46,10 +46,12 @@ class Facturacion::VentasController < ApplicationController
         render :index
       end
       format.turbo_stream do
+        frame_id = request.headers["Turbo-Frame"].presence || "venta_form_desktop"
+        suffix = frame_id.end_with?("_mobile") ? "mobile" : "desktop"
         render turbo_stream: turbo_stream.replace(
-          "venta_form",
+          frame_id,
           partial: "facturacion/ventas/form",
-          locals: { venta: @venta }
+          locals: { venta: @venta, suffix: suffix }
         )
       end
     end
@@ -62,27 +64,39 @@ class Facturacion::VentasController < ApplicationController
 
     if @venta.save
       @ventas = Venta.pendientes.includes(:cliente, :detalle_ventas).order(fecha_venta: :desc)
+      flash.now[:notice] = "Venta creada exitosamente."
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
             turbo_stream.update("ventas_table",
                                 partial: "facturacion/ventas/table",
                                 locals: { ventas: @ventas }),
-            turbo_stream.replace("venta_form",
+            turbo_stream.replace("venta_form_desktop",
                                  partial: "facturacion/ventas/form",
-                                 locals: { venta: Venta.new })
+                                 locals: { venta: Venta.new, suffix: "desktop" }),
+            turbo_stream.replace("venta_form_mobile",
+                                 partial: "facturacion/ventas/form",
+                                 locals: { venta: Venta.new, suffix: "mobile", saved: true }),
+            turbo_stream.update("flash-messages",
+                                partial: "shared/flash")
           ]
         end
         format.html { redirect_to facturacion_ventas_path, notice: "Venta creada exitosamente." }
       end
     else
+      flash.now[:alert] = "No se pudo crear la venta."
       respond_to do |format|
         format.turbo_stream do
-          render turbo_stream: turbo_stream.replace(
-            "venta_form",
-            partial: "facturacion/ventas/form",
-            locals: { venta: @venta }
-          )
+          render turbo_stream: [
+            turbo_stream.replace("venta_form_desktop",
+                                 partial: "facturacion/ventas/form",
+                                 locals: { venta: @venta, suffix: "desktop" }),
+            turbo_stream.replace("venta_form_mobile",
+                                 partial: "facturacion/ventas/form",
+                                 locals: { venta: @venta, suffix: "mobile" }),
+            turbo_stream.update("flash-messages",
+                                partial: "shared/flash")
+          ]
         end
         format.html { render :index, status: :unprocessable_entity }
       end
@@ -93,27 +107,39 @@ class Facturacion::VentasController < ApplicationController
   def update
     if @venta.update(venta_params)
       @ventas = Venta.pendientes.includes(:cliente, :detalle_ventas).order(fecha_venta: :desc)
+      flash.now[:notice] = "Venta actualizada exitosamente."
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
             turbo_stream.update("ventas_table",
                                 partial: "facturacion/ventas/table",
                                 locals: { ventas: @ventas }),
-            turbo_stream.replace("venta_form",
+            turbo_stream.replace("venta_form_desktop",
                                  partial: "facturacion/ventas/form",
-                                 locals: { venta: Venta.new })
+                                 locals: { venta: Venta.new, suffix: "desktop" }),
+            turbo_stream.replace("venta_form_mobile",
+                                 partial: "facturacion/ventas/form",
+                                 locals: { venta: Venta.new, suffix: "mobile", saved: true }),
+            turbo_stream.update("flash-messages",
+                                partial: "shared/flash")
           ]
         end
         format.html { redirect_to facturacion_ventas_path, notice: "Venta actualizada exitosamente." }
       end
     else
+      flash.now[:alert] = "No se pudo actualizar la venta."
       respond_to do |format|
         format.turbo_stream do
-          render turbo_stream: turbo_stream.replace(
-            "venta_form",
-            partial: "facturacion/ventas/form",
-            locals: { venta: @venta }
-          )
+          render turbo_stream: [
+            turbo_stream.replace("venta_form_desktop",
+                                 partial: "facturacion/ventas/form",
+                                 locals: { venta: @venta, suffix: "desktop" }),
+            turbo_stream.replace("venta_form_mobile",
+                                 partial: "facturacion/ventas/form",
+                                 locals: { venta: @venta, suffix: "mobile" }),
+            turbo_stream.update("flash-messages",
+                                partial: "shared/flash")
+          ]
         end
         format.html { render :index, status: :unprocessable_entity }
       end
@@ -124,15 +150,21 @@ class Facturacion::VentasController < ApplicationController
   def destroy
     @venta.destroy
     @ventas = Venta.pendientes.includes(:cliente, :detalle_ventas).order(fecha_venta: :desc)
+    flash.now[:notice] = "Venta eliminada exitosamente."
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [
           turbo_stream.update("ventas_table",
                               partial: "facturacion/ventas/table",
                               locals: { ventas: @ventas }),
-          turbo_stream.replace("venta_form",
+          turbo_stream.replace("venta_form_desktop",
                                partial: "facturacion/ventas/form",
-                               locals: { venta: Venta.new })
+                               locals: { venta: Venta.new, suffix: "desktop" }),
+          turbo_stream.replace("venta_form_mobile",
+                               partial: "facturacion/ventas/form",
+                               locals: { venta: Venta.new, suffix: "mobile" }),
+          turbo_stream.update("flash-messages",
+                              partial: "shared/flash")
         ]
       end
       format.html { redirect_to facturacion_ventas_path, notice: "Venta eliminada exitosamente." }
@@ -289,9 +321,14 @@ class Facturacion::VentasController < ApplicationController
               locals: { venta: @venta.reload }
             ),
             turbo_stream.replace(
-              "detalle_venta_form",
+              "detalle_venta_form_desktop",
               partial: "facturacion/detalle_ventas/form",
-              locals: { venta: @venta, detalle: DetalleVenta.new }
+              locals: { venta: @venta, detalle: DetalleVenta.new, suffix: "desktop" }
+            ),
+            turbo_stream.replace(
+              "detalle_venta_form_mobile",
+              partial: "facturacion/detalle_ventas/form",
+              locals: { venta: @venta, detalle: DetalleVenta.new, suffix: "mobile" }
             ),
             turbo_stream.update(
               "detalle_ventas_table",
@@ -364,13 +401,25 @@ class Facturacion::VentasController < ApplicationController
   def verificar_venta_abierta
     return unless @venta.finalizada?
 
+    flash.now[:alert] = "La Venta ##{@venta.id} ya fue finalizada y no se puede modificar."
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.replace(
-          "venta_form",
-          partial: "facturacion/ventas/form",
-          locals: { venta: @venta }
-        ), status: :unprocessable_entity
+        render turbo_stream: [
+          turbo_stream.replace(
+            "venta_form_desktop",
+            partial: "facturacion/ventas/form",
+            locals: { venta: @venta, suffix: "desktop" }
+          ),
+          turbo_stream.replace(
+            "venta_form_mobile",
+            partial: "facturacion/ventas/form",
+            locals: { venta: @venta, suffix: "mobile" }
+          ),
+          turbo_stream.update(
+            "flash-messages",
+            partial: "shared/flash"
+          )
+        ], status: :unprocessable_entity
       end
       format.html do
         redirect_to facturacion_ventas_path,

@@ -1,4 +1,5 @@
-<turbo-frame id="producto_form">
+<% suffix ||= "desktop" %>
+<turbo-frame id="producto_form_<%= suffix %>">
   <%= form_with(model: producto,
                 url: producto.new_record? ? inventario_productos_path : inventario_producto_path(producto),
                 method: producto.new_record? ? :post : :patch,
@@ -181,10 +182,19 @@
         <%# Botones de acción %>
         <div class="card-actions justify-end sm:col-span-2 col-span-full mt-4 pt-4 border-t border-base-200">
           <%= save_button(f) %>
-          <%= cancel_button(inventario_productos_path, frame_id: "producto_form", style_class: 'btn btn-soft btn-error') %>
+          <%= cancel_button(inventario_productos_path, frame_id: "producto_form_#{suffix}", style_class: 'btn btn-soft btn-error') %>
         </div>
 
       </div>
     </div>
   <% end %>
 </turbo-frame>
+
+<% if local_assigns[:saved] %>
+  <script>
+    var modal = document.getElementById('mobile_form_modal');
+    if (modal && modal.open) {
+      modal.close();
+    }
+  </script>
+<% end %>

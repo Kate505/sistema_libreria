@@ -19,7 +19,8 @@ module FormActionsHelper
       data: {
         turbo_frame: frame_id,
         turbo_action: "advance"
-      }
+      },
+      onclick: "var d = this.closest('dialog'); if(d) d.close();"
     )
   end
 

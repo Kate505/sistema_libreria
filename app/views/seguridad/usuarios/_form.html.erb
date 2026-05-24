@@ -1,4 +1,5 @@
-<turbo-frame id="usuario_form">
+<% suffix ||= "desktop" %>
+<turbo-frame id="usuario_form_<%= suffix %>">
   <div id="gestionar_roles_modal_content">
     <%= render "gestionar_roles_usuario_modal",
                usuario: usuario,
@@ -131,7 +132,7 @@
 
           <div class="flex gap-2">
             <%= save_button(f) %>
-            <%= cancel_button(seguridad_usuarios_path, frame_id: "usuario_form", style_class: 'btn btn-soft btn-error') %>
+            <%= cancel_button(seguridad_usuarios_path, frame_id: "usuario_form_#{suffix}", style_class: 'btn btn-soft btn-error') %>
           </div>
         </div>
 
@@ -139,3 +140,12 @@
     </div>
   <% end %>
 </turbo-frame>
+
+<% if local_assigns[:saved] %>
+  <script>
+    var modal = document.getElementById('mobile_form_modal');
+    if (modal && modal.open) {
+      modal.close();
+    }
+  </script>
+<% end %>

@@ -76,7 +76,8 @@
           <div class="overflow-y-auto flex-1 p-0">
             <%= render "facturacion/detalle_ventas/form",
                        venta: @venta,
-                       detalle: @detalle %>
+                       detalle: @detalle,
+                       suffix: "desktop" %>
           </div>
         </div>
 
@@ -99,7 +100,8 @@
           <form method="dialog"><button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button></form>
           <%= render "facturacion/detalle_ventas/form",
                      venta: @venta,
-                     detalle: @detalle %>
+                     detalle: @detalle,
+                     suffix: "mobile" %>
         </div>
         <form method="dialog" class="modal-backdrop"><button>close</button></form>
       </dialog>

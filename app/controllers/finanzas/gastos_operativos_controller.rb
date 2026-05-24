@@ -26,10 +26,12 @@ class Finanzas::GastosOperativosController < ApplicationController
         render :index
       end
       format.turbo_stream do
+        frame_id = request.headers["Turbo-Frame"].presence || "gasto_operativo_form_desktop"
+        suffix = frame_id.end_with?("_mobile") ? "mobile" : "desktop"
         render turbo_stream: turbo_stream.replace(
-          "gasto_operativo_form",
+          frame_id,
           partial: "finanzas/gastos_operativos/form",
-          locals: { gasto_operativo: @gasto_operativo }
+          locals: { gasto_operativo: @gasto_operativo, suffix: suffix }
         )
       end
     end
@@ -41,27 +43,39 @@ class Finanzas::GastosOperativosController < ApplicationController
 
     if @gasto_operativo.save
       @gastos_operativos = GastoOperativo.por_fecha_desc.page(1).per(10)
+      flash.now[:notice] = "Gasto operativo creado exitosamente."
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
             turbo_stream.update("gastos_operativos_table",
                                 partial: "finanzas/gastos_operativos/table",
                                 locals: { gastos_operativos: @gastos_operativos }),
-            turbo_stream.replace("gasto_operativo_form",
+            turbo_stream.replace("gasto_operativo_form_desktop",
                                  partial: "finanzas/gastos_operativos/form",
-                                 locals: { gasto_operativo: GastoOperativo.new })
+                                 locals: { gasto_operativo: GastoOperativo.new, suffix: "desktop" }),
+            turbo_stream.replace("gasto_operativo_form_mobile",
+                                 partial: "finanzas/gastos_operativos/form",
+                                 locals: { gasto_operativo: GastoOperativo.new, suffix: "mobile", saved: true }),
+            turbo_stream.update("flash-messages",
+                                partial: "shared/flash")
           ]
         end
         format.html { redirect_to finanzas_gastos_operativos_path, notice: "Gasto operativo creado exitosamente." }
       end
     else
+      flash.now[:alert] = "No se pudo crear el gasto operativo."
       respond_to do |format|
         format.turbo_stream do
-          render turbo_stream: turbo_stream.replace(
-            "gasto_operativo_form",
-            partial: "finanzas/gastos_operativos/form",
-            locals: { gasto_operativo: @gasto_operativo }
-          )
+          render turbo_stream: [
+            turbo_stream.replace("gasto_operativo_form_desktop",
+                                 partial: "finanzas/gastos_operativos/form",
+                                 locals: { gasto_operativo: @gasto_operativo, suffix: "desktop" }),
+            turbo_stream.replace("gasto_operativo_form_mobile",
+                                 partial: "finanzas/gastos_operativos/form",
+                                 locals: { gasto_operativo: @gasto_operativo, suffix: "mobile" }),
+            turbo_stream.update("flash-messages",
+                                partial: "shared/flash")
+          ]
         end
         format.html { render :index, status: :unprocessable_entity }
       end
@@ -71,27 +85,39 @@ class Finanzas::GastosOperativosController < ApplicationController
   def update
     if @gasto_operativo.update(gasto_operativo_params)
       @gastos_operativos = GastoOperativo.por_fecha_desc.page(1).per(10)
+      flash.now[:notice] = "Gasto operativo actualizado exitosamente."
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
             turbo_stream.update("gastos_operativos_table",
                                 partial: "finanzas/gastos_operativos/table",
                                 locals: { gastos_operativos: @gastos_operativos }),
-            turbo_stream.replace("gasto_operativo_form",
+            turbo_stream.replace("gasto_operativo_form_desktop",
                                  partial: "finanzas/gastos_operativos/form",
-                                 locals: { gasto_operativo: GastoOperativo.new })
+                                 locals: { gasto_operativo: GastoOperativo.new, suffix: "desktop" }),
+            turbo_stream.replace("gasto_operativo_form_mobile",
+                                 partial: "finanzas/gastos_operativos/form",
+                                 locals: { gasto_operativo: GastoOperativo.new, suffix: "mobile", saved: true }),
+            turbo_stream.update("flash-messages",
+                                partial: "shared/flash")
           ]
         end
         format.html { redirect_to finanzas_gastos_operativos_path, notice: "Gasto operativo actualizado exitosamente." }
       end
     else
+      flash.now[:alert] = "No se pudo actualizar el gasto operativo."
       respond_to do |format|
         format.turbo_stream do
-          render turbo_stream: turbo_stream.replace(
-            "gasto_operativo_form",
-            partial: "finanzas/gastos_operativos/form",
-            locals: { gasto_operativo: @gasto_operativo }
-          )
+          render turbo_stream: [
+            turbo_stream.replace("gasto_operativo_form_desktop",
+                                 partial: "finanzas/gastos_operativos/form",
+                                 locals: { gasto_operativo: @gasto_operativo, suffix: "desktop" }),
+            turbo_stream.replace("gasto_operativo_form_mobile",
+                                 partial: "finanzas/gastos_operativos/form",
+                                 locals: { gasto_operativo: @gasto_operativo, suffix: "mobile" }),
+            turbo_stream.update("flash-messages",
+                                partial: "shared/flash")
+          ]
         end
         format.html { render :index, status: :unprocessable_entity }
       end
@@ -112,15 +138,21 @@ class Finanzas::GastosOperativosController < ApplicationController
 
     @gasto_operativo.destroy
     @gastos_operativos = GastoOperativo.por_fecha_desc.page(1).per(10)
+    flash.now[:notice] = "Gasto operativo eliminado exitosamente."
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [
           turbo_stream.update("gastos_operativos_table",
                               partial: "finanzas/gastos_operativos/table",
                               locals: { gastos_operativos: @gastos_operativos }),
-          turbo_stream.replace("gasto_operativo_form",
+          turbo_stream.replace("gasto_operativo_form_desktop",
                                partial: "finanzas/gastos_operativos/form",
-                               locals: { gasto_operativo: GastoOperativo.new })
+                               locals: { gasto_operativo: GastoOperativo.new, suffix: "desktop" }),
+          turbo_stream.replace("gasto_operativo_form_mobile",
+                               partial: "finanzas/gastos_operativos/form",
+                               locals: { gasto_operativo: GastoOperativo.new, suffix: "mobile" }),
+          turbo_stream.update("flash-messages",
+                              partial: "shared/flash")
         ]
       end
       format.html { redirect_to finanzas_gastos_operativos_path, notice: "Gasto operativo eliminado exitosamente." }
