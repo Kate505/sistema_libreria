@@ -81,81 +81,37 @@
             <span class="label-text">Pasivo</span>
           <% end %>
 
-          <%= f.label :requires_password_change, class: 'cursor-pointer label flex items-center justify-start gap-3 w-fit' do %>
-            <%= f.check_box :requires_password_change,
-                            class: 'checkbox',
-                            id: 'requires_password_change_check',
-                            data: { action: 'change->password-toggle#toggle' } %>
-            <span class="label-text">Contraseña temporal (requiere cambio)</span>
+          <% unless usuario.new_record? %>
+            <%= f.label :requires_password_change, class: 'cursor-pointer label flex items-center justify-start gap-3 w-fit' do %>
+              <%= f.check_box :requires_password_change,
+                              class: 'checkbox',
+                              id: 'requires_password_change_check',
+                              data: { action: 'change->password-toggle#toggle' } %>
+              <span class="label-text">Contraseña temporal (requiere cambio)</span>
+            <% end %>
           <% end %>
 
         <% if usuario.new_record? %>
-          <%# Nuevo usuario: campos de contraseña siempre visibles %>
+          <%# Nuevo usuario: solo información, sin inputs %>
           <div class="w-full col-span-full flex flex-col gap-3 p-3 rounded-lg bg-info/10 border border-info/30">
             <p class="text-sm text-info font-semibold">
-              ℹ Contraseña temporal para el primer inicio de sesión. Déjala en blanco para usar: <strong>Temporal123</strong>
+              ℹ Contraseña temporal para el primer inicio de sesión: <strong>Temporal123</strong>
             </p>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="w-full">
-                <label class="label pt-0 text-sm">Contraseña temporal</label>
-                <%= f.password_field :password,
-                                     class: 'input input-bordered w-full',
-                                     placeholder: 'Dejar en blanco para usar Temporal123',
-                                     autocomplete: 'new-password' %>
-              </div>
-              <div class="w-full">
-                <label class="label pt-0 text-sm">Confirmar contraseña</label>
-                <%= f.password_field :password_confirmation,
-                                     class: 'input input-bordered w-full',
-                                     placeholder: 'Repite la contraseña',
-                                     autocomplete: 'new-password' %>
-              </div>
-            </div>
+            <p class="text-xs text-info">
+              El usuario deberá cambiar esta contraseña al iniciar sesión por primera vez.
+            </p>
           </div>
         <% else %>
-          <%# Usuario existente: campos de contraseña ocultos hasta marcar checkbox %>
+          <%# Usuario existente: información del estado de contraseña temporal %>
           <div id="temp_password_section"
                class="<%= usuario.requires_password_change? ? '' : 'hidden' %> col-span-full flex flex-col gap-3 p-3 rounded-lg bg-warning/10 border border-warning/30">
             <p class="text-sm text-warning font-semibold">
-              ⚠ Nueva contraseña temporal. Déjala en blanco para usar: <strong>Temporal123</strong>
+              ⚠ Contraseña temporal activa: <strong>Temporal123</strong>
             </p>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="w-full">
-                <label class="label pt-0 text-sm">Nueva contraseña temporal</label>
-                <%= f.password_field :password,
-                                     class: 'input input-bordered w-full',
-                                     placeholder: 'Dejar en blanco para usar Temporal123',
-                                     autocomplete: 'new-password',
-                                     id: 'temp_password_input' %>
-              </div>
-              <div class="w-full">
-                <label class="label pt-0 text-sm">Confirmar contraseña temporal</label>
-                <%= f.password_field :password_confirmation,
-                                     class: 'input input-bordered w-full',
-                                     placeholder: 'Repite la contraseña',
-                                     autocomplete: 'new-password',
-                                     id: 'temp_password_confirm_input' %>
-              </div>
-            </div>
+            <p class="text-xs text-warning">
+              El usuario deberá cambiar esta contraseña temporal al iniciar sesión.
+            </p>
           </div>
-
-          <script>
-            (function() {
-              const checkbox = document.getElementById('requires_password_change_check');
-              const section  = document.getElementById('temp_password_section');
-              if (!checkbox || !section) return;
-
-              function toggle() {
-                if (checkbox.checked) {
-                  section.classList.remove('hidden');
-                } else {
-                  section.classList.add('hidden');
-                  section.querySelectorAll('input[type="password"]').forEach(i => i.value = '');
-                }
-              }
-              checkbox.addEventListener('change', toggle);
-            })();
-          </script>
         <% end %>
 
         </div><%# fin del div de checkboxes %>
