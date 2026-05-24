@@ -1,0 +1,95 @@
+# syntax=docker/dockerfile:1
+# ============================================================================
+# Dockerfile.production — Multi-stage optimized build for Rails 8 production
+# ============================================================================
+# DO NOT modify the root Dockerfile or compose.yml — those are for development.
+# This file is used by Kamal for production deployments.
+# ============================================================================
+
+# ---------- Stage 1: Base image ----------
+FROM ruby:3.4.4-slim AS base
+
+WORKDIR /rails
+
+# Install only runtime dependencies (no build tools)
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y \
+      curl \
+      libjemalloc2 \
+      libpq5 \
+      libvips && \
+    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
+# Set production environment
+ENV RAILS_ENV="production" \
+    BUNDLE_DEPLOYMENT="1" \
+    BUNDLE_PATH="/usr/local/bundle" \
+    BUNDLE_WITHOUT="development:test" \
+    TZ="America/Managua"
+
+# ---------- Stage 2: Build stage ----------
+FROM base AS build
+
+# Install build dependencies
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y \
+      build-essential \
+      git \
+      libpq-dev \
+      pkg-config \
+      gnupg && \
+    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
+# Install Node.js 22 (needed for TailwindCSS/DaisyUI build)
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x -o nodesource_setup.sh && \
+    bash nodesource_setup.sh && \
+    apt-get install -y --no-install-recommends nodejs && \
+    rm nodesource_setup.sh && \
+    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
+# Enable Corepack for Yarn 4
+RUN corepack enable && corepack prepare yarn@stable --activate
+
+# Install Ruby gems
+COPY Gemfile Gemfile.lock ./
+RUN bundle install && \
+    rm -rf ~/.bundle "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
+    bundle exec bootsnap precompile --gemfile
+
+# Install JavaScript dependencies (DaisyUI)
+COPY package.json yarn.lock .yarnrc.yml ./
+COPY .yarn .yarn
+RUN yarn install --immutable
+
+# Copy application code
+COPY . .
+
+# Precompile bootsnap code for faster boot
+RUN bundle exec bootsnap precompile app/ lib/
+
+# Precompile assets (includes TailwindCSS build)
+RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
+
+# Remove node_modules after asset compilation — not needed at runtime
+RUN rm -rf node_modules .yarn
+
+# ---------- Stage 3: Runtime ----------
+FROM base
+
+# Copy built artifacts from build stage
+COPY --from=build "${BUNDLE_PATH}" "${BUNDLE_PATH}"
+COPY --from=build /rails /rails
+
+# Create non-root user for security
+RUN groupadd --system --gid 1000 rails && \
+    useradd rails --uid 1000 --gid 1000 --create-home --shell /bin/bash && \
+    chown -R rails:rails db log storage tmp
+
+USER 1000:1000
+
+# Entrypoint prepares database (db:prepare) on boot
+ENTRYPOINT ["/rails/bin/docker-entrypoint"]
+
+# Thruster wraps Puma: HTTP caching, compression, X-Sendfile
+EXPOSE 80
+CMD ["./bin/thrust", "./bin/rails", "server"]
