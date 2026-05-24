@@ -90,24 +90,20 @@
               GASTOS OPERATIVOS
             </td>
           </tr>
-          <tr class="hover">
-            <td class="pl-6" colspan="2">Alquiler</td>
-            <td class="text-right tabular-nums text-error/80">
-              (<%= number_with_precision(@gastos_alquiler, precision: 2, delimiter: ',') %>)
-            </td>
-          </tr>
-          <tr class="hover">
-            <td class="pl-6" colspan="2">Utilidades (servicios)</td>
-            <td class="text-right tabular-nums text-error/80">
-              (<%= number_with_precision(@gastos_utilidades, precision: 2, delimiter: ',') %>)
-            </td>
-          </tr>
-          <tr class="hover">
-            <td class="pl-6" colspan="2">Mantenimiento</td>
-            <td class="text-right tabular-nums text-error/80">
-              (<%= number_with_precision(@gastos_mantenimiento, precision: 2, delimiter: ',') %>)
-            </td>
-          </tr>
+          <% if @gastos_por_descripcion.any? %>
+            <% @gastos_por_descripcion.each do |descripcion, monto| %>
+              <tr class="hover">
+                <td class="pl-6" colspan="2"><%= descripcion %></td>
+                <td class="text-right tabular-nums text-error/80">
+                  (<%= number_with_precision(monto, precision: 2, delimiter: ',') %>)
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr>
+              <td class="pl-6 text-sm text-base-content/40 italic" colspan="3">No hay gastos operativos en este período</td>
+            </tr>
+          <% end %>
           <tr class="border-t border-error/20 font-bold">
             <td class="pl-6" colspan="2">Total Gastos Operativos</td>
             <td class="text-right tabular-nums text-error text-base">
