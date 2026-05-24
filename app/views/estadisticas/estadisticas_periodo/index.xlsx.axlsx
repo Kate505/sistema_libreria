@@ -1,0 +1,83 @@
+wb = xlsx_package.workbook
+
+# Estilos
+wb.styles do |style|
+  title_cell = style.add_style(b: true, sz: 14, bg_color: "4F81BD", fg_color: "FFFFFF", alignment: { horizontal: :center })
+  header_cell = style.add_style(b: true, bg_color: "DCE6F1", border: Axlsx::STYLE_THIN_BORDER, alignment: { horizontal: :center })
+  data_cell = style.add_style(border: Axlsx::STYLE_THIN_BORDER)
+  money_cell = style.add_style(border: Axlsx::STYLE_THIN_BORDER, format_code: '#,##0.00')
+
+  # Hoja 1: Resumen de Estadísticas
+  wb.add_worksheet(name: "Resumen") do |sheet|
+    sheet.add_row ["Librería Pequeños Detalles - Reporte de Estadísticas por Período"], style: title_cell
+    sheet.merge_cells("A1:B1")
+    sheet.add_row ["Desde", @fecha_desde.strftime('%d/%m/%Y')], style: data_cell
+    sheet.add_row ["Hasta", @fecha_hasta.strftime('%d/%m/%Y')], style: data_cell
+    sheet.add_row []
+
+    sheet.add_row ["KPI", "Valor"], style: header_cell
+    sheet.add_row ["Ingresos Brutos", @ingresos_brutos], style: [data_cell, money_cell]
+    sheet.add_row ["Costo de Ventas (COGS)", @cogs], style: [data_cell, money_cell]
+    sheet.add_row ["Utilidad Bruta", @utilidad_bruta], style: [data_cell, money_cell]
+    sheet.add_row ["Margen Bruto (%)", @margen_bruto_pct], style: [data_cell, money_cell]
+    sheet.add_row ["Gastos Operativos", @gastos_operativos_total], style: [data_cell, money_cell]
+    sheet.add_row ["Utilidad Neta", @utilidad_neta], style: [data_cell, money_cell]
+    sheet.add_row ["Margen Neto (%)", @margen_neto_pct], style: [data_cell, money_cell]
+    sheet.add_row ["Total de Ventas Realizadas", @total_ventas_count], style: data_cell
+    sheet.add_row ["Total de Artículos Vendidos", @total_articulos_vendidos], style: data_cell
+
+    sheet.add_row []
+    sheet.add_row ["Top 10 Productos", "Ingresos Generados"], style: header_cell
+    @top_ingresos_labels.each_with_index do |label, i|
+      sheet.add_row [label, @top_ingresos_data[i]], style: [data_cell, money_cell]
+    end
+    
+    sheet.column_widths 30, 20
+  end
+
+  # Hoja 2: Detalle de Ventas
+  wb.add_worksheet(name: "Ventas") do |sheet|
+    sheet.add_row ["Fecha", "Cliente", "Total (C$)", "Método de Pago"], style: header_cell
+    @ventas_detalle.each do |venta|
+      cliente = venta.cliente ? "#{venta.cliente.primer_nombre} #{venta.cliente.primer_apellido}" : "Consumidor Final"
+      sheet.add_row [
+        venta.fecha_venta.strftime('%d/%m/%Y %H:%M'), 
+        cliente, 
+        venta.cantidad_total.to_f, 
+        Venta::METODOS_PAGO[venta.metodo_pago] || venta.metodo_pago
+      ], style: [data_cell, data_cell, money_cell, data_cell]
+    end
+    sheet.column_widths 20, 30, 15, 20
+  end
+
+  # Hoja 3: Gastos Operativos
+  wb.add_worksheet(name: "Gastos") do |sheet|
+    sheet.add_row ["Período", "Alquiler", "Utilidades", "Mantenimiento", "Total"], style: header_cell
+    @gastos_detalle.each do |gasto|
+      sheet.add_row [
+        "#{gasto.periodo_mes}/#{gasto.periodo_year}",
+        gasto.costos_alquiler.to_f,
+        gasto.costo_utilidades.to_f,
+        gasto.costo_mantenimiento.to_f,
+        gasto.gran_total_gastos.to_f
+      ], style: [data_cell, money_cell, money_cell, money_cell, money_cell]
+    end
+    sheet.column_widths 15, 15, 15, 15, 15
+  end
+
+  # Hoja 4: Compras (Órdenes de Compra)
+  wb.add_worksheet(name: "Compras") do |sheet|
+    sheet.add_row ["Fecha", "Proveedor", "Nro. Factura", "Costo Total (C$)"], style: header_cell
+    @compras_detalle.each do |compra|
+      proveedor = compra.proveedor ? compra.proveedor.nombre : "N/A"
+      total = compra.detalle_ordenes_de_compra.sum { |d| d.precio_unitario_compra.to_f * d.cantidad.to_f }
+      sheet.add_row [
+        compra.fecha_compra.strftime('%d/%m/%Y'),
+        proveedor,
+        compra.numero_factura.presence || "—",
+        total
+      ], style: [data_cell, data_cell, data_cell, money_cell]
+    end
+    sheet.column_widths 15, 30, 20, 15
+  end
+end

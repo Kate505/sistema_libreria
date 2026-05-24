@@ -3,6 +3,7 @@ module Authentication
 
   included do
     before_action :require_authentication
+    before_action :check_password_change_required
     helper_method :authenticated?
   end
 
@@ -35,6 +36,14 @@ module Authentication
       redirect_to new_session_path, alert: "Tu usuario no tiene roles activos asignados. Contacta al administrador."
     else
       request_authentication
+    end
+  end
+
+  def check_password_change_required
+    if Current.user&.requires_password_change?
+      return if controller_name == "sessions" && action_name == "destroy"
+      
+      redirect_to edit_user_password_path, alert: "Por seguridad, debes actualizar tu contraseña temporal."
     end
   end
 

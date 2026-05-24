@@ -33,6 +33,19 @@
         <%= @fecha_desde.strftime("%d/%m/%Y") %> — <%= @fecha_hasta.strftime("%d/%m/%Y") %>
       </p>
     </div>
+    <div class="flex gap-2">
+      <%= link_to estadisticas_estadisticas_periodo_index_path(format: :pdf, fecha_desde: params[:fecha_desde], fecha_hasta: params[:fecha_hasta], marca_id: params[:marca_id]), 
+                  class: "btn btn-outline btn-error btn-sm", 
+                  target: "_blank" do %>
+        Descargar PDF
+      <% end %>
+      
+      <%= link_to estadisticas_estadisticas_periodo_index_path(format: :xlsx, fecha_desde: params[:fecha_desde], fecha_hasta: params[:fecha_hasta], marca_id: params[:marca_id]), 
+                  class: "btn btn-outline btn-success btn-sm", 
+                  target: "_blank" do %>
+        Descargar Excel
+      <% end %>
+    </div>
   </div>
 
   <%# ── Filtros ─────────────────────────────────────────────────────────%>

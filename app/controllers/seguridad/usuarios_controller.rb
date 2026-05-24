@@ -35,11 +35,24 @@ class Seguridad::UsuariosController < ApplicationController
   end
 
   def create
-    @usuario = User.new(usuario_params)
-    password_temporal = "Temporal123"
+    @usuario = User.new(usuario_params.except(:password, :password_confirmation))
 
-    @usuario.password = password_temporal
-    @usuario.password_confirmation = password_temporal
+    # Usar la contraseña ingresada por el admin, o "Temporal123" como fallback
+    nueva_password = params.dig(:user, :password).presence || "Temporal123"
+    confirmacion   = params.dig(:user, :password_confirmation).presence || nueva_password
+
+    if nueva_password != confirmacion
+      @usuario.errors.add(:password, "y su confirmación no coinciden")
+      refresh_lists_for_view
+      return respond_to do |format|
+        format.turbo_stream { render turbo_stream: turbo_stream.replace("usuario_form", partial: "seguridad/usuarios/form", locals: { usuario: @usuario, roles_usuario: @roles_usuario, lista_agregar_roles: @lista_agregar_roles }) }
+        format.html { render :index, status: :unprocessable_entity }
+      end
+    end
+
+    @usuario.password = nueva_password
+    @usuario.password_confirmation = confirmacion
+    @usuario.requires_password_change = true
 
     refresh_lists_for_view
 
@@ -49,7 +62,6 @@ class Seguridad::UsuariosController < ApplicationController
         format.turbo_stream do
           render turbo_stream: [
             turbo_stream.update("usuarios_table", partial: "seguridad/usuarios/table", locals: { usuarios: @usuarios }),
-
             turbo_stream.replace("usuario_form", partial: "seguridad/usuarios/form", locals: { usuario: User.new, roles_usuario: @roles_usuario })
           ]
         end
@@ -57,14 +69,36 @@ class Seguridad::UsuariosController < ApplicationController
       end
     else
       respond_to do |format|
-        format.turbo_stream { render turbo_stream: turbo_stream.replace("usuario_form", partial: "seguridad/usuarios/form", locals: { usuario: @usuario, roles_usuario: @roles_usuario }) }
+        format.turbo_stream { render turbo_stream: turbo_stream.replace("usuario_form", partial: "seguridad/usuarios/form", locals: { usuario: @usuario, roles_usuario: @roles_usuario, lista_agregar_roles: @lista_agregar_roles }) }
         format.html { render :index, status: :unprocessable_entity }
       end
     end
   end
 
+
   def update
-    if @usuario.update(usuario_params)
+    params_limpios = usuario_params
+    nueva_password = params_limpios.delete(:password).presence
+    params_limpios.delete(:password_confirmation)
+
+    # Si el admin activó la contraseña temporal y proporcionó una nueva clave, asignarla
+    if params_limpios[:requires_password_change] == "1" && nueva_password.present?
+      password_confirmation = params.dig(:user, :password_confirmation).presence
+
+      if nueva_password != password_confirmation
+        @usuario.errors.add(:password, "y su confirmación no coinciden")
+        refresh_lists_for_view
+        return respond_to do |format|
+          format.turbo_stream { render turbo_stream: turbo_stream.replace("usuario_form", partial: "seguridad/usuarios/form", locals: { usuario: @usuario, roles_usuario: @roles_usuario, lista_agregar_roles: @lista_agregar_roles }) }
+          format.html { render :index, status: :unprocessable_entity }
+        end
+      end
+
+      @usuario.password = nueva_password
+      @usuario.password_confirmation = password_confirmation
+    end
+
+    if @usuario.update(params_limpios)
       @usuarios = User.all.order(:email_address)
       refresh_lists_for_view
 
@@ -78,8 +112,9 @@ class Seguridad::UsuariosController < ApplicationController
         format.html { redirect_to seguridad_usuarios_path, notice: "Actualizado" }
       end
     else
+      refresh_lists_for_view
       respond_to do |format|
-        format.turbo_stream { render turbo_stream: turbo_stream.replace("usuario_form", partial: "seguridad/usuarios/form", locals: { usuario: @usuario, roles_usuario: @roles_usuario }) }
+        format.turbo_stream { render turbo_stream: turbo_stream.replace("usuario_form", partial: "seguridad/usuarios/form", locals: { usuario: @usuario, roles_usuario: @roles_usuario, lista_agregar_roles: @lista_agregar_roles }) }
         format.html { render :index, status: :unprocessable_entity }
       end
     end
@@ -141,7 +176,7 @@ class Seguridad::UsuariosController < ApplicationController
   end
 
   def usuario_params
-    params.require(:user).permit(:email_address, :empleado_id, :pasivo)
+    params.require(:user).permit(:email_address, :empleado_id, :pasivo, :requires_password_change, :password, :password_confirmation)
   end
 
   def refresh_lists_for_view

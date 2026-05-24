@@ -300,6 +300,34 @@ class Estadisticas::EstadisticasPeriodoController < ApplicationController
         .order(fecha_compra: :desc)
         .limit(30)
     end
+
+    respond_to do |format|
+      format.html
+      format.pdf do
+        pdf = Pdf::EstadisticasPeriodo.new(
+          fecha_desde: @fecha_desde,
+          fecha_hasta: @fecha_hasta,
+          ingresos_brutos: @ingresos_brutos,
+          cogs: @cogs,
+          utilidad_bruta: @utilidad_bruta,
+          gastos_operativos_total: @gastos_operativos_total,
+          utilidad_neta: @utilidad_neta,
+          margen_bruto_pct: @margen_bruto_pct,
+          margen_neto_pct: @margen_neto_pct,
+          total_ventas_count: @total_ventas_count,
+          total_articulos_vendidos: @total_articulos_vendidos,
+          top_ingresos_labels: @top_ingresos_labels,
+          top_ingresos_data: @top_ingresos_data
+        )
+        send_data pdf.render,
+                  filename: "estadisticas_#{@fecha_desde.strftime('%Y%m%d')}_#{@fecha_hasta.strftime('%Y%m%d')}.pdf",
+                  type: "application/pdf",
+                  disposition: "inline"
+      end
+      format.xlsx do
+        response.headers['Content-Disposition'] = "attachment; filename=estadisticas_#{@fecha_desde.strftime('%Y%m%d')}_#{@fecha_hasta.strftime('%Y%m%d')}.xlsx"
+      end
+    end
   end
 
   private
