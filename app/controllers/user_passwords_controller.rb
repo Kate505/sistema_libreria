@@ -5,11 +5,12 @@ class UserPasswordsController < ApplicationController
   skip_before_action :authorize_menu_access_globally, only: [:edit, :update]
 
   def edit
+    redirect_to root_path if !Current.user.requires_password_change?
   end
 
   def update
     if Current.user.update(password_params.merge(requires_password_change: false))
-      redirect_to root_path, notice: "Contraseña actualizada exitosamente."
+      redirect_to root_path, notice: "Contraseña actualizada exitosamente.", status: :see_other
     else
       flash.now[:alert] = "La confirmación no coincide con la contraseña o la contraseña es inválida."
       render :edit, status: :unprocessable_entity

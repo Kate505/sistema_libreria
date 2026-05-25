@@ -11,7 +11,7 @@
           Por razones de seguridad, debes actualizar tu contraseña temporal antes de continuar utilizando el sistema.
         </p>
 
-        <%= form_with model: Current.user, url: user_password_path, method: :patch, class: "contents" do |f| %>
+        <%= form_with model: Current.user, url: user_password_path, method: :patch, class: "contents", data: { turbo: false } do |f| %>
           <%= f.label :password, 'Nueva Contraseña', class: 'label' %>
           <%= f.password_field :password, class: 'input',
                                required: true, placeholder: 'Ingresa tu nueva contraseña', minlength: 6, maxlength: 72 %>
