@@ -31,7 +31,7 @@
   <% if authenticated? %>
     <div class="drawer lg:drawer-open flex-1">
       <input id="my-drawer-4" type="checkbox" class="drawer-toggle" data-sidebar-target="toggle"/>
-      <div class="drawer-content flex flex-col h-full pb-8">
+      <div class="drawer-content flex flex-col h-full">
         <!--           Navbar-->
         <div class="relative">
           <nav class="sticky top-0 z-50 navbar w-full bg-base-200 flex-none">
@@ -44,7 +44,10 @@
                 </g>
               </svg>
             </label>
-            <div class="px-4 flex-1">Librería Pequeños Detalles</div>
+            <div class="px-4 flex-1 font-semibold">
+              <span class="hidden lg:inline">Librería Pequeños Detalles</span>
+              <span class="inline lg:hidden">LPD</span>
+            </div>
 
             <div class="flex-none">
               <%= theme_toggle(padding: 'px-8', size: '10') %>
@@ -82,7 +85,7 @@
           <!--             Page content here-->
           <main class="flex-1">
             <%#= breadcrumbs %>
-            <div class="p-8 page-padding">
+            <div class="pt-8 px-8 page-padding">
               <%= render "shared/flash" %>
 
               <%= turbo_frame_tag "main_content", class: "content-fade-in" do %>
