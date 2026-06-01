@@ -28,13 +28,7 @@
             <%= f.label :password, 'Contraseña', class: 'label' %>
             <%= f.password_field :password, class: 'input',
                                  autocomplete: 'current-password', required: true, placeholder: 'Contraseña', maxlength: 72 %>
-            <div>
-              <%= link_to "¿Olvidó su Contraseña?", new_password_path, class: "link link-hover" %>
-            </div>
             <%= f.submit "Iniciar Sesión", class: "btn btn-neutral mt-4" %>
-            <div>
-              <%= link_to "Crear nuevo usuario", new_registrations_path, class: "link link-hover" %>
-            </div>
           <% end %>
         </fieldset>
       </div>
