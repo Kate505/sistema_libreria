@@ -5,6 +5,7 @@ namespace :facturacion do
       post :crear_cliente
       get :buscar_producto
       get :historial
+      get :volver_a_lista
     end
     member do
       patch :finalizar

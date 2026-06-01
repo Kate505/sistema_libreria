@@ -1,0 +1,107 @@
+<%# Estado B: Detalle de venta activa (agregar productos, resumen, finalizar) %>
+<div id="ventas_workspace">
+
+<%# Encabezado con botón de volver %>
+<div class="flex items-center justify-between shrink-0 flex-wrap gap-3">
+  <div class="flex items-center gap-3">
+    <%= link_to volver_a_lista_facturacion_ventas_path,
+                data: { turbo_stream: "" },
+                class: "btn btn-ghost btn-sm btn-square" do %>
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+    <% end %>
+    <div>
+      <h1 class="text-3xl font-bold page-title">
+        Venta #<%= venta.id %>
+        <% if venta.cliente.present? %>
+          <span class="text-base-content/50 font-normal text-xl">
+            — <%= venta.cliente.primer_nombre %> <%= venta.cliente.primer_apellido %>
+          </span>
+        <% else %>
+          <span class="text-base-content/50 font-normal text-xl">— Consumidor final</span>
+        <% end %>
+      </h1>
+      <p class="text-sm text-base-content/50">
+        <%= venta.fecha_venta.strftime("%d/%m/%Y %H:%M") %>
+        · Pago:
+        <% if venta.metodo_pago.present? %>
+          <span id="venta_pago_status" class="font-medium">
+            <%= Venta::METODOS_PAGO[venta.metodo_pago] || venta.metodo_pago %>
+          </span>
+        <% else %>
+          <span id="venta_pago_status" class="font-medium text-warning">Pendiente de pago</span>
+        <% end %>
+      </p>
+    </div>
+  </div>
+
+  <%# Resumen totales %>
+  <%= render "resumen", venta: venta %>
+</div>
+
+<% if venta.finalizada? %>
+  <%# ── Venta finalizada: solo tabla, ancho completo ── %>
+  <div class="grid grid-cols-1 gap-4 min-h-0">
+    <div class="card bg-base-100 shadow-xl flex flex-col h-full overflow-hidden">
+      <div class="flex-1 overflow-y-auto table-scroll-wrapper">
+        <div id="detalle_ventas_table">
+          <%= render "facturacion/detalle_ventas/table",
+                     venta: venta,
+                     detalles: detalles %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<% else %>
+  <%# ── Venta pendiente: formulario + tabla ── %>
+
+  <%# Mobile: button to open form modal %>
+  <div id="mobile_agregar_btn" class="lg:hidden -mt-4 mb-0">
+    <button class="btn btn-primary btn-sm w-full" onclick="document.getElementById('mobile_detalle_modal').showModal()">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+      </svg>
+      Agregar Producto
+    </button>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 min-h-0">
+
+    <%# Desktop: inline form card (hidden on mobile) %>
+    <div class="card bg-base-100 shadow-xl overflow-hidden flex-col h-full lg:max-h-full hidden lg:flex">
+      <div class="overflow-y-auto flex-1 p-0">
+        <%= render "facturacion/detalle_ventas/form",
+                   venta: venta,
+                   detalle: detalle,
+                   suffix: "desktop" %>
+      </div>
+    </div>
+
+    <%# Tabla de líneas %>
+    <div class="card bg-base-100 shadow-xl lg:col-span-2 flex flex-col h-full overflow-hidden">
+      <div class="flex-1 overflow-y-auto table-scroll-wrapper">
+        <div id="detalle_ventas_table">
+          <%= render "facturacion/detalle_ventas/table",
+                     venta: venta,
+                     detalles: detalles %>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <%# Mobile form modal %>
+  <dialog id="mobile_detalle_modal" class="modal modal-bottom lg:hidden">
+    <div class="modal-box max-h-[85vh] overflow-y-auto">
+      <form method="dialog"><button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button></form>
+      <%= render "facturacion/detalle_ventas/form",
+                 venta: venta,
+                 detalle: detalle,
+                 suffix: "mobile" %>
+    </div>
+    <form method="dialog" class="modal-backdrop"><button>close</button></form>
+  </dialog>
+<% end %>
+</div>

@@ -17,6 +17,14 @@ class Facturacion::VentasController < ApplicationController
                       .order(:created_at)
                       
     respond_to do |format|
+      format.turbo_stream do
+        # Switch inline del workspace al detalle de esta venta
+        render turbo_stream: turbo_stream.replace(
+          "ventas_workspace",
+          partial: "facturacion/ventas/workspace_detalle",
+          locals: { venta: @venta, detalle: @detalle, detalles: @detalles }
+        )
+      end
       format.html do
         # Si el detalle se solicita desde el historial, lo devolvemos como modal
         # (sin navegar a la pantalla de ventas).
@@ -63,25 +71,20 @@ class Facturacion::VentasController < ApplicationController
     @venta.user ||= Current.user
 
     if @venta.save
-      @ventas = Venta.pendientes.includes(:cliente, :detalle_ventas).order(fecha_venta: :desc)
-      flash.now[:notice] = "Venta creada exitosamente."
+      @detalle = DetalleVenta.new
+      @detalles = @venta.detalle_ventas.includes(:producto).order(:created_at)
+      flash.now[:notice] = "Venta creada. Agrega los productos."
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
-            turbo_stream.update("ventas_table",
-                                partial: "facturacion/ventas/table",
-                                locals: { ventas: @ventas }),
-            turbo_stream.replace("venta_form_desktop",
-                                 partial: "facturacion/ventas/form",
-                                 locals: { venta: Venta.new, suffix: "desktop" }),
-            turbo_stream.replace("venta_form_mobile",
-                                 partial: "facturacion/ventas/form",
-                                 locals: { venta: Venta.new, suffix: "mobile", saved: true }),
+            turbo_stream.replace("ventas_workspace",
+                                 partial: "facturacion/ventas/workspace_detalle",
+                                 locals: { venta: @venta, detalle: @detalle, detalles: @detalles }),
             turbo_stream.update("flash-messages",
                                 partial: "shared/flash")
           ]
         end
-        format.html { redirect_to facturacion_ventas_path, notice: "Venta creada exitosamente." }
+        format.html { redirect_to facturacion_venta_path(@venta), notice: "Venta creada." }
       end
     else
       flash.now[:alert] = "No se pudo crear la venta."
@@ -253,7 +256,7 @@ class Facturacion::VentasController < ApplicationController
     @productos = Producto.where("nombre ILIKE :q OR sku ILIKE :q", q: "%#{params[:q]}%")
                          .where("stock_actual > 0")
                          .order(:nombre)
-                         .limit(10)
+                         .limit(5)
     render json: @productos.map { |p|
       {
         id: p.id,
@@ -334,6 +337,12 @@ class Facturacion::VentasController < ApplicationController
               "detalle_ventas_table",
               partial: "facturacion/detalle_ventas/table",
               locals: { venta: @venta, detalles: @detalles }
+            ),
+            # Mobile-specific: remove agregar btn + update payment status in header
+            turbo_stream.remove("mobile_agregar_btn"),
+            turbo_stream.replace(
+              "venta_pago_status",
+              html: "<span id=\"venta_pago_status\" class=\"font-medium\">#{Venta::METODOS_PAGO[@venta.metodo_pago] || @venta.metodo_pago}</span>"
             )
           ]
         end
@@ -350,6 +359,23 @@ class Facturacion::VentasController < ApplicationController
         end
         format.html { redirect_to facturacion_venta_path(@venta), alert: @venta.errors.full_messages.to_sentence }
       end
+    end
+  end
+
+  # GET /facturacion/ventas/volver_a_lista
+  # Regresa el workspace al estado de lista (Estado A)
+  def volver_a_lista
+    @venta = Venta.new
+    @ventas = Venta.pendientes.includes(:cliente, :detalle_ventas).order(fecha_venta: :desc)
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.replace(
+          "ventas_workspace",
+          partial: "facturacion/ventas/workspace_lista",
+          locals: { venta: @venta, ventas: @ventas }
+        )
+      end
+      format.html { redirect_to facturacion_ventas_path }
     end
   end
 
