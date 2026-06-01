@@ -19,6 +19,9 @@ application.register("helpers--components--menu-list", Helpers__Components__Menu
 import Helpers__Components__ThemeToggleController from "./helpers/components/theme_toggle_controller"
 application.register("helpers--components--theme-toggle", Helpers__Components__ThemeToggleController)
 
+import FlashController from "./flash_controller"
+application.register("flash", FlashController)
+
 import HomeController from "./home_controller"
 application.register("home", HomeController)
 

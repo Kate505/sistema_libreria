@@ -1,4 +1,9 @@
 <%= turbo_frame_tag "main_content" do %>
+  <style>
+    .drawer-content {
+      overflow-y: hidden !important;
+    }
+  </style>
 
   <div class="grid grid-rows-[auto_auto_1fr] gap-4 h-[calc(100vh-10rem)] w-full min-h-0">
 
@@ -11,38 +16,36 @@
     </div>
 
     <%# Barra de búsqueda %>
-    <div class="card bg-base-100 shadow-sm shrink-0">
-      <div class="card-body py-3 px-4">
-        <%= form_with url: consulta_precios_inventario_productos_path,
-                      method: :get,
-                      data: { turbo_frame: "consulta_table_frame", turbo_action: "advance" },
-                      class: "flex gap-3 items-center" do |f| %>
+    <div class="bg-base-100 shadow-sm rounded-box shrink-0 p-3 sm:p-4">
+      <%= form_with url: consulta_precios_inventario_productos_path,
+                    method: :get,
+                    data: { turbo_frame: "consulta_table_frame", turbo_action: "advance" },
+                    class: "flex gap-3 items-center" do |f| %>
 
-          <label class="input input-bordered flex items-center gap-2 flex-1">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-base-content/40 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/>
-            </svg>
-            <%= f.text_field :q,
-                             value: @q,
-                             placeholder: "Buscar por nombre, SKU o categoría...",
-                             class: "grow",
-                             autofocus: true,
-                             autocomplete: "off" %>
-            <% if @q.present? %>
-              <%= link_to consulta_precios_inventario_productos_path,
-                          data: { turbo_frame: "consulta_table_frame" },
-                          class: "btn btn-ghost btn-xs btn-square",
-                          title: "Limpiar búsqueda" do %>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              <% end %>
+        <label class="input input-bordered flex items-center gap-2 flex-1">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-base-content/40 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/>
+          </svg>
+          <%= f.text_field :q,
+                           value: @q,
+                           placeholder: "Buscar por nombre, SKU o categoría...",
+                           class: "grow",
+                           autofocus: true,
+                           autocomplete: "off" %>
+          <% if @q.present? %>
+            <%= link_to consulta_precios_inventario_productos_path,
+                        data: { turbo_frame: "consulta_table_frame" },
+                        class: "btn btn-ghost btn-xs btn-square",
+                        title: "Limpiar búsqueda" do %>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
             <% end %>
-          </label>
+          <% end %>
+        </label>
 
-          <%= f.submit "Buscar", class: "btn btn-primary" %>
-        <% end %>
-      </div>
+        <%= f.submit "Buscar", class: "btn btn-primary" %>
+      <% end %>
     </div>
 
     <%# Tabla de resultados %>

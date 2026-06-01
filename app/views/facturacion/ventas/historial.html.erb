@@ -1,10 +1,15 @@
 <%= turbo_frame_tag "main_content" do %>
+  <style>
+    .drawer-content {
+      overflow-y: hidden !important;
+    }
+  </style>
   <%= turbo_refreshes_with method: :morph, scroll: :preserve %>
 
   <%# Contenedor para cargar el detalle de venta como modal (Turbo Frame) %>
   <%= turbo_frame_tag "venta_detalle_modal" %>
 
-  <div class="flex flex-col gap-6 w-full">
+  <div class="grid grid-rows-[auto_auto_1fr] gap-4 h-[calc(100vh-10rem)] w-full page-grid min-h-0">
 
     <%# Encabezado %>
     <div class="flex items-center justify-between flex-wrap gap-3 shrink-0">
@@ -17,7 +22,7 @@
           </svg>
         <% end %>
         <div>
-          <h1 class="text-3xl font-bold">Historial de Ventas</h1>
+          <h1 class="text-3xl font-bold page-title">Historial de Ventas</h1>
           <p class="text-sm text-base-content/50">Consulta y filtra todas las transacciones registradas</p>
         </div>
       </div>
@@ -38,12 +43,12 @@
     </div>
 
     <%# Panel de filtros %>
-    <div class="card bg-base-100 shadow-xl">
+    <div class="card bg-base-100 shadow-xl shrink-0">
       <div class="card-body p-4">
         <%= form_with url: historial_facturacion_ventas_path,
                       method: :get,
                       data: { turbo_frame: "main_content", turbo_action: "advance" },
-                      class: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 items-end" do %>
+                      class: "grid grid-cols-2 lg:grid-cols-6 gap-3 items-end filter-bar" do %>
 
           <%# Fecha desde %>
           <div>
@@ -109,7 +114,7 @@
           </div>
 
           <%# Botones %>
-          <div class="flex flex-col sm:flex-row gap-2 sm:col-span-2 lg:col-span-1 lg:flex-col lg:justify-end">
+          <div class="flex flex-row gap-2 col-span-2 lg:col-span-1 lg:flex-col lg:justify-end">
             <button type="submit" class="btn btn-primary btn-sm gap-2 flex-1 lg:flex-none">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -131,8 +136,8 @@
     </div>
 
     <%# Tabla de resultados %>
-    <div class="card bg-base-100 shadow-xl overflow-hidden flex flex-col">
-      <div class="overflow-x-auto">
+    <div class="card bg-base-100 shadow-xl overflow-hidden flex flex-col min-h-0">
+      <div class="overflow-y-auto overflow-x-auto table-scroll-wrapper flex-1 min-h-0 flex flex-col">
         <% if @ventas.any? %>
           <table class="table table-pin-rows">
             <thead>
@@ -232,7 +237,7 @@
             </tfoot>
           </table>
         <% else %>
-          <div class="flex flex-col items-center justify-center py-20 text-base-content/40">
+          <div class="flex-1 flex flex-col items-center justify-center py-20 text-base-content/40">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mb-4 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
             </svg>

@@ -10,6 +10,7 @@ class Inventario::DetalleOrdenesDeCompraController < ApplicationController
     if @detalle.save
       FreightCalculationService.call(@orden_de_compra)
       @detalles = detalles_recargados
+      flash.now[:notice] = "Producto agregado exitosamente."
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
@@ -19,27 +20,42 @@ class Inventario::DetalleOrdenesDeCompraController < ApplicationController
               locals: { orden_de_compra: @orden_de_compra, detalles: @detalles }
             ),
             turbo_stream.replace(
-              "detalle_orden_form",
+              "detalle_orden_form_desktop",
               partial: "inventario/detalle_ordenes_de_compra/form",
-              locals: { orden_de_compra: @orden_de_compra, detalle: DetalleOrdenDeCompra.new }
+              locals: { orden_de_compra: @orden_de_compra, detalle: DetalleOrdenDeCompra.new, suffix: "desktop" }
+            ),
+            turbo_stream.replace(
+              "detalle_orden_form_mobile",
+              partial: "inventario/detalle_ordenes_de_compra/form",
+              locals: { orden_de_compra: @orden_de_compra, detalle: DetalleOrdenDeCompra.new, suffix: "mobile", saved: true }
             ),
             turbo_stream.replace(
               "orden_de_compra_resumen",
               partial: "inventario/ordenes_de_compra/resumen",
               locals: { orden_de_compra: @orden_de_compra.reload }
-            )
+            ),
+            turbo_stream.update("flash-messages", partial: "shared/flash")
           ]
         end
         format.html { redirect_to inventario_orden_de_compra_path(@orden_de_compra), notice: "Producto agregado exitosamente." }
       end
     else
+      flash.now[:alert] = "No se pudo agregar el producto."
       respond_to do |format|
         format.turbo_stream do
-          render turbo_stream: turbo_stream.replace(
-            "detalle_orden_form",
-            partial: "inventario/detalle_ordenes_de_compra/form",
-            locals: { orden_de_compra: @orden_de_compra, detalle: @detalle }
-          )
+          render turbo_stream: [
+            turbo_stream.replace(
+              "detalle_orden_form_desktop",
+              partial: "inventario/detalle_ordenes_de_compra/form",
+              locals: { orden_de_compra: @orden_de_compra, detalle: @detalle, suffix: "desktop" }
+            ),
+            turbo_stream.replace(
+              "detalle_orden_form_mobile",
+              partial: "inventario/detalle_ordenes_de_compra/form",
+              locals: { orden_de_compra: @orden_de_compra, detalle: @detalle, suffix: "mobile" }
+            ),
+            turbo_stream.update("flash-messages", partial: "shared/flash")
+          ]
         end
         format.html do
           @detalles = detalles_recargados
@@ -54,6 +70,7 @@ class Inventario::DetalleOrdenesDeCompraController < ApplicationController
     @detalle.destroy
     FreightCalculationService.call(@orden_de_compra)
     @detalles = detalles_recargados
+    flash.now[:notice] = "Línea eliminada."
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [
@@ -63,15 +80,21 @@ class Inventario::DetalleOrdenesDeCompraController < ApplicationController
             locals: { orden_de_compra: @orden_de_compra, detalles: @detalles }
           ),
           turbo_stream.replace(
-            "detalle_orden_form",
+            "detalle_orden_form_desktop",
             partial: "inventario/detalle_ordenes_de_compra/form",
-            locals: { orden_de_compra: @orden_de_compra, detalle: DetalleOrdenDeCompra.new }
+            locals: { orden_de_compra: @orden_de_compra, detalle: DetalleOrdenDeCompra.new, suffix: "desktop" }
+          ),
+          turbo_stream.replace(
+            "detalle_orden_form_mobile",
+            partial: "inventario/detalle_ordenes_de_compra/form",
+            locals: { orden_de_compra: @orden_de_compra, detalle: DetalleOrdenDeCompra.new, suffix: "mobile" }
           ),
           turbo_stream.replace(
             "orden_de_compra_resumen",
             partial: "inventario/ordenes_de_compra/resumen",
             locals: { orden_de_compra: @orden_de_compra.reload }
-          )
+          ),
+          turbo_stream.update("flash-messages", partial: "shared/flash")
         ]
       end
       format.html { redirect_to inventario_orden_de_compra_path(@orden_de_compra), notice: "Línea eliminada." }
@@ -113,11 +136,18 @@ class Inventario::DetalleOrdenesDeCompraController < ApplicationController
 
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.replace(
-          "detalle_orden_form",
-          partial: "inventario/detalle_ordenes_de_compra/form",
-          locals: { orden_de_compra: @orden_de_compra, detalle: DetalleOrdenDeCompra.new }
-        ), status: :unprocessable_entity
+        render turbo_stream: [
+          turbo_stream.replace(
+            "detalle_orden_form_desktop",
+            partial: "inventario/detalle_ordenes_de_compra/form",
+            locals: { orden_de_compra: @orden_de_compra, detalle: DetalleOrdenDeCompra.new, suffix: "desktop" }
+          ),
+          turbo_stream.replace(
+            "detalle_orden_form_mobile",
+            partial: "inventario/detalle_ordenes_de_compra/form",
+            locals: { orden_de_compra: @orden_de_compra, detalle: DetalleOrdenDeCompra.new, suffix: "mobile" }
+          )
+        ], status: :unprocessable_entity
       end
       format.html do
         redirect_to inventario_orden_de_compra_path(@orden_de_compra),

@@ -9,6 +9,7 @@ class Facturacion::DetalleVentasController < ApplicationController
 
     if @detalle.save
       @detalles = detalles_recargados
+      flash.now[:notice] = "Producto agregado exitosamente."
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
@@ -18,27 +19,48 @@ class Facturacion::DetalleVentasController < ApplicationController
               locals: { venta: @venta, detalles: @detalles }
             ),
             turbo_stream.replace(
-              "detalle_venta_form",
+              "detalle_venta_form_desktop",
               partial: "facturacion/detalle_ventas/form",
-              locals: { venta: @venta, detalle: DetalleVenta.new }
+              locals: { venta: @venta, detalle: DetalleVenta.new, suffix: "desktop", saved: true }
+            ),
+            turbo_stream.replace(
+              "detalle_venta_form_mobile",
+              partial: "facturacion/detalle_ventas/form",
+              locals: { venta: @venta, detalle: DetalleVenta.new, suffix: "mobile", saved: true }
             ),
             turbo_stream.replace(
               "venta_resumen",
               partial: "facturacion/ventas/resumen",
               locals: { venta: @venta.reload }
+            ),
+            turbo_stream.update(
+              "flash-messages",
+              partial: "shared/flash"
             )
           ]
         end
         format.html { redirect_to facturacion_venta_path(@venta), notice: "Producto agregado exitosamente." }
       end
     else
+      flash.now[:alert] = "No se pudo agregar el producto."
       respond_to do |format|
         format.turbo_stream do
-          render turbo_stream: turbo_stream.replace(
-            "detalle_venta_form",
-            partial: "facturacion/detalle_ventas/form",
-            locals: { venta: @venta, detalle: @detalle }
-          )
+          render turbo_stream: [
+            turbo_stream.replace(
+              "detalle_venta_form_desktop",
+              partial: "facturacion/detalle_ventas/form",
+              locals: { venta: @venta, detalle: @detalle, suffix: "desktop" }
+            ),
+            turbo_stream.replace(
+              "detalle_venta_form_mobile",
+              partial: "facturacion/detalle_ventas/form",
+              locals: { venta: @venta, detalle: @detalle, suffix: "mobile" }
+            ),
+            turbo_stream.update(
+              "flash-messages",
+              partial: "shared/flash"
+            )
+          ]
         end
         format.html do
           @detalles = detalles_recargados
@@ -52,6 +74,7 @@ class Facturacion::DetalleVentasController < ApplicationController
   def destroy
     @detalle.destroy
     @detalles = detalles_recargados
+    flash.now[:notice] = "Línea eliminada y stock restaurado."
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [
@@ -61,14 +84,23 @@ class Facturacion::DetalleVentasController < ApplicationController
             locals: { venta: @venta, detalles: @detalles }
           ),
           turbo_stream.replace(
-            "detalle_venta_form",
+            "detalle_venta_form_desktop",
             partial: "facturacion/detalle_ventas/form",
-            locals: { venta: @venta, detalle: DetalleVenta.new }
+            locals: { venta: @venta, detalle: DetalleVenta.new, suffix: "desktop" }
+          ),
+          turbo_stream.replace(
+            "detalle_venta_form_mobile",
+            partial: "facturacion/detalle_ventas/form",
+            locals: { venta: @venta, detalle: DetalleVenta.new, suffix: "mobile" }
           ),
           turbo_stream.replace(
             "venta_resumen",
             partial: "facturacion/ventas/resumen",
             locals: { venta: @venta.reload }
+          ),
+          turbo_stream.update(
+            "flash-messages",
+            partial: "shared/flash"
           )
         ]
       end
@@ -102,13 +134,25 @@ class Facturacion::DetalleVentasController < ApplicationController
   def verificar_venta_abierta
     return unless @venta.finalizada?
 
+    flash.now[:alert] = "Esta venta ya fue finalizada y no admite cambios."
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.replace(
-          "detalle_venta_form",
-          partial: "facturacion/detalle_ventas/form",
-          locals: { venta: @venta, detalle: DetalleVenta.new }
-        ), status: :unprocessable_entity
+        render turbo_stream: [
+          turbo_stream.replace(
+            "detalle_venta_form_desktop",
+            partial: "facturacion/detalle_ventas/form",
+            locals: { venta: @venta, detalle: DetalleVenta.new, suffix: "desktop" }
+          ),
+          turbo_stream.replace(
+            "detalle_venta_form_mobile",
+            partial: "facturacion/detalle_ventas/form",
+            locals: { venta: @venta, detalle: DetalleVenta.new, suffix: "mobile" }
+          ),
+          turbo_stream.update(
+            "flash-messages",
+            partial: "shared/flash"
+          )
+        ], status: :unprocessable_entity
       end
       format.html do
         redirect_to facturacion_venta_path(@venta),

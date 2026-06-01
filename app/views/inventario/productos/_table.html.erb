@@ -109,7 +109,8 @@
 
       <td class="flex gap-2 justify-end">
         <%= link_to edit_inventario_producto_path(producto),
-                    data: { turbo_frame: "producto_form" },
+                    data: { turbo_frame: "producto_form_desktop" },
+                    onclick: "this.setAttribute('data-turbo-frame', window.innerWidth < 1024 ? 'producto_form_mobile' : 'producto_form_desktop'); if(window.innerWidth < 1024) document.getElementById('mobile_form_modal').showModal();",
                     class: "btn btn-sm btn-ghost btn-square",
                     title: "Editar" do %>
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">

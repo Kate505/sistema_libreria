@@ -1,4 +1,5 @@
-<turbo-frame id="detalle_venta_form">
+<% suffix ||= "desktop" %>
+<turbo-frame id="detalle_venta_form_<%= suffix %>">
   <% if venta.finalizada? %>
     <%# Venta cerrada: mostrar mensaje bloqueante %>
     <div class="card-body flex flex-col items-center justify-center h-full text-center gap-4 py-12">
@@ -43,6 +44,7 @@
           <div class="w-full relative"
                data-controller="autocomplete"
                data-autocomplete-url-value="<%= buscar_producto_facturacion_ventas_path %>"
+               data-autocomplete-allow-create-value="false"
                data-action="click@window->autocomplete#hide"
                data-autocomplete-extra-fields-value='{"precio_unitario_venta": "precio", "stock_info": "stock"}'>
 
@@ -70,21 +72,20 @@
           </div>
 
           <%# Stock disponible (informativo) %>
-          <div id="stock_info" class="text-xs text-base-content/40 -mt-2 hidden">
-            Stock disponible: <span id="stock_value"></span> unidades
+          <div class="stock-info-container text-xs text-base-content/40 -mt-2 hidden">
+            Stock disponible: <span class="stock-value-span"></span> unidades
           </div>
 
           <%# Cantidad %>
           <div class="w-full">
             <%= f.label :cantidad, 'Cantidad', class: 'label pt-0' %>
             <%= f.number_field :cantidad,
-                               id: "detalle_cantidad",
                                min: 1,
                                step: 1,
-                               class: 'input input-bordered w-full',
+                               class: 'detalle-cantidad-input input input-bordered w-full',
                                placeholder: '1',
                                required: true,
-                               oninput: 'actualizarPrecioPorCantidad()' %>
+                               oninput: 'actualizarPrecioPorCantidad(this)' %>
           </div>
 
           <%# Precio de Venta Unitario — solo lectura %>
@@ -93,9 +94,8 @@
             <label class="input input-bordered flex items-center gap-2 w-full bg-base-200/60">
               <span class="text-base-content/60 text-sm font-semibold">C$</span>
               <%= f.number_field :precio_unitario_venta,
-                                 id: "precio_unitario_venta",
                                  step: 1, min: 0,
-                                 class: 'grow cursor-not-allowed',
+                                 class: 'precio-unitario-venta-input grow min-w-0 cursor-not-allowed',
                                  placeholder: '0',
                                  required: true,
                                  readonly: true,
@@ -104,13 +104,13 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
               </svg>
             </label>
-            <div id="precio_tipo_info" class="hidden mt-1">
-              <span id="precio_tipo_badge" class="badge badge-sm gap-1"></span>
+            <div class="precio-tipo-info-container hidden mt-1">
+              <span class="precio-tipo-badge-span badge badge-sm gap-1"></span>
             </div>
           </div>
 
           <%# ── Descuento — Control premium con slider + badge ── %>
-          <div id="descuento_section" class="w-full hidden">
+          <div class="descuento-section-container w-full hidden">
             <%= f.label :descuento_porcentaje, 'Descuento', class: 'label pt-0' %>
 
             <%# Contenedor con apariencia card %>
@@ -128,12 +128,11 @@
                 </div>
                 <div class="flex items-center gap-1.5">
                   <input type="number"
-                         id="descuento_porcentaje"
                          name="detalle_venta[descuento_porcentaje]"
                          min="0" max="100" step="1"
                          value="<%= detalle.descuento_porcentaje.to_i %>"
-                         class="input input-bordered input-sm w-16 text-center font-bold tabular-nums text-warning"
-                         oninput="syncDescuentoSlider(this.value)">
+                         class="descuento-porcentaje-input input input-bordered input-sm w-16 text-center font-bold tabular-nums text-warning"
+                         oninput="syncDescuentoSlider(this)">
                   <span class="text-sm font-bold text-warning">%</span>
                 </div>
               </div>
@@ -141,23 +140,22 @@
               <%# Slider range con labels %>
               <div>
                 <input type="range"
-                       id="descuento_slider"
                        min="0" max="100" step="1"
                        value="<%= detalle.descuento_porcentaje.to_i %>"
-                       class="range range-warning range-sm w-full"
-                       oninput="syncDescuentoInput(this.value)">
+                       class="descuento-slider-input range range-warning range-sm w-full"
+                       oninput="syncDescuentoInput(this)">
                 <div class="flex justify-between text-xs text-base-content/40 mt-1 px-0.5">
                   <span>0%</span>
-                  <span id="descuento_max_label">Máx: —</span>
+                  <span class="descuento-max-label-span">Máx: —</span>
                 </div>
               </div>
 
               <%# Info del máximo permitido %>
-              <div id="descuento_limit_info" class="flex items-center gap-1.5 mt-2 text-xs text-warning/70">
+              <div class="flex items-center gap-1.5 mt-2 text-xs text-warning/70">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
-                <span>Máximo permitido: <strong id="descuento_max_value">0</strong>%</span>
+                <span>Máximo permitido: <strong class="descuento-max-value-span font-bold">0</strong>%</span>
               </div>
             </div>
           </div>
@@ -179,33 +177,32 @@
 </turbo-frame>
 
 <script>
-  // ── Estado global del producto seleccionado ──
-  var _precioNormal = 0;
-  var _precioMayor = 0;
-  var _descuentoMax = 0;
-  var _descuentoPermitido = false;
-
   // ── Precio al mayor: cambia automáticamente cuando qty >= 3 ──
-  function actualizarPrecioPorCantidad() {
-    var cantField = document.getElementById("detalle_cantidad");
-    var precioField = document.getElementById("precio_unitario_venta");
-    var infoDiv = document.getElementById("precio_tipo_info");
-    var badge = document.getElementById("precio_tipo_badge");
-    if (!cantField || !precioField || _precioNormal === 0) return;
+  function actualizarPrecioPorCantidad(input) {
+    var form = input.closest("form");
+    if (!form) return;
+    var precioNormal = parseInt(form.dataset.precioNormal) || 0;
+    var precioMayor  = parseInt(form.dataset.precioMayor) || 0;
+
+    var cantField = form.querySelector(".detalle-cantidad-input");
+    var precioField = form.querySelector(".precio-unitario-venta-input");
+    var infoDiv = form.querySelector(".precio-tipo-info-container");
+    var badge = form.querySelector(".precio-tipo-badge-span");
+    if (!cantField || !precioField || precioNormal === 0) return;
 
     var qty = parseInt(cantField.value) || 0;
-    var usarMayor = qty >= 3 && _precioMayor > 0 && _precioMayor !== _precioNormal;
-    var precio = usarMayor ? _precioMayor : _precioNormal;
+    var usarMayor = qty >= 3 && precioMayor > 0 && precioMayor !== precioNormal;
+    var precio = usarMayor ? precioMayor : precioNormal;
     precioField.value = precio;
 
     // Badge indicador
     if (infoDiv && badge) {
       if (usarMayor) {
-        badge.className = "badge badge-sm badge-info gap-1";
+        badge.className = "precio-tipo-badge-span badge badge-sm badge-info gap-1";
         badge.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg> Precio al mayor (≥3 uds.)';
         infoDiv.classList.remove("hidden");
-      } else if (_precioMayor > 0 && _precioMayor !== _precioNormal) {
-        badge.className = "badge badge-sm badge-ghost gap-1";
+      } else if (precioMayor > 0 && precioMayor !== precioNormal) {
+        badge.className = "precio-tipo-badge-span badge badge-sm badge-ghost gap-1";
         badge.textContent = "Precio normal (al mayor desde 3 uds.)";
         infoDiv.classList.remove("hidden");
       } else {
@@ -215,40 +212,46 @@
   }
 
   // ── Descuento ──
-  function syncDescuentoInput(val) {
-    val = Math.min(parseInt(val) || 0, _descuentoMax);
-    var numField = document.getElementById("descuento_porcentaje");
-    var slider = document.getElementById("descuento_slider");
+  function syncDescuentoInput(input) {
+    var form = input.closest("form");
+    if (!form) return;
+    var maxVal = parseInt(form.dataset.descuentoMax) || 0;
+    var val = Math.min(parseInt(input.value) || 0, maxVal);
+    var numField = form.querySelector(".descuento-porcentaje-input");
+    var slider = form.querySelector(".descuento-slider-input");
     if (numField) numField.value = val;
     if (slider) slider.value = val;
   }
 
-  function syncDescuentoSlider(val) {
-    val = Math.min(parseInt(val) || 0, _descuentoMax);
-    var numField = document.getElementById("descuento_porcentaje");
-    var slider = document.getElementById("descuento_slider");
+  function syncDescuentoSlider(input) {
+    var form = input.closest("form");
+    if (!form) return;
+    var maxVal = parseInt(form.dataset.descuentoMax) || 0;
+    var val = Math.min(parseInt(input.value) || 0, maxVal);
+    var numField = form.querySelector(".descuento-porcentaje-input");
+    var slider = form.querySelector(".descuento-slider-input");
     if (numField) numField.value = val;
     if (slider) slider.value = val;
   }
 
-  function configurarDescuento(permitido, maxVal) {
-    _descuentoPermitido = permitido;
-    _descuentoMax = permitido ? (parseInt(maxVal) || 0) : 0;
+  function configurarDescuento(form, permitido, maxVal) {
+    var descuentoMax = permitido ? (parseInt(maxVal) || 0) : 0;
+    form.dataset.descuentoMax = descuentoMax;
 
-    var section = document.getElementById("descuento_section");
-    var numField = document.getElementById("descuento_porcentaje");
-    var slider = document.getElementById("descuento_slider");
-    var maxLabel = document.getElementById("descuento_max_label");
-    var maxValue = document.getElementById("descuento_max_value");
+    var section = form.querySelector(".descuento-section-container");
+    var numField = form.querySelector(".descuento-porcentaje-input");
+    var slider = form.querySelector(".descuento-slider-input");
+    var maxLabel = form.querySelector(".descuento-max-label-span");
+    var maxValue = form.querySelector(".descuento-max-value-span");
 
     if (!section) return;
 
-    if (permitido && _descuentoMax > 0) {
+    if (permitido && descuentoMax > 0) {
       section.classList.remove("hidden");
-      if (numField) { numField.max = _descuentoMax; numField.value = _descuentoMax; }
-      if (slider)   { slider.max = _descuentoMax; slider.value = _descuentoMax; }
-      if (maxLabel) maxLabel.textContent = "Máx: " + _descuentoMax + "%";
-      if (maxValue) maxValue.textContent = _descuentoMax;
+      if (numField) { numField.max = descuentoMax; numField.value = descuentoMax; }
+      if (slider)   { slider.max = descuentoMax; slider.value = descuentoMax; }
+      if (maxLabel) maxLabel.textContent = "Máx: " + descuentoMax + "%";
+      if (maxValue) maxValue.textContent = descuentoMax;
     } else {
       section.classList.add("hidden");
       if (numField) { numField.value = 0; numField.max = 0; }
@@ -259,22 +262,37 @@
   // ── Al seleccionar producto del autocomplete ──
   document.addEventListener("autocomplete:select", function(event) {
     var item = event.detail;
+    var form = event.target.closest("form");
+    if (!form) return;
+
     if (item && item.precio !== undefined) {
-      _precioNormal = parseInt(item.precio) || 0;
-      _precioMayor  = parseInt(item.precio_mayor) || 0;
+      form.dataset.precioNormal = parseInt(item.precio) || 0;
+      form.dataset.precioMayor  = parseInt(item.precio_mayor) || 0;
 
       // Aplicar precio según cantidad actual
-      actualizarPrecioPorCantidad();
+      var cantField = form.querySelector(".detalle-cantidad-input");
+      if (cantField) {
+        actualizarPrecioPorCantidad(cantField);
+      }
 
-      var stockInfo  = document.getElementById("stock_info");
-      var stockValue = document.getElementById("stock_value");
+      var stockInfo  = form.querySelector(".stock-info-container");
+      var stockValue = form.querySelector(".stock-value-span");
       if (stockInfo && stockValue) {
         stockValue.textContent = item.stock;
         stockInfo.classList.remove("hidden");
       }
 
       // Configurar descuento según producto
-      configurarDescuento(item.descuento === true, item.descuento_maximo);
+      configurarDescuento(form, item.descuento === true, item.descuento_maximo);
     }
   });
 </script>
+
+<% if local_assigns[:saved] %>
+  <script>
+    var modal = document.getElementById('mobile_detalle_modal');
+    if (modal && modal.open) {
+      modal.close();
+    }
+  </script>
+<% end %>

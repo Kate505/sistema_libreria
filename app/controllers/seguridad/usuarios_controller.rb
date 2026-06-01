@@ -17,9 +17,11 @@ class Seguridad::UsuariosController < ApplicationController
     respond_to do |format|
       format.html { render :index }
       format.turbo_stream do
-        render turbo_stream: turbo_stream.replace("usuario_form",
+        frame_id = request.headers["Turbo-Frame"].presence || "usuario_form_desktop"
+        suffix = frame_id.end_with?("_mobile") ? "mobile" : "desktop"
+        render turbo_stream: turbo_stream.replace(frame_id,
                                                   partial: "seguridad/usuarios/form",
-                                                  locals: { usuario: @usuario, roles_usuario: @roles_usuario, lista_agregar_roles: @lista_agregar_roles }
+                                                  locals: { usuario: @usuario, roles_usuario: @roles_usuario, lista_agregar_roles: @lista_agregar_roles, suffix: suffix }
         )
       end
     end
@@ -58,18 +60,28 @@ class Seguridad::UsuariosController < ApplicationController
 
     if @usuario.save
       @usuarios = User.all.order(:email_address)
+      flash.now[:notice] = "Usuario creado exitosamente."
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
             turbo_stream.update("usuarios_table", partial: "seguridad/usuarios/table", locals: { usuarios: @usuarios }),
-            turbo_stream.replace("usuario_form", partial: "seguridad/usuarios/form", locals: { usuario: User.new, roles_usuario: @roles_usuario })
+            turbo_stream.replace("usuario_form_desktop", partial: "seguridad/usuarios/form", locals: { usuario: User.new, roles_usuario: @roles_usuario, suffix: "desktop" }),
+            turbo_stream.replace("usuario_form_mobile", partial: "seguridad/usuarios/form", locals: { usuario: User.new, roles_usuario: @roles_usuario, suffix: "mobile", saved: true }),
+            turbo_stream.update("flash-messages", partial: "shared/flash")
           ]
         end
-        format.html { redirect_to seguridad_usuarios_path, notice: "Creado" }
+        format.html { redirect_to seguridad_usuarios_path, notice: "Usuario creado exitosamente." }
       end
     else
+      flash.now[:alert] = "No se pudo crear el usuario."
       respond_to do |format|
-        format.turbo_stream { render turbo_stream: turbo_stream.replace("usuario_form", partial: "seguridad/usuarios/form", locals: { usuario: @usuario, roles_usuario: @roles_usuario, lista_agregar_roles: @lista_agregar_roles }) }
+        format.turbo_stream do
+          render turbo_stream: [
+            turbo_stream.replace("usuario_form_desktop", partial: "seguridad/usuarios/form", locals: { usuario: @usuario, roles_usuario: @roles_usuario, suffix: "desktop", lista_agregar_roles: @lista_agregar_roles }),
+            turbo_stream.replace("usuario_form_mobile", partial: "seguridad/usuarios/form", locals: { usuario: @usuario, roles_usuario: @roles_usuario, suffix: "mobile", lista_agregar_roles: @lista_agregar_roles }),
+            turbo_stream.update("flash-messages", partial: "shared/flash")
+          ]
+        end
         format.html { render :index, status: :unprocessable_entity }
       end
     end
@@ -103,20 +115,30 @@ class Seguridad::UsuariosController < ApplicationController
     if @usuario.update(params_limpios)
       @usuarios = User.all.order(:email_address)
       refresh_lists_for_view
+      flash.now[:notice] = "Usuario actualizado exitosamente."
 
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
             turbo_stream.update("usuarios_table", partial: "seguridad/usuarios/table", locals: { usuarios: @usuarios }),
-            turbo_stream.replace("usuario_form", partial: "seguridad/usuarios/form", locals: { usuario: User.new, roles_usuario: @roles_usuario })
+            turbo_stream.replace("usuario_form_desktop", partial: "seguridad/usuarios/form", locals: { usuario: User.new, roles_usuario: @roles_usuario, suffix: "desktop" }),
+            turbo_stream.replace("usuario_form_mobile", partial: "seguridad/usuarios/form", locals: { usuario: User.new, roles_usuario: @roles_usuario, suffix: "mobile", saved: true }),
+            turbo_stream.update("flash-messages", partial: "shared/flash")
           ]
         end
-        format.html { redirect_to seguridad_usuarios_path, notice: "Actualizado" }
+        format.html { redirect_to seguridad_usuarios_path, notice: "Usuario actualizado exitosamente." }
       end
     else
+      flash.now[:alert] = "No se pudo actualizar el usuario."
       refresh_lists_for_view
       respond_to do |format|
-        format.turbo_stream { render turbo_stream: turbo_stream.replace("usuario_form", partial: "seguridad/usuarios/form", locals: { usuario: @usuario, roles_usuario: @roles_usuario, lista_agregar_roles: @lista_agregar_roles }) }
+        format.turbo_stream do
+          render turbo_stream: [
+            turbo_stream.replace("usuario_form_desktop", partial: "seguridad/usuarios/form", locals: { usuario: @usuario, roles_usuario: @roles_usuario, suffix: "desktop", lista_agregar_roles: @lista_agregar_roles }),
+            turbo_stream.replace("usuario_form_mobile", partial: "seguridad/usuarios/form", locals: { usuario: @usuario, roles_usuario: @roles_usuario, suffix: "mobile", lista_agregar_roles: @lista_agregar_roles }),
+            turbo_stream.update("flash-messages", partial: "shared/flash")
+          ]
+        end
         format.html { render :index, status: :unprocessable_entity }
       end
     end
@@ -125,14 +147,17 @@ class Seguridad::UsuariosController < ApplicationController
   def destroy
     @usuario.destroy
     @usuarios = User.all.order(:email_address)
+    flash.now[:notice] = "Usuario eliminado exitosamente."
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [
           turbo_stream.update("usuarios_table", partial: "seguridad/usuarios/table", locals: { usuarios: @usuarios }),
-          turbo_stream.replace("usuario_form", partial: "seguridad/usuarios/form", locals: { usuario: User.new, roles_usuario: [] })
+          turbo_stream.replace("usuario_form_desktop", partial: "seguridad/usuarios/form", locals: { usuario: User.new, roles_usuario: [], suffix: "desktop" }),
+          turbo_stream.replace("usuario_form_mobile", partial: "seguridad/usuarios/form", locals: { usuario: User.new, roles_usuario: [], suffix: "mobile" }),
+          turbo_stream.update("flash-messages", partial: "shared/flash")
         ]
       end
-      format.html { redirect_to seguridad_usuarios_path, notice: "Eliminado" }
+      format.html { redirect_to seguridad_usuarios_path, notice: "Usuario eliminado exitosamente." }
     end
   end
 
@@ -144,9 +169,9 @@ class Seguridad::UsuariosController < ApplicationController
                             User.where(modulo_id: modulo_id)
                                 .where.not(nombre: "Inicio")
                                 .order(:nombre)
-    else
+                          else
                             []
-    end
+                          end
 
     render turbo_stream: turbo_stream.replace(
       target,

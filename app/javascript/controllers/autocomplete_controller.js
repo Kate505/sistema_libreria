@@ -4,7 +4,8 @@ export default class extends Controller {
 	static targets = ["input", "hidden", "results", "loading"]
 	static values = {
 		url: String,
-		createUrl: String
+		createUrl: String,
+		allowCreate: { type: Boolean, default: true }
 	}
 
 	connect() {
@@ -83,8 +84,8 @@ export default class extends Controller {
 			})
 		}
 
-		// Ofrecer "Crear 'X'" si hay texto y no es una coincidencia exacta
-		if (q.length > 0 && !exactMatch) {
+		// Ofrecer "Crear 'X'" si hay texto y no es una coincidencia exacta y se permite creación
+		if (this.allowCreateValue && q.length > 0 && !exactMatch) {
 			const liCreate = document.createElement("li")
 			const aCreate = document.createElement("a")
 			aCreate.innerHTML = `Crear <strong class="ml-1">“${this.escapeHtml(q)}”</strong>`

@@ -57,21 +57,34 @@
       </td>
 
       <td class="flex gap-2 justify-end">
-        <%# Ver detalles — siempre visible %>
-        <%= link_to facturacion_venta_path(venta),
-                    data: { turbo_frame: "main_content", turbo_action: "advance" },
-                    class: "btn btn-sm btn-ghost btn-square",
-                    title: "Ver detalle" do %>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-            <circle cx="12" cy="12" r="3"/>
-          </svg>
+        <%# Ver detalles / Trabajar en venta %>
+        <% if venta.pendiente? %>
+          <%= link_to facturacion_venta_path(venta),
+                      data: { turbo_stream: "" },
+                      class: "btn btn-sm btn-ghost btn-square",
+                      title: "Trabajar en esta venta" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          <% end %>
+        <% else %>
+          <%= link_to facturacion_venta_path(venta),
+                      data: { turbo_frame: "main_content", turbo_action: "advance" },
+                      class: "btn btn-sm btn-ghost btn-square",
+                      title: "Ver detalle" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          <% end %>
         <% end %>
 
         <% if venta.pendiente? %>
           <%# Editar — solo ventas pendientes %>
           <%= link_to edit_facturacion_venta_path(venta),
-                      data: { turbo_frame: "venta_form" },
+                      data: { turbo_frame: "venta_form_desktop" },
+                      onclick: "this.setAttribute('data-turbo-frame', window.innerWidth < 1024 ? 'venta_form_mobile' : 'venta_form_desktop'); if(window.innerWidth < 1024) document.getElementById('mobile_form_modal').showModal();",
                       class: "btn btn-sm btn-ghost btn-square",
                       title: "Editar" do %>
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">

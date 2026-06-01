@@ -4,7 +4,7 @@
   <%# ── Encabezado ──────────────────────────────────────────────────────── %>
   <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
     <div>
-      <h1 class="text-3xl font-bold">Dashboard</h1>
+      <h1 class="text-3xl font-bold page-title">Dashboard</h1>
       <p class="text-base-content/50 text-sm mt-0.5">
         <%= Date.current.strftime("%d/%m/%Y") %>
       </p>
@@ -14,7 +14,7 @@
   <%# ── Barra de Filtros ────────────────────────────────────────────────── %>
   <div class="card bg-base-100 shadow-sm border border-base-200 mb-6">
     <div class="card-body p-3">
-      <%= form_with url: root_path, method: :get, data: { turbo_frame: "main_content", turbo_action: "advance" }, class: "flex flex-wrap items-end gap-3" do |f| %>
+      <%= form_with url: root_path, method: :get, data: { turbo_frame: "main_content", turbo_action: "advance" }, class: "flex flex-wrap items-end gap-3 filter-bar" do |f| %>
 
         <%# Accesos rápidos %>
         <div class="flex gap-1.5 flex-wrap items-center">
@@ -242,7 +242,7 @@
 
       <%= turbo_frame_tag "stock_alerts_frame", data: { turbo_scroll: "false" } do %>
         <% if @productos_bajo_stock.any? %>
-          <div class="overflow-x-auto mt-2">
+          <div class="overflow-x-auto mt-2 table-scroll-wrapper">
             <table class="table table-sm">
               <thead>
                 <tr>

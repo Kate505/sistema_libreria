@@ -31,4 +31,50 @@
   animation: contentFadeIn 0.28s ease-out both;
 }
 
+/* ─── Responsive: mobile-friendly padding & typography ─── */
+@media (max-width: 1023px) {
+  .page-padding { padding: 1rem !important; }
+  .page-title { font-size: 1.5rem !important; }
+  /* Let page grow naturally on mobile instead of fixed viewport height */
+  .page-grid {
+    height: auto !important;
+    min-height: calc(100vh - 8rem) !important;
+  }
 
+  /* Inputs: prevent text from overflowing container */
+  .input, .select, input[type="number"], input[type="text"], input[type="date"] {
+    min-width: 0 !important;
+    font-size: 16px !important; /* Prevent iOS zoom on focus */
+  }
+
+  /* Number fields inside label wrappers (e.g., price field) */
+  label.input input {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Buttons: ensure touchable size */
+  .btn { min-height: 2.5rem; }
+
+  /* Table cards: fill available space even when empty */
+  .card { min-height: 12rem; }
+
+  /* Filter bars: stack vertically */
+  .filter-bar { flex-direction: column !important; }
+  .filter-bar > * { width: 100% !important; }
+
+  /* Stats: allow wrapping on small screens */
+  .stats-horizontal { flex-wrap: wrap; }
+  .stat { min-width: 0; }
+}
+
+/* ─── Horizontal scroll for tables on mobile ─── */
+.table-scroll-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ─── Tables: prevent column compression ─── */
+.table-scroll-wrapper table {
+  min-width: 600px;
+}

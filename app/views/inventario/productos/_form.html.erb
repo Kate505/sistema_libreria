@@ -1,4 +1,5 @@
-<turbo-frame id="producto_form">
+<% suffix ||= "desktop" %>
+<turbo-frame id="producto_form_<%= suffix %>">
   <%= form_with(model: producto,
                 url: producto.new_record? ? inventario_productos_path : inventario_producto_path(producto),
                 method: producto.new_record? ? :post : :patch,
@@ -140,7 +141,7 @@
         <div class="w-full">
           <%= f.label :descuento_maximo, 'Descuento Máximo (%)', class: 'label pt-0' %>
           <label class="input input-bordered flex items-center gap-2 w-full">
-            <%= f.number_field :descuento_maximo, min: 0, max: 100, class: 'grow', placeholder: '0' %>
+            <%= f.number_field :descuento_maximo, min: 0, max: 100, class: 'grow min-w-0', placeholder: '0' %>
             <span class="text-base-content/60 text-sm font-semibold">%</span>
           </label>
         </div>
@@ -160,7 +161,7 @@
               <%= f.number_field :precio_venta,
                                  min: 0, step: 1,
                                  value: producto.precio_venta&.to_i,
-                                 class: 'grow',
+                                 class: 'grow min-w-0',
                                  placeholder: '0' %>
             </label>
           </div>
@@ -172,7 +173,7 @@
               <%= f.number_field :precio_venta_al_mayor,
                                  min: 0, step: 1,
                                  value: producto.precio_venta_al_mayor&.to_i,
-                                 class: 'grow',
+                                 class: 'grow min-w-0',
                                  placeholder: '0' %>
             </label>
           </div>
@@ -181,10 +182,19 @@
         <%# Botones de acción %>
         <div class="card-actions justify-end sm:col-span-2 col-span-full mt-4 pt-4 border-t border-base-200">
           <%= save_button(f) %>
-          <%= cancel_button(inventario_productos_path, frame_id: "producto_form", style_class: 'btn btn-soft btn-error') %>
+          <%= cancel_button(inventario_productos_path, frame_id: "producto_form_#{suffix}", style_class: 'btn btn-soft btn-error') %>
         </div>
 
       </div>
     </div>
   <% end %>
 </turbo-frame>
+
+<% if local_assigns[:saved] %>
+  <script>
+    var modal = document.getElementById('mobile_form_modal');
+    if (modal && modal.open) {
+      modal.close();
+    }
+  </script>
+<% end %>

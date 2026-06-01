@@ -1,4 +1,5 @@
-<turbo-frame id="usuario_form">
+<% suffix ||= "desktop" %>
+<turbo-frame id="usuario_form_<%= suffix %>">
   <div id="gestionar_roles_modal_content">
     <%= render "gestionar_roles_usuario_modal",
                usuario: usuario,
@@ -90,12 +91,13 @@
               <span class="label-text">Contraseña temporal (requiere cambio)</span>
             <% end %>
           <% end %>
+        </div><%# fin del div de checkboxes %>
 
         <% if usuario.new_record? %>
           <%# Nuevo usuario: solo información, sin inputs %>
-          <div class="w-full col-span-full flex flex-col gap-3 p-3 rounded-lg bg-info/10 border border-info/30">
+          <div class="col-span-full sm:col-span-2 flex flex-col gap-3 p-3 rounded-lg bg-info/10 border border-info/30">
             <p class="text-sm text-info font-semibold">
-              ℹ Contraseña temporal para el primer inicio de sesión: <strong>Temporal123</strong>
+              Contraseña temporal para el primer inicio de sesión: <strong>Temporal123</strong>
             </p>
             <p class="text-xs text-info">
               El usuario deberá cambiar esta contraseña al iniciar sesión por primera vez.
@@ -104,7 +106,7 @@
         <% else %>
           <%# Usuario existente: información del estado de contraseña temporal %>
           <div id="temp_password_section"
-               class="<%= usuario.requires_password_change? ? '' : 'hidden' %> col-span-full flex flex-col gap-3 p-3 rounded-lg bg-warning/10 border border-warning/30">
+               class="<%= usuario.requires_password_change? ? '' : 'hidden' %> col-span-full sm:col-span-2 flex flex-col gap-3 p-3 rounded-lg bg-warning/10 border border-warning/30">
             <p class="text-sm text-warning font-semibold">
               ⚠ Contraseña temporal activa: <strong>Temporal123</strong>
             </p>
@@ -114,7 +116,6 @@
           </div>
         <% end %>
 
-        </div><%# fin del div de checkboxes %>
 
         <div class="card-actions justify-between items-center sm:col-span-2 col-span-full mt-4 pt-4 border-t border-base-200">
 
@@ -131,7 +132,7 @@
 
           <div class="flex gap-2">
             <%= save_button(f) %>
-            <%= cancel_button(seguridad_usuarios_path, frame_id: "usuario_form", style_class: 'btn btn-soft btn-error') %>
+            <%= cancel_button(seguridad_usuarios_path, frame_id: "usuario_form_#{suffix}", style_class: 'btn btn-soft btn-error') %>
           </div>
         </div>
 
@@ -139,3 +140,12 @@
     </div>
   <% end %>
 </turbo-frame>
+
+<% if local_assigns[:saved] %>
+  <script>
+    var modal = document.getElementById('mobile_form_modal');
+    if (modal && modal.open) {
+      modal.close();
+    }
+  </script>
+<% end %>

@@ -17,26 +17,37 @@ class Seguridad::EmpleadosController < ApplicationController
   end
 
   def edit
-    @empleado = Empleado.find_by(id: params[:id])
-    render partial: "form", locals: { empleado: @empleado }
+    frame_id = request.headers["Turbo-Frame"].presence || "empleado_form_desktop"
+    suffix = frame_id.end_with?("_mobile") ? "mobile" : "desktop"
+    render partial: "form", locals: { empleado: @empleado, suffix: suffix }
   end
 
   def create
     @empleado = Empleado.new(empleado_params)
     if @empleado.save
       @empleados = Empleado.all.order(:primer_apellido).page(1).per(10)
+      flash.now[:notice] = "Empleado creado exitosamente."
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
             turbo_stream.update("empleados_table", partial: "seguridad/empleados/table", locals: { empleados: @empleados }),
-            turbo_stream.replace("empleado_form", partial: "seguridad/empleados/form", locals: { empleado: Empleado.new })
+            turbo_stream.replace("empleado_form_desktop", partial: "seguridad/empleados/form", locals: { empleado: Empleado.new, suffix: "desktop" }),
+            turbo_stream.replace("empleado_form_mobile", partial: "seguridad/empleados/form", locals: { empleado: Empleado.new, suffix: "mobile", saved: true }),
+            turbo_stream.update("flash-messages", partial: "shared/flash")
           ]
         end
-        format.html { redirect_to seguridad_empleados_path, notice: "Creado" }
+        format.html { redirect_to seguridad_empleados_path, notice: "Empleado creado exitosamente." }
       end
     else
+      flash.now[:alert] = "No se pudo crear el empleado."
       respond_to do |format|
-        format.turbo_stream { render turbo_stream: turbo_stream.replace("empleado_form", partial: "seguridad/empleados/form", locals: { empleado: @empleado }) }
+        format.turbo_stream do
+          render turbo_stream: [
+            turbo_stream.replace("empleado_form_desktop", partial: "seguridad/empleados/form", locals: { empleado: @empleado, suffix: "desktop" }),
+            turbo_stream.replace("empleado_form_mobile", partial: "seguridad/empleados/form", locals: { empleado: @empleado, suffix: "mobile" }),
+            turbo_stream.update("flash-messages", partial: "shared/flash")
+          ]
+        end
         format.html { render :index, status: :unprocessable_entity }
       end
     end
@@ -45,18 +56,28 @@ class Seguridad::EmpleadosController < ApplicationController
   def update
     if @empleado.update(empleado_params)
       @empleados = Empleado.all.order(:primer_apellido).page(1).per(10)
+      flash.now[:notice] = "Empleado actualizado exitosamente."
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
             turbo_stream.update("empleados_table", partial: "seguridad/empleados/table", locals: { empleados: @empleados }),
-            turbo_stream.replace("empleado_form", partial: "seguridad/empleados/form", locals: { empleado: Empleado.new })
+            turbo_stream.replace("empleado_form_desktop", partial: "seguridad/empleados/form", locals: { empleado: Empleado.new, suffix: "desktop" }),
+            turbo_stream.replace("empleado_form_mobile", partial: "seguridad/empleados/form", locals: { empleado: Empleado.new, suffix: "mobile", saved: true }),
+            turbo_stream.update("flash-messages", partial: "shared/flash")
           ]
         end
-        format.html { redirect_to seguridad_empleados_path, notice: "Actualizado" }
+        format.html { redirect_to seguridad_empleados_path, notice: "Empleado actualizado exitosamente." }
       end
     else
+      flash.now[:alert] = "No se pudo actualizar el empleado."
       respond_to do |format|
-        format.turbo_stream { render turbo_stream: turbo_stream.replace("empleado_form", partial: "seguridad/empleados/form", locals: { empleado: @empleado }) }
+        format.turbo_stream do
+          render turbo_stream: [
+            turbo_stream.replace("empleado_form_desktop", partial: "seguridad/empleados/form", locals: { empleado: @empleado, suffix: "desktop" }),
+            turbo_stream.replace("empleado_form_mobile", partial: "seguridad/empleados/form", locals: { empleado: @empleado, suffix: "mobile" }),
+            turbo_stream.update("flash-messages", partial: "shared/flash")
+          ]
+        end
         format.html { render :index, status: :unprocessable_entity }
       end
     end
@@ -65,14 +86,17 @@ class Seguridad::EmpleadosController < ApplicationController
   def destroy
     @empleado.destroy
     @empleados = Empleado.all.order(:primer_apellido).page(1).per(10)
+    flash.now[:notice] = "Empleado eliminado exitosamente."
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [
           turbo_stream.update("empleados_table", partial: "seguridad/empleados/table", locals: { empleados: @empleados }),
-          turbo_stream.replace("empleado_form", partial: "seguridad/empleados/form", locals: { empleado: Empleado.new })
+          turbo_stream.replace("empleado_form_desktop", partial: "seguridad/empleados/form", locals: { empleado: Empleado.new, suffix: "desktop" }),
+          turbo_stream.replace("empleado_form_mobile", partial: "seguridad/empleados/form", locals: { empleado: Empleado.new, suffix: "mobile" }),
+          turbo_stream.update("flash-messages", partial: "shared/flash")
         ]
       end
-      format.html { redirect_to seguridad_empleados_path, notice: "Eliminado" }
+      format.html { redirect_to seguridad_empleados_path, notice: "Empleado eliminado exitosamente." }
     end
   end
 

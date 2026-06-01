@@ -22,10 +22,12 @@ class Inventario::ProductosController < ApplicationController
     respond_to do |format|
       format.html { render :index }
       format.turbo_stream do
+        frame_id = request.headers["Turbo-Frame"].presence || "producto_form_desktop"
+        suffix = frame_id.end_with?("_mobile") ? "mobile" : "desktop"
         render turbo_stream: turbo_stream.replace(
-          "producto_form",
+          frame_id,
           partial: "inventario/productos/form",
-          locals: { producto: @producto }
+          locals: { producto: @producto, suffix: suffix }
         )
       end
     end
@@ -98,19 +100,27 @@ class Inventario::ProductosController < ApplicationController
 
     if @producto.save
       @productos = Producto.includes(:categoria, :marca, :ultimo_detalle_compra).all.order(:nombre).page(1).per(10)
+      flash.now[:notice] = "Producto creado exitosamente."
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
             turbo_stream.update("productos_table", partial: "inventario/productos/table", locals: { productos: @productos }),
-            turbo_stream.replace("producto_form", partial: "inventario/productos/form", locals: { producto: Producto.new })
+            turbo_stream.replace("producto_form_desktop", partial: "inventario/productos/form", locals: { producto: Producto.new, suffix: "desktop" }),
+            turbo_stream.replace("producto_form_mobile", partial: "inventario/productos/form", locals: { producto: Producto.new, suffix: "mobile", saved: true }),
+            turbo_stream.update("flash-messages", partial: "shared/flash")
           ]
         end
         format.html { redirect_to inventario_productos_path, notice: "Producto creado exitosamente." }
       end
     else
+      flash.now[:alert] = "No se pudo crear el producto."
       respond_to do |format|
         format.turbo_stream do
-          render turbo_stream: turbo_stream.replace("producto_form", partial: "inventario/productos/form", locals: { producto: @producto })
+          render turbo_stream: [
+            turbo_stream.replace("producto_form_desktop", partial: "inventario/productos/form", locals: { producto: @producto, suffix: "desktop" }),
+            turbo_stream.replace("producto_form_mobile", partial: "inventario/productos/form", locals: { producto: @producto, suffix: "mobile" }),
+            turbo_stream.update("flash-messages", partial: "shared/flash")
+          ]
         end
         format.html { render :index, status: :unprocessable_entity }
       end
@@ -120,19 +130,27 @@ class Inventario::ProductosController < ApplicationController
   def update
     if @producto.update(producto_params)
       @productos = Producto.includes(:categoria, :marca, :ultimo_detalle_compra).all.order(:nombre).page(1).per(10)
+      flash.now[:notice] = "Producto actualizado exitosamente."
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
             turbo_stream.update("productos_table", partial: "inventario/productos/table", locals: { productos: @productos }),
-            turbo_stream.replace("producto_form", partial: "inventario/productos/form", locals: { producto: Producto.new })
+            turbo_stream.replace("producto_form_desktop", partial: "inventario/productos/form", locals: { producto: Producto.new, suffix: "desktop" }),
+            turbo_stream.replace("producto_form_mobile", partial: "inventario/productos/form", locals: { producto: Producto.new, suffix: "mobile", saved: true }),
+            turbo_stream.update("flash-messages", partial: "shared/flash")
           ]
         end
         format.html { redirect_to inventario_productos_path, notice: "Producto actualizado exitosamente." }
       end
     else
+      flash.now[:alert] = "No se pudo actualizar el producto."
       respond_to do |format|
         format.turbo_stream do
-          render turbo_stream: turbo_stream.replace("producto_form", partial: "inventario/productos/form", locals: { producto: @producto })
+          render turbo_stream: [
+            turbo_stream.replace("producto_form_desktop", partial: "inventario/productos/form", locals: { producto: @producto, suffix: "desktop" }),
+            turbo_stream.replace("producto_form_mobile", partial: "inventario/productos/form", locals: { producto: @producto, suffix: "mobile" }),
+            turbo_stream.update("flash-messages", partial: "shared/flash")
+          ]
         end
         format.html { render :index, status: :unprocessable_entity }
       end
@@ -142,11 +160,14 @@ class Inventario::ProductosController < ApplicationController
   def destroy
     @producto.destroy
     @productos = Producto.includes(:categoria, :marca, :ultimo_detalle_compra).all.order(:nombre).page(1).per(10)
+    flash.now[:notice] = "Producto eliminado exitosamente."
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [
           turbo_stream.update("productos_table", partial: "inventario/productos/table", locals: { productos: @productos }),
-          turbo_stream.replace("producto_form", partial: "inventario/productos/form", locals: { producto: Producto.new })
+          turbo_stream.replace("producto_form_desktop", partial: "inventario/productos/form", locals: { producto: Producto.new, suffix: "desktop" }),
+          turbo_stream.replace("producto_form_mobile", partial: "inventario/productos/form", locals: { producto: Producto.new, suffix: "mobile" }),
+          turbo_stream.update("flash-messages", partial: "shared/flash")
         ]
       end
       format.html { redirect_to inventario_productos_path, notice: "Producto eliminado exitosamente." }

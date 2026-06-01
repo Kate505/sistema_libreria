@@ -1,38 +1,8 @@
 <%= turbo_frame_tag "main_content" do %>
   <%= turbo_refreshes_with method: :morph, scroll: :preserve %>
 
-  <div class="grid grid-rows-[auto_1fr] gap-6 h-[calc(100vh-10rem)] w-full">
-
-    <div class="flex items-center justify-between shrink-0">
-      <h1 class="text-3xl font-bold">Ventas</h1>
-      <%= link_to historial_facturacion_ventas_path,
-                  data: { turbo_frame: "main_content", turbo_action: "advance" },
-                  class: "btn btn-ghost btn-sm gap-2" do %>
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-        </svg>
-        Historial de Ventas
-      <% end %>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 min-h-0">
-
-      <div class="card bg-base-100 shadow-xl overflow-hidden flex flex-col h-full lg:max-h-full">
-        <div class="overflow-y-auto flex-1 p-0">
-          <%= render "form", venta: @venta %>
-        </div>
-      </div>
-
-      <div class="card bg-base-100 shadow-xl col-span-2 flex flex-col h-full overflow-hidden">
-        <div class="flex-1 overflow-y-auto" id="ventas_table_container">
-          <div id="ventas_table" class="h-full">
-            <%= render "table", ventas: @ventas %>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
+  <div class="grid grid-rows-[auto_1fr] gap-6 h-[calc(100vh-10rem)] w-full page-grid">
+    <%= render "workspace_lista", venta: @venta, ventas: @ventas %>
   </div>
 
 <% end %>
