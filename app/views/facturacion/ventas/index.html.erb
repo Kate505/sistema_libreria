@@ -1,7 +1,7 @@
 <%= turbo_frame_tag "main_content" do %>
   <%= turbo_refreshes_with method: :morph, scroll: :preserve %>
 
-  <div class="grid grid-rows-[auto_1fr] gap-6 h-[calc(100vh-10rem)] w-full page-grid">
+  <div class="h-[calc(100vh-10rem)] w-full page-grid">
     <%= render "workspace_lista", venta: @venta, ventas: @ventas %>
   </div>
 

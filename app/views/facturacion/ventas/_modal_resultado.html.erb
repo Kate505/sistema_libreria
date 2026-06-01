@@ -3,7 +3,7 @@
      data-controller="auto-print"
      data-auto-print-url-value="<%= facturacion_venta_path(venta, format: :pdf) %>">
   <dialog id="dialog_finalizar" class="modal modal-bottom sm:modal-middle" open>
-    <div class="modal-box w-full max-w-lg p-0 overflow-hidden">
+    <div class="modal-box w-full max-w-lg p-0 overflow-y-auto max-h-[85vh]">
 
       <%# Encabezado success %>
       <div class="bg-success px-6 py-5 text-center">
