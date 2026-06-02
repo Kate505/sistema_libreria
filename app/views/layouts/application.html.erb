@@ -25,6 +25,15 @@
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
 
     <%= javascript_importmap_tags %>
+
+    <%# Corrección de z-index para evitar superposición del navbar en móviles %>
+    <style>
+      @media (max-width: 1023px) {
+        .drawer-side {
+          z-index: 9999 !important;
+        }
+      }
+    </style>
   </head>
 
   <body class="font-display bg-base-300 h-full flex flex-col" data-controller="sidebar page-transition">
