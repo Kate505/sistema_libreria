@@ -53,9 +53,12 @@ export default class extends Controller {
 
     if (this.metodo === "E") {
       this.efectivoContainerTarget.classList.remove("hidden")
+      this.calcularVuelto()
     } else {
       this.efectivoContainerTarget.classList.add("hidden")
       this.vueltoPreviewTarget.classList.add("hidden")
+      this.submitBtnTarget.disabled = false
+      this.submitBtnTarget.classList.remove("btn-disabled")
     }
   }
 
@@ -99,6 +102,8 @@ export default class extends Controller {
       }
     } else {
       this.vueltoPreviewTarget.classList.add("hidden")
+      this.submitBtnTarget.disabled = true
+      this.submitBtnTarget.classList.add("btn-disabled")
     }
   }
 }

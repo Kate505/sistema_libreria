@@ -103,6 +103,16 @@
         </div>
 
 
+        <%# Pasivo (solo al editar) %>
+        <% if producto.persisted? %>
+          <div class="sm:col-span-2">
+            <%= f.label :pasivo, class: 'cursor-pointer label flex items-center justify-start gap-3 w-fit' do %>
+              <%= f.check_box :pasivo, class: 'checkbox' %>
+              <span class="label-text">Pasivo (desactivar producto)</span>
+            <% end %>
+          </div>
+        <% end %>
+
         <%# === SECCIÓN: STOCK === %>
         <div class="sm:col-span-2">
           <div class="divider divider-start text-xs font-semibold text-base-content/50 uppercase tracking-wider my-1">

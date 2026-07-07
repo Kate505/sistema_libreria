@@ -83,7 +83,8 @@ class Inventario::ProductosController < ApplicationController
 
   def consulta_precios
     @q = params[:q].to_s.strip
-    @productos = Producto.preload(:categoria)
+    @productos = Producto.where(pasivo: false)
+                         .preload(:categoria)
                          .order(:nombre, :id)
     unless @q.blank?
       @productos = @productos.left_joins(:categoria).where(
@@ -158,7 +159,7 @@ class Inventario::ProductosController < ApplicationController
   end
 
   def destroy
-    @producto.destroy
+    @producto.destroy!
     @productos = Producto.includes(:categoria, :marca, :ultimo_detalle_compra).all.order(:nombre).page(1).per(10)
     flash.now[:notice] = "Producto eliminado exitosamente."
     respond_to do |format|
@@ -171,6 +172,17 @@ class Inventario::ProductosController < ApplicationController
         ]
       end
       format.html { redirect_to inventario_productos_path, notice: "Producto eliminado exitosamente." }
+    end
+  rescue ActiveRecord::InvalidForeignKey
+    flash.now[:alert] = "No se puede eliminar el producto \"#{@producto.nombre}\" porque está relacionado con órdenes de compra o ventas. Puede pasivarlo en su lugar."
+    @productos = Producto.includes(:categoria, :marca, :ultimo_detalle_compra).all.order(:nombre).page(1).per(10)
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: [
+          turbo_stream.update("flash-messages", partial: "shared/flash")
+        ]
+      end
+      format.html { redirect_to inventario_productos_path, alert: "No se puede eliminar el producto porque está relacionado con otras tablas." }
     end
   end
 
@@ -191,7 +203,8 @@ class Inventario::ProductosController < ApplicationController
       :stock_minimo_limite,
       :stock_maximo_limite,
       :precio_venta,
-      :precio_venta_al_mayor
+      :precio_venta_al_mayor,
+      :pasivo
     )
   end
 end

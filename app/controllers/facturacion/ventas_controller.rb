@@ -253,7 +253,8 @@ class Facturacion::VentasController < ApplicationController
 
   # GET /facturacion/ventas/buscar_producto?q=término
   def buscar_producto
-    @productos = Producto.where("nombre ILIKE :q OR sku ILIKE :q", q: "%#{params[:q]}%")
+    @productos = Producto.where(pasivo: false)
+                         .where("nombre ILIKE :q OR sku ILIKE :q", q: "%#{params[:q]}%")
                          .where("stock_actual > 0")
                          .order(:nombre)
                          .limit(5)
@@ -300,6 +301,18 @@ class Facturacion::VentasController < ApplicationController
         monto_recibido_nios = monto_recibido
       end
       vuelto = monto_recibido_nios - total_nios
+
+      if vuelto < 0
+        return respond_to do |format|
+          format.turbo_stream do
+            render turbo_stream: turbo_stream.replace(
+              "modal_finalizar",
+              partial: "facturacion/ventas/modal_finalizar",
+              locals: { venta: @venta, error: "El monto recibido en efectivo es insuficiente." }
+            )
+          end
+        end
+      end
     end
 
     if @venta.update(metodo_pago: metodo_pago, finalizada: true)

@@ -217,7 +217,8 @@ class Inventario::OrdenesDeCompraController < ApplicationController
 
   # GET /inventario/ordenes_de_compra/buscar_producto?q=término
   def buscar_producto
-    @productos = Producto.where("nombre ILIKE :q OR sku ILIKE :q", q: "%#{params[:q]}%")
+    @productos = Producto.where(pasivo: false)
+                         .where("nombre ILIKE :q OR sku ILIKE :q", q: "%#{params[:q]}%")
                          .order(:nombre)
                          .limit(5)
     render json: @productos.map { |p| { id: p.id, text: "#{p.sku.presence || '—'} · #{p.nombre}" } }

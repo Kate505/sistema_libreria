@@ -27,7 +27,7 @@ module Pdf
 
     def encabezado
       text "Librería Pequeños Detalles", size: 24, style: :bold, align: :center
-      text "Sucursal El Reparto", align: :center
+      text "Sucursal Mercado Municipal Jorge Matus Téllez", align: :center
       text "Teléfono: (505) 8858-4872", align: :center
       text "RUC: J1330000035088", align: :center
     end

@@ -1,4 +1,5 @@
-<dialog id="my_modal_1" class="modal modal-bottom modal-middle">
+<% suffix ||= "desktop" %>
+<dialog id="gestionar_roles_modal_<%= suffix %>" class="modal modal-bottom modal-middle">
   <div class="modal-box w-11/12 max-w-xl overflow-hidden flex flex-col max-h-[50vh] h-[50vh] p-0">
 
     <div class="p-4 border-b border-base-200 flex justify-between items-center shrink-0 bg-base-100">
@@ -11,7 +12,7 @@
     <div class="flex-1 overflow-hidden relative">
       <div class="tabs tabs-lifted h-full grid-rows-[auto_1fr]">
 
-        <input type="radio" name="roles_tabs" class="tab row-start-1" aria-label="Asignados" checked="checked"/>
+        <input type="radio" name="roles_tabs_<%= suffix %>" class="tab row-start-1" aria-label="Asignados" checked="checked"/>
 
         <div class="tab-content bg-base-100 border-base-300 rounded-b-box row-start-2 h-full overflow-hidden p-0">
 
@@ -25,13 +26,13 @@
                 </tr>
               </thead>
               <tbody id="tbody_roles_asignados">
-                <%= render "lista_roles_asignados", roles_usuario: roles_usuario, usuario: @usuario %>
+                <%= render "lista_roles_asignados", roles_usuario: roles_usuario, usuario: usuario %>
               </tbody>
             </table>
           </div>
         </div>
 
-        <input type="radio" name="roles_tabs" class="tab row-start-1" aria-label="Disponibles"/>
+        <input type="radio" name="roles_tabs_<%= suffix %>" class="tab row-start-1" aria-label="Disponibles"/>
 
         <div class="tab-content bg-base-100 border-base-300 rounded-b-box row-start-2 h-full overflow-hidden p-0">
 
@@ -44,7 +45,7 @@
                 </tr>
               </thead>
               <tbody id="tbody_roles_disponibles">
-                <%= render "lista_roles_disponibles", lista_agregar_roles: lista_agregar_roles, usuario: @usuario %>
+                <%= render "lista_roles_disponibles", lista_agregar_roles: lista_agregar_roles, usuario: usuario %>
               </tbody>
             </table>
           </div>
